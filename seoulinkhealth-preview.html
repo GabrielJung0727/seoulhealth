@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SEOULINKHEALTH — K-Health Business Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ═══ RESET & BASE ═══ */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;background:#fff;color:#0A1E3D}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#F7F8FB}
+::-webkit-scrollbar-thumb{background:#B0B8C9;border-radius:3px}
+img{max-width:100%;display:block}
+button{font-family:inherit;cursor:pointer}
+input,textarea{font-family:inherit}
+
+/* ═══ CSS VARIABLES ═══ */
+:root{
+  --navy:#0A1E3D;--navy-light:#122B54;--navy-mid:#1A3A6B;--navy-accent:#2B5EA7;
+  --white:#FFF;--off-white:#F7F8FB;--cloud:#EDF0F5;
+  --g100:#E8EBF0;--g300:#B0B8C9;--g500:#6B7A94;--g700:#3D4E66;
+  --gold:#C4A35A;--gold-light:#E8D5A0;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'Inter',-apple-system,sans-serif;
+  --max:1280px;
+}
+
+/* ═══ UTILITY ═══ */
+.container{max-width:var(--max);margin:0 auto;padding:0 40px}
+@media(max-width:768px){.container{padding:0 20px}}
+.section-label{display:flex;align-items:center;gap:16px;margin-bottom:48px}
+.section-label::before{content:'';width:40px;height:1px;background:var(--gold)}
+.section-label span{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:3px;text-transform:uppercase}
+.btn-gold{padding:16px 36px;border-radius:8px;background:var(--gold);border:none;color:var(--navy);font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;display:inline-flex;align-items:center;gap:10px;transition:transform .15s,box-shadow .15s}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(196,163,90,.25)}
+.btn-ghost{padding:16px 36px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;backdrop-filter:blur(8px);transition:background .2s}
+.btn-ghost:hover{background:rgba(255,255,255,.12)}
+.arrow-icon{display:inline-block;width:20px;height:20px}
+.arrow-icon::after{content:'→';font-size:16px}
+
+/* ═══ NAVIGATION ═══ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;transition:all .4s cubic-bezier(.22,1,.36,1)}
+.nav.scrolled{background:rgba(10,30,61,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:80px;transition:height .3s}
+.nav.scrolled .nav-inner{height:64px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--navy-accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;letter-spacing:-1px}
+.logo-text h1{font-size:15px;font-weight:700;color:#fff;letter-spacing:1.5px;line-height:1.2;font-family:var(--sans)}
+.logo-text small{font-size:9px;color:var(--g300);letter-spacing:2.5px;font-weight:500;text-transform:uppercase}
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-links a{background:none;border:none;padding:8px 18px;border-radius:6px;font-size:13px;font-weight:500;letter-spacing:.5px;color:var(--g300);text-decoration:none;position:relative;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:#fff}
+.nav-links a.active::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:20px;height:2px;border-radius:1px;background:var(--gold)}
+.nav-login{margin-left:16px;padding:10px 24px;border-radius:6px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:background .2s}
+.nav-login:hover{background:rgba(196,163,90,.1)}
+.hamburger{display:none;background:none;border:none;color:#fff;padding:8px}
+@media(max-width:768px){
+  .nav-links,.nav-login{display:none}
+  .hamburger{display:block}
+}
+
+/* Mobile Menu */
+.mobile-menu{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:var(--navy);padding-top:100px;display:flex;flex-direction:column;align-items:center;gap:8px;transform:translateX(100%);transition:transform .35s cubic-bezier(.22,1,.36,1)}
+.mobile-menu.open{transform:translateX(0)}
+.mobile-menu a{background:none;border:none;padding:16px 40px;border-radius:8px;width:80%;max-width:320px;font-size:16px;font-weight:500;color:var(--g300);text-decoration:none;text-align:center;transition:all .2s}
+.mobile-menu a.active{background:rgba(255,255,255,.06);color:#fff}
+
+/* ═══ HERO ═══ */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;background:linear-gradient(165deg,var(--navy) 0%,var(--navy-light) 45%,var(--navy-mid) 100%);overflow:hidden}
+.hero-circles{position:absolute;inset:0;opacity:.04;pointer-events:none}
+.hero-circles div{position:absolute;border-radius:50%;border:1px solid #fff}
+.hero-circles div:nth-child(1){top:10%;right:-5%;width:600px;height:600px}
+.hero-circles div:nth-child(2){top:30%;right:10%;width:400px;height:400px}
+.hero-circles div:nth-child(3){bottom:-10%;left:-5%;width:500px;height:500px}
+.hero-orb{position:absolute;top:20%;right:15%;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(43,94,167,.2) 0%,transparent 70%);filter:blur(40px);pointer-events:none}
+.hero-line{position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:120px;background:linear-gradient(to bottom,transparent,var(--gold),transparent);border-radius:2px}
+.hero-content{max-width:var(--max);margin:0 auto;padding:140px 40px 80px;width:100%;position:relative;z-index:1}
+@media(max-width:768px){.hero-content{padding:120px 20px 60px}}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:20px;background:rgba(196,163,90,.12);border:1px solid rgba(196,163,90,.25);margin-bottom:32px}
+.hero-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.hero-tag span{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,5.5vw,72px);font-weight:300;color:#fff;line-height:1.08;font-family:var(--serif);letter-spacing:-1px;max-width:800px}
+.hero h1 em{background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:400;font-style:normal}
+.hero-sub{font-size:clamp(15px,1.6vw,18px);color:var(--g300);line-height:1.7;max-width:540px;margin-top:28px;font-weight:400}
+.hero-cta{display:flex;gap:16px;margin-top:48px;flex-wrap:wrap}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:80px;background:rgba(255,255,255,.06);border-radius:12px;overflow:hidden;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08)}
+@media(max-width:600px){.hero-stats{grid-template-columns:repeat(2,1fr)}}
+.hero-stats .stat{padding:28px 24px;text-align:center;background:rgba(255,255,255,.02)}
+.hero-stats .stat-num{font-size:28px;font-weight:700;color:var(--gold);font-family:var(--serif)}
+.hero-stats .stat-label{font-size:11px;color:var(--g300);letter-spacing:1.5px;margin-top:4px;text-transform:uppercase;font-weight:500}
+.scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px}
+.scroll-hint span{font-size:10px;color:var(--g500);letter-spacing:2px;text-transform:uppercase}
+.scroll-hint::after{content:'';width:1px;height:32px;background:linear-gradient(to bottom,var(--g500),transparent)}
+
+/* ═══ ANIMATE-IN ═══ */
+.fade-up{opacity:0;transform:translateY(30px);transition:all .8s cubic-bezier(.22,1,.36,1)}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+.delay-1{transition-delay:.2s}
+.delay-2{transition-delay:.4s}
+.delay-3{transition-delay:.6s}
+
+/* ═══ ABOUT ═══ */
+.about{background:#fff;padding:clamp(60px,10vw,120px) 0}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+@media(max-width:768px){.about-grid{grid-template-columns:1fr;gap:40px}}
+.about h2{font-size:clamp(28px,3.5vw,44px);font-weight:300;color:var(--navy);line-height:1.15;font-family:var(--serif)}
+.about h2 strong{font-weight:400}
+.about p{font-size:15px;color:var(--g700);line-height:1.85;margin-top:16px}
+.about .quote{color:var(--g500);font-style:italic}
+.ceo-sig{margin-top:40px;padding-top:24px;border-top:1px solid var(--g100)}
+.ceo-sig .name{font-size:18px;font-weight:600;color:var(--navy);font-family:var(--serif)}
+.ceo-sig .title{font-size:12px;color:var(--g500);margin-top:4px;letter-spacing:.5px}
+.career-box{background:var(--off-white);border-radius:16px;padding:36px;border:1px solid var(--g100)}
+.career-box h3,.edu-box h3{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:24px}
+.career-box h3{color:var(--navy-accent)}
+.career-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--g100)}
+.career-item:last-child{border-bottom:none}
+.career-dot{min-width:6px;height:6px;border-radius:50%;background:var(--gold);margin-top:7px}
+.career-item span{font-size:13px;color:var(--g700);line-height:1.6}
+.edu-box{margin-top:20px;background:var(--navy);border-radius:16px;padding:36px}
+.edu-box h3{color:var(--gold)}
+.edu-item{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.edu-item:last-child{border-bottom:none}
+.edu-item .degree{font-size:14px;font-weight:600;color:#fff}
+.edu-item .school{font-size:12px;color:var(--g300);margin-top:4px}
+
+/* ═══ VALUE PROPS ═══ */
+.values{background:var(--off-white);padding:clamp(60px,10vw,100px) 0}
+.values-header{text-align:center;max-width:600px;margin:0 auto 60px}
+.values-header h2{font-size:clamp(26px,3vw,38px);font-weight:300;color:var(--navy);font-family:var(--serif)}
+.values-header h2 strong{font-weight:400}
+.values-header p{font-size:15px;color:var(--g500);line-height:1.7;margin-top:16px}
+.values-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+.value-card{background:#fff;border-radius:16px;padding:36px;border:1px solid var(--g100);transition:transform .3s,box-shadow .3s}
+.value-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(10,30,61,.06)}
+.value-icon{width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,rgba(43,94,167,.06),rgba(43,94,167,.12));display:flex;align-items:center;justify-content:center}
+.value-icon svg{width:32px;height:32px;stroke:var(--navy-accent);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.value-card h3{font-size:17px;font-weight:600;color:var(--navy);margin:24px 0 12px;letter-spacing:-.3px}
+.value-card p{font-size:14px;color:var(--g500);line-height:1.7}
+
+/* ═══ SOLUTIONS ═══ */
+.solutions{background:var(--navy);padding:clamp(60px,10vw,120px) 0}
+.solutions h2{font-size:clamp(28px,3.5vw,44px);font-weight:300;color:#fff;font-family:var(--serif);max-width:600px;margin-bottom:16px}
+.solutions h2 em{color:var(--gold);font-weight:400;font-style:normal}
+.solutions .subtitle{font-size:15px;color:var(--g300);max-width:560px;line-height:1.7;margin-bottom:60px}
+.sol-grid{display:grid;grid-template-columns:280px 1fr;gap:40px;align-items:start}
+@media(max-width:768px){.sol-grid{grid-template-columns:1fr}}
+.sol-tabs{display:flex;flex-direction:column;gap:4px}
+@media(max-width:768px){.sol-tabs{flex-direction:row;overflow-x:auto;gap:8px;padding-bottom:8px}}
+.sol-tab{background:transparent;border:1px solid transparent;border-radius:12px;padding:20px 24px;text-align:left;transition:all .3s}
+.sol-tab.active{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
+.sol-tab .num{font-size:10px;color:var(--gold);font-weight:600;letter-spacing:2px}
+.sol-tab .name{font-size:16px;font-weight:400;color:var(--g300);margin-top:6px;transition:all .2s;white-space:nowrap}
+.sol-tab.active .name{font-weight:600;color:#fff}
+.sol-content{background:rgba(255,255,255,.04);border-radius:20px;padding:48px 44px;border:1px solid rgba(255,255,255,.06);min-height:320px}
+@media(max-width:768px){.sol-content{padding:32px 24px}}
+.sol-content h3{font-size:28px;font-weight:400;color:#fff;font-family:var(--serif)}
+.sol-content p{font-size:15px;color:var(--g300);line-height:1.8;margin-top:20px}
+.sol-tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
+.sol-tag{padding:8px 18px;border-radius:20px;background:rgba(196,163,90,.1);border:1px solid rgba(196,163,90,.2);font-size:12px;color:var(--gold);font-weight:500}
+.sol-content .btn-gold{margin-top:36px}
+
+/* ═══ PROCESS ═══ */
+.process{background:#fff;padding:clamp(60px,10vw,120px) 0}
+.process-header{text-align:center;max-width:600px;margin:0 auto 64px}
+.process-header .label{display:inline-flex;align-items:center;gap:12px;margin-bottom:20px}
+.process-header .label::before,.process-header .label::after{content:'';width:40px;height:1px;background:var(--gold)}
+.process-header .label span{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:3px;text-transform:uppercase}
+.process-header h2{font-size:clamp(26px,3.5vw,40px);font-weight:300;color:var(--navy);font-family:var(--serif)}
+.process-header h2 strong{font-weight:400}
+.steps{position:relative;max-width:900px;margin:0 auto}
+.steps::before{content:'';position:absolute;left:28px;top:20px;bottom:20px;width:1px;background:var(--g100)}
+@media(max-width:768px){.steps::before{left:20px}}
+.step{display:flex;gap:32px;align-items:flex-start;margin-bottom:36px;position:relative}
+.step:last-child{margin-bottom:0}
+.step-num{min-width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;position:relative;z-index:1;background:#fff;border:2px solid var(--g100);color:var(--g500)}
+@media(max-width:768px){.step-num{min-width:42px;height:42px;font-size:12px}}
+.step:first-child .step-num{background:var(--navy);border-color:var(--navy);color:var(--gold)}
+.step h4{font-size:16px;font-weight:600;color:var(--navy);letter-spacing:-.2px}
+.step p{font-size:14px;color:var(--g500);margin-top:6px;line-height:1.6}
+
+/* ═══ JOIN SECTION ═══ */
+.join{background:var(--off-white);padding:clamp(60px,10vw,100px) 0}
+.join-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+@media(max-width:768px){.join-grid{grid-template-columns:1fr}}
+.join-card{border-radius:20px;padding:48px 40px;display:flex;flex-direction:column}
+@media(max-width:768px){.join-card{padding:36px 28px}}
+.join-card.light{background:#fff;border:1px solid var(--g100)}
+.join-card.dark{background:var(--navy)}
+.join-card .icon-box{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:28px}
+.join-card.light .icon-box{background:linear-gradient(135deg,var(--navy-accent),var(--navy-mid))}
+.join-card.dark .icon-box{background:rgba(196,163,90,.15)}
+.join-card.light .icon-box svg{stroke:#fff}
+.join-card.dark .icon-box svg{stroke:var(--gold)}
+.join-card h3{font-size:24px;font-weight:400;font-family:var(--serif)}
+.join-card.light h3{color:var(--navy)}
+.join-card.dark h3{color:#fff}
+.join-card p{font-size:14px;line-height:1.8;margin-top:16px;flex:1}
+.join-card.light p{color:var(--g500)}
+.join-card.dark p{color:var(--g300)}
+.join-card .btn{margin-top:28px;padding:14px 28px;border-radius:8px;border:none;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;display:inline-flex;align-items:center;gap:8px;align-self:flex-start;transition:transform .15s}
+.join-card .btn:hover{transform:translateY(-1px)}
+.join-card.light .btn{background:var(--navy);color:#fff}
+.join-card.dark .btn{background:var(--gold);color:var(--navy)}
+
+/* ═══ CONTACT ═══ */
+.contact{background:#fff;padding:clamp(60px,10vw,100px) 0}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+@media(max-width:768px){.contact-grid{grid-template-columns:1fr;gap:40px}}
+.contact h2{font-size:clamp(28px,3.5vw,40px);font-weight:300;color:var(--navy);font-family:var(--serif)}
+.contact h2 strong{font-weight:400}
+.contact .intro{font-size:15px;color:var(--g500);line-height:1.7;margin-top:20px;max-width:420px}
+.contact-info{margin-top:40px;display:flex;flex-direction:column;gap:24px}
+.contact-row{display:flex;gap:16px;align-items:flex-start}
+.contact-row .icon-box{min-width:44px;height:44px;border-radius:10px;background:var(--off-white);border:1px solid var(--g100);display:flex;align-items:center;justify-content:center}
+.contact-row .icon-box svg{width:20px;height:20px;stroke:var(--navy-accent);fill:none;stroke-width:1.5}
+.contact-row .label{font-size:11px;font-weight:600;color:var(--g500);letter-spacing:1.5px;text-transform:uppercase}
+.contact-row .value{font-size:14px;color:var(--navy);margin-top:4px;line-height:1.6}
+.contact-form{background:var(--off-white);border-radius:20px;padding:40px;border:1px solid var(--g100)}
+.contact-form h3{font-size:18px;font-weight:600;color:var(--navy);margin-bottom:28px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--g500);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.form-group input,.form-group textarea{width:100%;padding:14px 16px;border-radius:8px;border:1px solid var(--g100);background:#fff;font-size:14px;color:var(--navy);outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--navy-accent)}
+.form-group textarea{resize:vertical}
+.form-submit{width:100%;padding:16px;border-radius:8px;background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:background .2s}
+.form-submit:hover{background:var(--navy-light)}
+
+/* ═══ FOOTER ═══ */
+.footer{background:var(--navy);border-top:1px solid rgba(255,255,255,.06)}
+.footer-inner{padding:60px 0 40px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.footer-grid{grid-template-columns:1fr}}
+.footer-brand p{font-size:13px;color:var(--g500);line-height:1.7;max-width:280px;margin-top:16px}
+.footer h4{font-size:11px;font-weight:600;color:var(--g300);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px}
+.footer-link{display:block;font-size:13px;color:var(--g500);padding:6px 0;text-decoration:none;transition:color .2s}
+.footer-link:hover{color:var(--g300)}
+.footer-email{font-size:13px;color:var(--gold);margin-top:12px}
+.footer-bottom{margin-top:48px;padding-top:24px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-bottom span{font-size:12px;color:var(--g500)}
+.footer-bottom a{font-size:12px;color:var(--g500);text-decoration:none;margin-left:24px}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAVIGATION ═══ -->
+<nav class="nav" id="navbar">
+  <div class="container nav-inner">
+    <a class="logo" href="#">
+      <div class="logo-mark">SL</div>
+      <div class="logo-text">
+        <h1>SEOULINKHEALTH</h1>
+        <small>K-Health Business Platform</small>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#hero" class="active">Home</a>
+      <a href="#solutions">Solutions</a>
+      <a href="#join">Advisory Group</a>
+      <a href="#join">Recruit</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <button class="nav-login">Login</button>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#hero" class="active">Home</a>
+  <a href="#solutions">Solutions</a>
+  <a href="#join">Advisory Group</a>
+  <a href="#join">Recruit</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="hero">
+  <div class="hero-circles"><div></div><div></div><div></div></div>
+  <div class="hero-orb"></div>
+  <div class="hero-line"></div>
+
+  <div class="hero-content">
+    <div class="fade-up" id="heroAnim">
+      <div class="hero-tag">
+        <div class="dot"></div>
+        <span>Global Health Consulting</span>
+      </div>
+
+      <h1>Your Strategic<br/>Gateway to <em>K-Health</em></h1>
+
+      <p class="hero-sub fade-up delay-1">
+        Expert-driven consulting across K-Healthcare, K-Bio, K-Health Industry,
+        and K-Health Food — connecting global opportunities with Korea's
+        world-class healthcare capabilities.
+      </p>
+
+      <div class="hero-cta fade-up delay-2">
+        <button class="btn-gold" onclick="document.getElementById('solutions').scrollIntoView({behavior:'smooth'})">
+          Explore Solutions <span class="arrow-icon"></span>
+        </button>
+        <button class="btn-ghost" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">
+          Contact Us
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-stats fade-up delay-3">
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">Core Sectors</div></div>
+      <div class="stat"><div class="stat-num">20+</div><div class="stat-label">Years Experience</div></div>
+      <div class="stat"><div class="stat-num">Global</div><div class="stat-label">Network Reach</div></div>
+      <div class="stat"><div class="stat-num">Expert</div><div class="stat-label">Advisory Panel</div></div>
+    </div>
+  </div>
+
+  <div class="scroll-hint"><span>Scroll</span></div>
+</section>
+
+<!-- ═══ ABOUT ═══ -->
+<section class="about" id="about">
+  <div class="container">
+    <div class="section-label"><span>About Us</span></div>
+    <div class="about-grid">
+      <div>
+        <h2>Welcome to<br/><strong>SEOULINKHEALTH</strong></h2>
+        <p>As global interest in Korea's advanced healthcare ecosystem continues to grow, many organizations and professionals seek reliable pathways to engage with Korea's healthcare services, medical industry, bio-pharmaceutical sector, and health food innovations.</p>
+        <p>Our platform was established to serve as a strategic gateway for international partners who wish to enter the Korean market or adopt Korea's proven healthcare systems globally.</p>
+        <p class="quote">"Our mission is simple: to connect global opportunities with Korea's world-class healthcare capabilities."</p>
+        <div class="ceo-sig">
+          <div class="name">J S Kim, Ph.D.</div>
+          <div class="title">Founder &amp; CEO</div>
+        </div>
+      </div>
+      <div>
+        <div class="career-box">
+          <h3>Career Highlights</h3>
+          <div class="career-item"><div class="career-dot"></div><span>Secretary for Health and Welfare, Office for 18th President Administration</span></div>
+          <div class="career-item"><div class="career-dot"></div><span>Member, 18th Presidential Transition Committee for Health and Welfare</span></div>
+          <div class="career-item"><div class="career-dot"></div><span>Senior Research Fellow, Korea Institute for Health and Social Affairs</span></div>
+          <div class="career-item"><div class="career-dot"></div><span>Director of Research Coordination, National Health Insurance Corporation</span></div>
+          <div class="career-item"><div class="career-dot"></div><span>Research Fellow, Health Insurance Review &amp; Assessment Service</span></div>
+        </div>
+        <div class="edu-box">
+          <h3>Education</h3>
+          <div class="edu-item"><div class="degree">Ph.D., Economics</div><div class="school">University of Houston</div></div>
+          <div class="edu-item"><div class="degree">M.A., Economics</div><div class="school">North Carolina State University</div></div>
+          <div class="edu-item"><div class="degree">B.A., Economics</div><div class="school">Long Island University</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ VALUE PROPS ═══ -->
+<section class="values">
+  <div class="container">
+    <div class="values-header">
+      <h2>Why <strong>SEOULINKHEALTH</strong></h2>
+      <p>Trusted expertise connecting global partners to Korea's healthcare ecosystem.</p>
+    </div>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <h3>Global Network</h3>
+        <p>Connecting international partners with Korea's advanced healthcare market through established channels and deep local expertise.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Trusted Advisory</h3>
+        <p>Backed by senior government officials, academic researchers, and industry leaders with decades of policy and healthcare experience.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3>Expert Panel</h3>
+        <p>Access to a curated network of domain specialists across healthcare, bio-pharma, medical devices, and health food industries.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+        <h3>Tailored Solutions</h3>
+        <p>Customized consulting strategies designed to address your specific market entry, regulatory, and business development needs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SOLUTIONS ═══ -->
+<section class="solutions" id="solutions">
+  <div class="container">
+    <div class="section-label"><span>Our Solutions</span></div>
+    <h2>Expert-Driven Solutions for<br/><em>K-Health Business</em></h2>
+    <p class="subtitle">Our top-tier experts guide you through innovative ideas to the center of the K-Health Business ecosystem.</p>
+
+    <div class="sol-grid">
+      <div class="sol-tabs" id="solTabs">
+        <button class="sol-tab active" data-idx="0"><div class="num">01</div><div class="name">K-Health Care</div></button>
+        <button class="sol-tab" data-idx="1"><div class="num">02</div><div class="name">K-Health Industry</div></button>
+        <button class="sol-tab" data-idx="2"><div class="num">03</div><div class="name">K-Bio</div></button>
+        <button class="sol-tab" data-idx="3"><div class="num">04</div><div class="name">K-Health Food</div></button>
+      </div>
+      <div class="sol-content" id="solContent">
+        <h3 id="solTitle">K-Health Care</h3>
+        <p id="solDesc">Comprehensive consulting on Korea's healthcare delivery systems, hospital management, telemedicine, and digital health infrastructure. We help international partners understand and leverage Korea's advanced clinical ecosystem.</p>
+        <div class="sol-tags" id="solTags">
+          <span class="sol-tag">Hospital System Consulting</span>
+          <span class="sol-tag">Digital Health Integration</span>
+          <span class="sol-tag">Clinical Pathway Advisory</span>
+        </div>
+        <button class="btn-gold" style="margin-top:36px">Learn More <span class="arrow-icon"></span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PROCESS ═══ -->
+<section class="process">
+  <div class="container">
+    <div class="process-header">
+      <div class="label"><span>How We Work</span></div>
+      <h2>Smart Support System for<br/><strong>Innovative Problem Solving</strong></h2>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><div><h4>Receiving Requests</h4><p>Confirmation of the client's submitted request</p></div></div>
+      <div class="step"><div class="step-num">02</div><div><h4>In-Depth Communication</h4><p>Detailed discussion to clarify scope and objectives</p></div></div>
+      <div class="step"><div class="step-num">03</div><div><h4>Expert Consultation</h4><p>Review and analysis by relevant domain experts</p></div></div>
+      <div class="step"><div class="step-num">04</div><div><h4>Specialist Meeting</h4><p>Practical evaluation by industry specialists</p></div></div>
+      <div class="step"><div class="step-num">05</div><div><h4>Client Discussion</h4><p>Strategic consultation to confirm the suggested solution</p></div></div>
+      <div class="step"><div class="step-num">06</div><div><h4>Review & Refine</h4><p>Further review and refinement of the solution</p></div></div>
+      <div class="step"><div class="step-num">07</div><div><h4>Final Report</h4><p>Comprehensive solution report delivery</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ JOIN ═══ -->
+<section class="join" id="join">
+  <div class="container">
+    <div class="join-grid">
+      <div class="join-card light">
+        <div class="icon-box"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3>Advisory Group</h3>
+        <p>We sincerely appreciate your interest in our organization. If you are interested in joining our Advisory Group as a professional expert, please reach out to us. We will promptly provide the necessary application documents and further information.</p>
+        <button class="btn">Join as Advisor <span class="arrow-icon"></span></button>
+      </div>
+      <div class="join-card dark">
+        <div class="icon-box"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div>
+        <h3>Join Our Team</h3>
+        <p>We sincerely appreciate your interest in our company and hope that you may become a valued member of our team. If you are interested in career opportunities with us, please send an email and we will provide you with the necessary application documents.</p>
+        <button class="btn">View Opportunities <span class="arrow-icon"></span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="section-label"><span>Contact</span></div>
+    <div class="contact-grid">
+      <div>
+        <h2>Get in <strong>Touch</strong></h2>
+        <p class="intro">Ready to explore opportunities in the K-Health sector? We'd love to hear from you.</p>
+        <div class="contact-info">
+          <div class="contact-row">
+            <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+            <div><div class="label">Address</div><div class="value">#101, 19 Gwanpyeong-ro 313 Beon-gil,<br>Dongan-gu, Anyang-si, Gyeonggi-do,<br>South Korea 13936</div></div>
+          </div>
+          <div class="contact-row">
+            <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+            <div><div class="label">Email</div><div class="value">contact@seoulinkhealth.com</div></div>
+          </div>
+          <div class="contact-row">
+            <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+            <div><div class="label">Phone</div><div class="value">Available upon request</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form">
+        <h3>Send us a message</h3>
+        <div class="form-group"><label>Full Name</label><input type="text" placeholder="Your name"/></div>
+        <div class="form-group"><label>Email</label><input type="email" placeholder="your@email.com"/></div>
+        <div class="form-group"><label>Organization</label><input type="text" placeholder="Company name"/></div>
+        <div class="form-group"><label>Message</label><textarea rows="4" placeholder="Tell us about your project..."></textarea></div>
+        <button class="form-submit">Send Message</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="logo-mark" style="width:32px;height:32px;font-size:13px;border-radius:7px">SL</div>
+          <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1.5px">SEOULINKHEALTH</span>
+        </div>
+        <p>Your strategic gateway to Korea's world-class healthcare capabilities. Expert-driven consulting for global health business.</p>
+      </div>
+      <div>
+        <h4>Navigation</h4>
+        <a class="footer-link" href="#hero">Home</a>
+        <a class="footer-link" href="#solutions">Solutions</a>
+        <a class="footer-link" href="#join">Advisory Group</a>
+        <a class="footer-link" href="#join">Recruit</a>
+        <a class="footer-link" href="#contact">Contact</a>
+      </div>
+      <div>
+        <h4>Solutions</h4>
+        <a class="footer-link" href="#">K-Health Care</a>
+        <a class="footer-link" href="#">K-Health Industry</a>
+        <a class="footer-link" href="#">K-Bio</a>
+        <a class="footer-link" href="#">K-Health Food</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <div style="font-size:13px;color:var(--g500);line-height:1.7">Anyang-si, Gyeonggi-do<br>South Korea</div>
+        <div class="footer-email">contact@seoulinkhealth.com</div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 SEOULINKHEALTH. All rights reserved.</span>
+      <div><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══ JAVASCRIPT ═══ -->
+<script>
+// Scroll-based navbar
+const nav = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// Mobile menu
+const hamburger = document.getElementById('hamburgerBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+// Active nav highlight
+document.querySelectorAll('.nav-links a, .mobile-menu a').forEach(a => {
+  a.addEventListener('click', function(e) {
+    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.mobile-menu a').forEach(l => l.classList.remove('active'));
+    const href = this.getAttribute('href');
+    document.querySelectorAll(`a[href="${href}"]`).forEach(l => l.classList.add('active'));
+  });
+});
+
+// Fade-in on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+// Trigger hero animations immediately
+setTimeout(() => document.querySelectorAll('#heroAnim, #heroAnim .fade-up').forEach(el => el.classList.add('visible')), 200);
+
+// Solutions tabs
+const solData = [
+  { title: 'K-Health Care', desc: 'Comprehensive consulting on Korea\'s healthcare delivery systems, hospital management, telemedicine, and digital health infrastructure. We help international partners understand and leverage Korea\'s advanced clinical ecosystem.', tags: ['Hospital System Consulting', 'Digital Health Integration', 'Clinical Pathway Advisory'] },
+  { title: 'K-Health Industry', desc: 'Strategic guidance on medical device regulations, pharmaceutical market entry, health technology assessment, and industry partnerships within Korea\'s rapidly evolving health industry landscape.', tags: ['Market Entry Strategy', 'Regulatory Navigation', 'Industry Partnerships'] },
+  { title: 'K-Bio', desc: 'Expert advisory on Korea\'s bio-pharmaceutical sector, including drug development pipelines, clinical trial coordination, biosimilar strategies, and cross-border licensing opportunities.', tags: ['Drug Import/Export Advisory', 'Clinical Trial Support', 'Licensing Strategy'] },
+  { title: 'K-Health Food', desc: 'Navigating Korea\'s health food and functional food market — from product registration and safety assessment to distribution channels and consumer market analysis.', tags: ['Product Registration', 'Safety Assessment', 'Market Analysis'] },
+];
+
+document.querySelectorAll('.sol-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    const idx = parseInt(this.dataset.idx);
+    document.querySelectorAll('.sol-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('solTitle').textContent = solData[idx].title;
+    document.getElementById('solDesc').textContent = solData[idx].desc;
+    const tagsEl = document.getElementById('solTags');
+    tagsEl.innerHTML = solData[idx].tags.map(t => `<span class="sol-tag">${t}</span>`).join('');
+  });
+});
+</script>
+</body>
+</html>
