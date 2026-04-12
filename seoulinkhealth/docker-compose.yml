@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  seoulinkhealth:
+    build: .
+    container_name: seoulinkhealth
+    restart: unless-stopped
+    ports:
+      - "8080:3001"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=file:/app/data/seoulinkhealth.db
+
+      # ── Gmail SMTP 설정 ──
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=465
+      - SMTP_SECURE=true
+      - SMTP_USER=doublej.biz01@gmail.com
+      - SMTP_PASS=klqzvpvrcgxbgyaf
+
+      # ── 회사 정보 ──
+      - COMPANY_EMAIL=contact@seoulinkhealth.com
+      - DIRECTOR_NAME=Byung-Joo Kim
+
+      # ── 인증 ──
+      - JWT_SECRET=4818b186ae3272366180f58303994f162426f6f66e7a26b7f23975103b64dae862c03d006c7ba86a4d73c204ab44f06f1959d6fa73d29e0f7d8e4d2de02b0594
+      - ADMIN_PASSWORD=admin123!
+
+      # ── CORS ──
+      - CORS_ORIGINS=https://doublej.app,http://localhost:8080
+
+  # ── Cloudflare Tunnel ──
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-seoulinkhealth
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiZGFmZmUxMTQ4ZmFmMDFkZWViM2MzMGMzMjUwZDIzYjQiLCJ0IjoiZTVkNGU0ZTYtYjg2Yy00MWQ5LWI4NTYtZTkxYjhhMDM4MDNmIiwicyI6Ik9HSXhZamc1TVdZdFltVmxNeTAwWkdOaExXRm1abVl0WVRBM04yVTVaRFJtWVdOaSJ9
+    depends_on:
+      - seoulinkhealth

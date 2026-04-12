@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SEOULINKHEALTH — K-Health Business Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   SEOULINKHEALTH v5  ·  K-Health Business Platform
+   Nav: ABOUT US · OUR EXPERT NETWORK · OUR PROCESS · REQUEST NOW · LOGIN
+═══════════════════════════════════════════ */
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;color:#0d1b2a;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#000}::-webkit-scrollbar-thumb{background:#1e3a5c}
+input,textarea,select,button{font-family:inherit}
+
+:root{
+  --black:#000000;--navy:#0d1b2a;--navy2:#0f2540;
+  --blue-mid:#0d3b6e;--blue:#1458a2;--blue-lt:#d8ecf7;
+  --blue-acc:#4b8ec8;--white:#ffffff;--off:#f4f7fa;
+  --gray:#e8ecf0;--muted:#7a8fa6;--muted2:#b0bec8;
+  --gold:#c9a96e;--sans:'Inter',-apple-system,sans-serif;--max:1200px;
+}
+
+.w{max-width:var(--max);margin:0 auto;padding:0 60px}
+@media(max-width:768px){.w{padding:0 24px}}
+
+/* ── ANNOUNCEMENT BAR ── */
+.ann-bar{background:#1a3a5c;padding:10px 60px;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.75);position:relative;z-index:1000}
+@media(max-width:768px){.ann-bar{padding:10px 20px;font-size:11px;flex-wrap:wrap;gap:8px}}
+.ann-bar a{color:rgba(255,255,255,.9);text-decoration:underline}
+.ann-close{background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:18px;line-height:1;padding:0 0 0 16px}
+.ann-close:hover{color:#fff}
+
+/* ── NAVIGATION ── */
+.nav{position:sticky;top:0;z-index:900;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-inner{max-width:var(--max);margin:0 auto;padding:0 60px;display:flex;align-items:center;justify-content:space-between;height:72px}
+@media(max-width:900px){.nav-inner{padding:0 24px}}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;cursor:pointer}
+.logo-mark{width:36px;height:36px;border-radius:5px;background:linear-gradient(135deg,var(--blue),var(--gold));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;letter-spacing:-.5px;flex-shrink:0}
+.logo-txt{font-size:16px;font-weight:700;color:#fff;letter-spacing:1.5px}
+.logo-sub{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase;display:block;margin-top:1px}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-links a{padding:8px 14px;font-size:11.5px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase;color:rgba(255,255,255,.65);text-decoration:none;transition:color .2s;position:relative;white-space:nowrap}
+.nav-links a:hover,.nav-links a.active{color:#fff}
+.nav-links a.active::after{content:'';position:absolute;bottom:-1px;left:14px;right:14px;height:2px;background:var(--blue-acc)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.btn-nav-login{padding:9px 20px;border:1px solid rgba(255,255,255,.25);background:transparent;color:rgba(255,255,255,.8);font-size:11.5px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;transition:all .2s;border-radius:2px}
+.btn-nav-login:hover{border-color:#fff;color:#fff}
+.ham{display:none;background:none;border:none;color:#fff;cursor:pointer;padding:8px}
+@media(max-width:1000px){.nav-links{display:none}.ham{display:block}}
+
+/* Mobile Menu */
+.mmenu{position:fixed;inset:0;z-index:899;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transform:translateX(-100%);transition:transform .35s ease}
+.mmenu.open{transform:none}
+.mmenu a{font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);text-decoration:none;padding:14px 40px;width:100%;text-align:center;transition:color .2s}
+.mmenu a:hover{color:#fff}
+.mmenu-login{margin-top:24px}
+
+/* ══════════ HERO ══════════ */
+.hero{
+  background:linear-gradient(to bottom,rgba(0,0,0,.60) 0%,rgba(0,0,0,.72) 60%,rgba(0,0,0,.86) 100%),
+  url('https://png.pngtree.com/thumb_back/fh260/background/20230815/pngtree-korean-hanok-village-by-gakuhachi-photo-image_13077528.jpg') center/cover no-repeat;
+  min-height:calc(100vh - 110px);display:grid;grid-template-columns:1fr 1fr;align-items:end;
+  padding:80px 60px;position:relative;overflow:hidden;
+}
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding:60px 24px;padding-top:100px;min-height:auto}}
+.hero-eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:20px}
+.hero h1{font-size:clamp(44px,6vw,84px);font-weight:800;line-height:1.04;letter-spacing:-2.5px;color:#fff;max-width:600px}
+.hero h1 span{color:var(--blue-acc)}
+.hero-sectors{margin-top:24px;font-size:clamp(11px,1.2vw,13px);color:rgba(255,255,255,.55);letter-spacing:2.5px;text-transform:uppercase;font-weight:500}
+.hero-intro{margin-top:16px;font-size:clamp(14px,1.5vw,17px);color:rgba(255,255,255,.78);max-width:480px;line-height:1.65}
+.hero-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:16px;padding-bottom:8px}
+@media(max-width:900px){.hero-right{flex-direction:row;align-items:flex-start;justify-content:flex-start;margin-top:48px;flex-wrap:wrap}}
+.btn-hero{display:block;padding:18px 36px;border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .25s;white-space:nowrap;width:220px;text-align:center}
+.btn-hero:hover{background:rgba(255,255,255,.08);border-color:#fff}
+.btn-hero.primary{background:var(--blue);border-color:var(--blue)}
+.btn-hero.primary:hover{background:#1668b8;border-color:#1668b8}
+
+/* ══════════ SECTORS BAND ══════════ */
+.sectors-band{background:var(--navy2);padding:56px 60px}
+@media(max-width:768px){.sectors-band{padding:48px 24px}}
+.sectors-inner{max-width:var(--max);margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.08)}
+@media(max-width:768px){.sectors-inner{grid-template-columns:repeat(2,1fr)}}
+.sector-item{padding:32px 28px;background:var(--navy2);transition:background .25s;cursor:default}
+.sector-item:hover{background:rgba(255,255,255,.04)}
+.sector-num{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--blue-acc);margin-bottom:10px}
+.sector-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
+.sector-desc{font-size:13px;color:rgba(255,255,255,.4);line-height:1.55}
+
+/* ══════════ ABOUT US ══════════ */
+.about-section{background:var(--navy);padding:96px 0}
+@media(max-width:768px){.about-section{padding:60px 0}}
+.about-top{max-width:var(--max);margin:0 auto;padding:0 60px 48px}
+@media(max-width:768px){.about-top{padding:0 24px 36px}}
+.about-top-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--blue-acc);font-weight:700;margin-bottom:14px}
+.about-top-headline{font-size:clamp(15px,1.6vw,18px);color:rgba(255,255,255,.75);line-height:1.65;max-width:800px}
+.about-top-headline strong{color:#fff;font-weight:700}
+.about-layout{max-width:var(--max);margin:0 auto;padding:0 60px;display:grid;grid-template-columns:220px 1fr;gap:0;border-top:1px solid rgba(255,255,255,.08)}
+@media(max-width:900px){.about-layout{grid-template-columns:1fr;padding:0 24px}}
+
+/* Left sidebar nav */
+.about-sidenav{border-right:1px solid rgba(255,255,255,.08);padding:40px 0;padding-right:32px}
+@media(max-width:900px){.about-sidenav{border-right:none;border-bottom:1px solid rgba(255,255,255,.08);padding:24px 0;display:flex;gap:0;overflow-x:auto}}
+.sidenav-btn{display:block;width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:14px 20px;font-size:12px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,.35);transition:all .2s;position:relative;border-left:2px solid transparent}
+@media(max-width:900px){.sidenav-btn{border-left:none;border-bottom:2px solid transparent;white-space:nowrap;padding:12px 18px}}
+.sidenav-btn:hover{color:rgba(255,255,255,.7);background:rgba(255,255,255,.03)}
+.sidenav-btn.active{color:#fff;border-left-color:var(--blue-acc);background:rgba(255,255,255,.04)}
+@media(max-width:900px){.sidenav-btn.active{border-left-color:transparent;border-bottom-color:var(--blue-acc)}}
+
+/* About content panes */
+.about-content{padding:48px 0 48px 52px}
+@media(max-width:900px){.about-content{padding:36px 0 0}}
+.about-pane{display:none}
+.about-pane.active{display:block}
+
+/* Greetings */
+.greetings-grid{display:grid;grid-template-columns:1fr 280px;gap:64px;align-items:start}
+@media(max-width:1000px){.greetings-grid{grid-template-columns:1fr}}
+.greetings-grid h2{font-size:clamp(28px,3.5vw,42px);font-weight:700;color:#fff;letter-spacing:-1px;line-height:1.12;margin-bottom:24px}
+.greetings-grid h2 span{color:var(--blue-acc)}
+.greetings-grid p{font-size:15px;color:rgba(255,255,255,.6);line-height:1.78;margin-bottom:14px}
+.greetings-grid blockquote{border-left:2px solid var(--blue-acc);padding-left:20px;font-size:16px;color:rgba(255,255,255,.8);line-height:1.65;font-style:italic;margin:24px 0}
+.ceo-sig{margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)}
+.ceo-name{font-size:17px;font-weight:700;color:#fff}
+.ceo-title{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
+.ceo-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:32px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
+.ceo-avatar{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--gold));display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff}
+.ceo-card-name{font-size:17px;font-weight:700;color:#fff}
+.ceo-card-role{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+
+/* Founder */
+.founder-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+@media(max-width:900px){.founder-grid{grid-template-columns:1fr}}
+.founder-header{margin-bottom:36px}
+.founder-header h2{font-size:clamp(26px,3vw,38px);font-weight:700;color:#fff;letter-spacing:-1px;margin-bottom:8px}
+.founder-header p{font-size:14px;color:rgba(255,255,255,.4);letter-spacing:.5px}
+.info-panel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:28px}
+.info-panel-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue-acc);margin-bottom:18px}
+.exp-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.exp-row:last-child{border-bottom:none;padding-bottom:0}
+.exp-dot{width:5px;height:5px;border-radius:50%;background:var(--blue-acc);flex-shrink:0;margin-top:7px;opacity:.7}
+.exp-row span{font-size:13px;color:rgba(255,255,255,.55);line-height:1.6}
+.edu-entry{display:flex;align-items:center;gap:20px;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.edu-entry:last-child{border-bottom:none}
+.edu-badge{min-width:52px;height:52px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;text-align:center;letter-spacing:.5px;line-height:1.3}
+.edu-deg{font-size:15px;font-weight:700;color:rgba(255,255,255,.85)}
+.edu-school{font-size:12px;color:rgba(255,255,255,.4);margin-top:3px}
+
+/* Endorsement */
+.endorsement-header{margin-bottom:32px}
+.endorsement-header h2{font-size:clamp(26px,3vw,38px);font-weight:700;color:#fff;letter-spacing:-1px;margin-bottom:6px}
+.endorsement-header p{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase}
+.endorsement-cats{display:flex;flex-direction:column;gap:20px}
+.endorse-card{padding:32px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:2px;position:relative;overflow:hidden}
+.endorse-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
+.endorse-card.minister::before{background:var(--gold)}
+.endorse-card.vice::before{background:var(--blue-acc)}
+.endorse-card.agency::before{background:rgba(255,255,255,.2)}
+.endorse-cat-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.endorse-card.minister .endorse-cat-label{color:var(--gold)}
+.endorse-card.vice .endorse-cat-label{color:var(--blue-acc)}
+.endorse-card.agency .endorse-cat-label{color:rgba(255,255,255,.4)}
+.endorse-placeholder{font-size:15px;color:rgba(255,255,255,.5);font-style:italic;line-height:1.7}
+.endorse-attribution{margin-top:16px;font-size:12px;color:rgba(255,255,255,.25);letter-spacing:1px;text-transform:uppercase}
+
+/* ══════════ EXPERT NETWORK ══════════ */
+.network-section{background:var(--white);padding:96px 0}
+@media(max-width:768px){.network-section{padding:60px 0}}
+.network-intro{max-width:var(--max);margin:0 auto;padding:0 60px 64px}
+@media(max-width:768px){.network-intro{padding:0 24px 48px}}
+.section-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
+.network-intro h2{font-size:clamp(28px,3.5vw,44px);font-weight:700;color:var(--navy);letter-spacing:-1px;line-height:1.15;margin-bottom:20px}
+.network-intro .lead{font-size:16px;color:var(--muted);line-height:1.75;max-width:720px;margin-bottom:40px}
+.domain-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--gray)}
+@media(max-width:900px){.domain-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.domain-grid{grid-template-columns:1fr}}
+.domain-card{padding:32px 28px;border-right:1px solid var(--gray);position:relative;transition:background .25s}
+.domain-card:last-child{border-right:none}
+@media(max-width:900px){.domain-card:nth-child(2){border-right:none}.domain-card:nth-child(3){border-right:1px solid var(--gray)}.domain-card{border-bottom:1px solid var(--gray)}}
+.domain-card:hover{background:var(--off)}
+.domain-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:transparent;transition:background .25s}
+.domain-card:hover::after{background:var(--blue)}
+.d-num{font-size:32px;font-weight:800;color:var(--gray);line-height:1;margin-bottom:14px;letter-spacing:-1px}
+.domain-card h3{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.domain-card p{font-size:13px;color:var(--muted);line-height:1.65}
+.network-desc{max-width:var(--max);margin:0 auto;padding:0 60px;border-top:1px solid var(--gray);padding-top:64px}
+@media(max-width:768px){.network-desc{padding:48px 24px 0}}
+.network-desc p{font-size:15px;color:var(--muted);line-height:1.75;max-width:800px}
+
+/* JOIN US subsection */
+.join-us{background:var(--navy2);padding:80px 0;margin-top:80px}
+@media(max-width:768px){.join-us{padding:60px 0;margin-top:60px}}
+.join-us-inner{max-width:var(--max);margin:0 auto;padding:0 60px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+@media(max-width:900px){.join-us-inner{grid-template-columns:1fr;gap:40px;padding:0 24px}}
+.join-us h2{font-size:clamp(26px,3vw,36px);font-weight:700;color:#fff;letter-spacing:-.8px;line-height:1.2;margin-bottom:20px}
+.join-us .sub{font-size:15px;color:rgba(255,255,255,.55);line-height:1.75;margin-bottom:20px}
+.join-email-block{margin-top:20px;padding:16px 20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}
+.join-email-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:5px}
+.join-email-val{font-size:14px;color:var(--blue-acc)}
+.btn-app-form{display:inline-block;padding:16px 36px;background:var(--blue);border:1px solid var(--blue);color:#fff;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;transition:all .2s;border-radius:2px}
+.btn-app-form:hover{background:#1668b8}
+.join-right-visual{display:flex;flex-direction:column;gap:0;border:1px solid rgba(255,255,255,.08)}
+.jv-row{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.06)}
+.jv-row:last-child{border-bottom:none}
+.jv-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.jv-row:nth-child(1) .jv-dot{background:var(--blue-acc)}
+.jv-row:nth-child(2) .jv-dot{background:var(--blue-acc)}
+.jv-row:nth-child(3) .jv-dot{background:var(--blue-acc)}
+.jv-row:nth-child(4) .jv-dot{background:var(--gold)}
+.jv-row span{font-size:14px;color:rgba(255,255,255,.55)}
+
+/* ══════════ OUR PROCESS ══════════ */
+.process-section{background:var(--blue-lt);padding:96px 0}
+@media(max-width:768px){.process-section{padding:64px 0}}
+.process-inner{max-width:var(--max);margin:0 auto;padding:0 60px}
+@media(max-width:768px){.process-inner{padding:0 24px}}
+.process-intro{margin-bottom:56px}
+.process-intro h2{font-size:clamp(28px,3.5vw,44px);font-weight:700;color:var(--navy);letter-spacing:-1px;line-height:1.15;margin-bottom:14px}
+.process-intro .sub{font-size:15px;color:var(--muted);max-width:700px;line-height:1.7;margin-bottom:8px}
+.process-tagline{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-top:12px}
+
+/* Step tracker */
+.step-tracker{display:flex;align-items:center;margin-bottom:40px;overflow-x:auto;padding-bottom:4px}
+.st-item{display:flex;align-items:center;flex-shrink:0}
+.st-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1.5px solid rgba(0,0,0,.15);background:var(--blue-lt);color:var(--muted);cursor:pointer;transition:all .3s;flex-shrink:0}
+.st-num.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.st-num.done{background:rgba(20,88,162,.15);border-color:var(--blue);color:var(--blue)}
+.st-line{flex:1;height:1px;background:rgba(0,0,0,.12);min-width:20px;max-width:80px}
+.st-line.done{background:var(--blue)}
+
+/* Step card */
+.step-card-wrap{position:relative;min-height:280px}
+.step-card{background:#fff;border:1px solid rgba(0,0,0,.08);padding:48px 52px;display:none;animation:fadeStep .4s ease}
+.step-card.active{display:block}
+@keyframes fadeStep{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+.sc-eyebrow{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue-acc);margin-bottom:16px}
+.sc-num{font-size:clamp(64px,8vw,96px);font-weight:900;color:rgba(0,0,0,.04);line-height:1;position:absolute;top:24px;right:40px;letter-spacing:-4px;user-select:none}
+.step-card h3{font-size:clamp(22px,2.5vw,32px);font-weight:700;color:var(--navy);letter-spacing:-.8px;margin-bottom:16px;position:relative;z-index:1}
+.step-card p{font-size:15px;color:var(--muted);line-height:1.75;max-width:580px;position:relative;z-index:1}
+@media(max-width:768px){.step-card{padding:32px 28px}.sc-num{font-size:56px;right:20px}}
+
+/* Arrow controls */
+.step-controls{display:flex;align-items:center;justify-content:space-between;margin-top:24px}
+.step-arrow{width:48px;height:48px;border:1.5px solid rgba(0,0,0,.15);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;border-radius:2px}
+.step-arrow:hover{border-color:var(--blue);background:rgba(20,88,162,.06)}
+.step-arrow:disabled{opacity:.3;cursor:default;pointer-events:none}
+.step-arrow svg{width:18px;height:18px;stroke:var(--navy);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.step-counter{font-size:13px;color:var(--muted);letter-spacing:.5px}
+
+/* ══════════ REQUEST NOW ══════════ */
+.request-section{background:var(--white);padding:96px 0}
+@media(max-width:768px){.request-section{padding:64px 0}}
+.request-inner{max-width:var(--max);margin:0 auto;padding:0 60px}
+@media(max-width:768px){.request-inner{padding:0 24px}}
+.request-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+@media(max-width:900px){.request-grid{grid-template-columns:1fr;gap:48px}}
+.request-left h2{font-size:clamp(28px,3.5vw,44px);font-weight:700;color:var(--navy);letter-spacing:-1px;line-height:1.15;margin-bottom:22px}
+.request-left .lead{font-size:15px;color:var(--muted);line-height:1.78;margin-bottom:20px}
+.request-contact-block{padding:20px 24px;background:var(--off);border:1px solid var(--gray);margin-top:28px}
+.req-contact-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.req-contact-dir{font-size:14px;color:var(--navy);font-weight:600;margin-bottom:2px}
+.req-contact-email{font-size:14px;color:var(--blue)}
+.request-right{background:var(--off);border:1px solid var(--gray);padding:40px}
+.request-right h3{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:8px;letter-spacing:-.3px}
+.request-right p{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:28px}
+.btn-inquiry{width:100%;padding:16px;background:var(--navy);border:none;color:#fff;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.btn-inquiry:hover{background:var(--blue-mid)}
+.request-points{margin-top:20px;display:flex;flex-direction:column;gap:10px}
+.rp-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.rp-dot{width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0}
+
+/* ══════════ FOOTER ══════════ */
+.footer{background:var(--navy);border-top:1px solid rgba(255,255,255,.06)}
+.footer-inner{padding:60px 60px 40px;max-width:var(--max);margin:0 auto}
+@media(max-width:768px){.footer-inner{padding:48px 24px 32px}}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px}
+@media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.footer-grid{grid-template-columns:1fr}}
+.f-brand p{font-size:13px;color:rgba(255,255,255,.35);line-height:1.7;max-width:260px;margin-top:14px}
+.footer h5{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:18px}
+.flink{display:block;font-size:14px;color:rgba(255,255,255,.45);text-decoration:none;padding:5px 0;transition:color .2s}
+.flink:hover{color:#fff}
+.f-email{font-size:14px;color:var(--blue-acc);margin-top:12px}
+.footer-bottom{margin-top:44px;padding-top:24px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-bottom span,.footer-bottom a{font-size:12px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .2s}
+.footer-bottom a:hover{color:rgba(255,255,255,.6)}
+.footer-links{display:flex;gap:20px}
+
+/* ══════════ MODALS ══════════ */
+.overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.active{display:flex}
+.modal{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;position:relative;animation:mIn .3s ease;box-shadow:0 24px 64px rgba(0,0,0,.4);border-radius:2px}
+.modal.wide{max-width:640px}
+@keyframes mIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.m-head{padding:32px 36px 24px;border-bottom:1px solid var(--gray);background:var(--navy);position:sticky;top:0;z-index:10}
+.m-head h3{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.m-head p{font-size:13px;color:rgba(255,255,255,.5);margin-top:5px;line-height:1.45}
+.m-body{padding:28px 36px 32px}
+.mclose{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.1);border:none;width:30px;height:30px;border-radius:50%;color:#fff;cursor:pointer;font-size:16px;line-height:1;transition:background .2s;display:flex;align-items:center;justify-content:center}
+.mclose:hover{background:rgba(255,255,255,.2)}
+@media(max-width:500px){.m-head,.m-body{padding-left:20px;padding-right:20px}}
+
+/* Form elements */
+.fg{margin-bottom:20px}
+.fg label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:8px}
+.fg input,.fg select,.fg textarea{width:100%;border:none;border-bottom:1.5px solid var(--gray);background:transparent;padding:10px 0;font-size:15px;color:var(--navy);outline:none;transition:border-color .2s;resize:vertical}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-bottom-color:var(--blue)}
+.fg select option{background:#fff;color:var(--navy)}
+.fg input.err,.fg textarea.err,.fg select.err{border-bottom-color:#ef4444}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:500px){.frow{grid-template-columns:1fr}}
+
+/* Phone input with country code */
+.phone-wrap{display:flex;gap:0;border-bottom:1.5px solid var(--gray);transition:border-color .2s}
+.phone-wrap:focus-within{border-bottom-color:var(--blue)}
+.phone-wrap select{width:110px;border:none;border-right:1px solid var(--gray);background:transparent;padding:10px 8px 10px 0;font-size:13px;color:var(--navy);outline:none;flex-shrink:0;cursor:pointer}
+.phone-wrap input{flex:1;border:none;background:transparent;padding:10px 0 10px 10px;font-size:15px;color:var(--navy);outline:none}
+.fg .phone-wrap{border-bottom:1.5px solid var(--gray)}
+
+/* Email domain helper */
+.email-wrap{position:relative}
+.email-wrap input{width:100%;border:none;border-bottom:1.5px solid var(--gray);background:transparent;padding:10px 0;font-size:15px;color:var(--navy);outline:none;transition:border-color .2s}
+.email-wrap input:focus{border-bottom-color:var(--blue)}
+.domain-suggestions{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--gray);box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:100;display:none;border-radius:2px;overflow:hidden}
+.domain-suggestions.show{display:block}
+.domain-sug-item{padding:10px 14px;font-size:14px;color:var(--navy);cursor:pointer;transition:background .15s}
+.domain-sug-item:hover{background:var(--off)}
+.domain-sug-email{font-weight:600;color:var(--blue)}
+
+/* Inquiry detail box */
+.inquiry-detail-box{border:1px solid var(--gray);padding:0;margin-bottom:20px}
+.idb-header{padding:10px 16px;background:var(--off);border-bottom:1px solid var(--gray);font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted)}
+.idb-body{padding:16px}
+.idb-body .fg{margin-bottom:16px}
+.idb-body .fg:last-child{margin-bottom:0}
+.idb-body label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:6px}
+.idb-body input,.idb-body textarea{width:100%;border:none;border-bottom:1.5px solid var(--gray);background:transparent;padding:8px 0;font-size:14px;color:var(--navy);outline:none;transition:border-color .2s;resize:vertical}
+.idb-body input:focus,.idb-body textarea:focus{border-bottom-color:var(--blue)}
+
+/* Submit btn */
+.btn-submit{width:100%;padding:16px;background:var(--navy);border:none;color:#fff;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:8px}
+.btn-submit:hover{background:var(--blue-mid)}
+.form-note{font-size:12px;color:var(--muted2);text-align:center;margin-top:10px;line-height:1.5}
+
+/* Success state */
+.form-success{display:none;text-align:center;padding:32px 20px}
+.form-success.show{display:block}
+.success-icon{width:56px;height:56px;border-radius:50%;background:rgba(34,197,94,.1);border:2px solid #22c55e;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px}
+.form-success h4{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.form-success p{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* Login modal */
+.l-types{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.l-type{padding:16px;border:1px solid var(--gray);background:var(--off);text-align:center;cursor:pointer;transition:all .22s;border-radius:2px}
+.l-type:hover{border-color:var(--blue)}
+.l-type.sel{border-color:var(--blue);background:rgba(20,88,162,.05)}
+.l-type h4{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.l-type p{font-size:12px;color:var(--muted);line-height:1.35}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:28px;right:28px;z-index:4000;background:var(--navy);color:#fff;padding:15px 22px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:10px;border-left:3px solid var(--blue);box-shadow:0 12px 36px rgba(0,0,0,.3);transform:translateY(60px);opacity:0;transition:all .4s cubic-bezier(.22,1,.36,1);max-width:340px;pointer-events:none;border-radius:2px}
+.toast.show{transform:none;opacity:1}
+.toast.ok{border-left-color:#22c55e}
+.toast.err{border-left-color:#ef4444}
+
+/* ── Scroll reveal ── */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.reveal.d1{transition-delay:.12s}.reveal.d2{transition-delay:.24s}.reveal.d3{transition-delay:.36s}
+.reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- ══ CONFIG (edit these values) ══ -->
+<script>
+const CONFIG = {
+  COMPANY_EMAIL:  'contact@seoulinkhealth.com',
+  DIRECTOR_NAME:  'Byung-Joo Kim',
+  LOGIN_ENABLED:  true,   // set false to hide LOGIN from nav
+  WEBSITE:        'www.seoulinkhealth.com',
+};
+</script>
+
+<!-- ══════════ ANNOUNCEMENT BAR ══════════ -->
+<div class="ann-bar" id="annBar">
+  <span style="flex:1">
+    Strategic K-Health consulting for international organizations.&nbsp;
+    <a href="#request" onclick="document.getElementById('annBar').style.display='none'">Submit an Inquiry →</a>
+  </span>
+  <button class="ann-close" onclick="document.getElementById('annBar').style.display='none'" aria-label="Close">✕</button>
+</div>
+
+<!-- ══════════ NAVIGATION ══════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="logo" href="#hero">
+      <div class="logo-mark">SL</div>
+      <div>
+        <div class="logo-txt">SEOULINKHEALTH</div>
+        <span class="logo-sub">K-Health Business Platform</span>
+      </div>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="#about" class="nav-a">ABOUT US</a>
+      <a href="#network" class="nav-a">OUR EXPERT NETWORK</a>
+      <a href="#process" class="nav-a">OUR PROCESS</a>
+      <a href="#request" class="nav-a">REQUEST NOW</a>
+    </div>
+    <div class="nav-right">
+      <button class="btn-nav-login" id="btnLogin" onclick="openM('mLogin')" style="display:none">LOGIN</button>
+      <button class="ham" id="ham" aria-label="Menu" onclick="toggleMM()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mmenu" id="mmenu">
+  <a href="#about" onclick="closeMM()">ABOUT US</a>
+  <a href="#network" onclick="closeMM()">OUR EXPERT NETWORK</a>
+  <a href="#process" onclick="closeMM()">OUR PROCESS</a>
+  <a href="#request" onclick="closeMM()">REQUEST NOW</a>
+  <div class="mmenu-login" id="mmenuLogin" style="display:none">
+    <button class="btn-nav-login" style="width:220px;text-align:center;padding:14px" onclick="openM('mLogin');closeMM()">LOGIN</button>
+  </div>
+</div>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero" id="hero">
+  <div class="hero-left reveal" id="heroLeft">
+    <div class="hero-eyebrow">K-Health Business Platform</div>
+    <h1>SEOULINK<span>HEALTH</span></h1>
+    <p class="hero-sectors">K-Health Care &nbsp;·&nbsp; K-Health Industry &nbsp;·&nbsp; K-Bio &nbsp;·&nbsp; K-Health Food</p>
+    <p class="hero-intro">Our network of professional experts provides accurate, reliable, and timely solutions to your inquiries.</p>
+  </div>
+  <div class="hero-right">
+    <button class="btn-hero primary" onclick="document.getElementById('request').scrollIntoView({behavior:'smooth'})">REQUEST NOW</button>
+    <button class="btn-hero" onclick="document.getElementById('network').scrollIntoView({behavior:'smooth'})">JOIN EXPERT NETWORK</button>
+  </div>
+</section>
+
+<!-- ══════════ SECTORS BAND ══════════ -->
+<div class="sectors-band">
+  <div class="sectors-inner">
+    <div class="sector-item reveal">
+      <div class="sector-num">01</div>
+      <div class="sector-title">K-Health Care</div>
+      <div class="sector-desc">Healthcare delivery, hospital management, digital health</div>
+    </div>
+    <div class="sector-item reveal d1">
+      <div class="sector-num">02</div>
+      <div class="sector-title">K-Health Industry</div>
+      <div class="sector-desc">Medical devices, pharmaceuticals, market entry</div>
+    </div>
+    <div class="sector-item reveal d2">
+      <div class="sector-num">03</div>
+      <div class="sector-title">K-Bio</div>
+      <div class="sector-desc">Biopharmaceuticals, clinical trials, biosimilar strategy</div>
+    </div>
+    <div class="sector-item reveal d3">
+      <div class="sector-num">04</div>
+      <div class="sector-title">K-Health Food</div>
+      <div class="sector-desc">Functional food, product registration, safety assessment</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ABOUT US ══════════ -->
+<section class="about-section" id="about">
+  <div class="about-top reveal">
+    <div class="about-top-label">About Us</div>
+    <p class="about-top-headline">
+      <strong>K-HEALTH CARE · K-HEALTH INDUSTRY · K-BIO · K-HEALTH FOOD</strong><br/>
+      Our network of professional experts provides accurate, reliable, and timely solutions to your inquiries.
+    </p>
+  </div>
+  <div class="about-layout">
+    <!-- Left sidebar -->
+    <div class="about-sidenav">
+      <button class="sidenav-btn active" onclick="switchAbout('greetings',this)">GREETINGS</button>
+      <button class="sidenav-btn" onclick="switchAbout('founder',this)">OUR FOUNDER</button>
+      <button class="sidenav-btn" onclick="switchAbout('endorsement',this)">ENDORSEMENT</button>
+    </div>
+    <!-- Right content -->
+    <div class="about-content">
+
+      <!-- GREETINGS -->
+      <div class="about-pane active" id="pane-greetings">
+        <div class="greetings-grid">
+          <div class="reveal">
+            <h2>Welcome to<br/><span>SEOULINKHEALTH</span></h2>
+            <p>As global interest in Korea's advanced healthcare ecosystem continues to grow, an increasing number of organizations and professionals are seeking reliable and strategic pathways to engage with Korea's healthcare services, medical industry, biopharmaceutical sector, and health food innovations.</p>
+            <p>Our platform was established to serve as a strategic gateway for international partners who wish to enter the Korean market or adopt Korea's proven healthcare systems globally.</p>
+            <p>We provide expert-driven consulting designed to deliver clear insights, practical guidance, and efficient solutions across the full spectrum of the K-Health sector.</p>
+            <blockquote>"Our mission is simple: to connect global opportunities with Korea's world-class healthcare capabilities."</blockquote>
+            <p style="color:rgba(255,255,255,.5);font-size:14px">We look forward to becoming your trusted partner in building successful global collaborations.</p>
+            <div class="ceo-sig">
+              <div class="ceo-name">J S Kim, Ph.D.</div>
+              <div class="ceo-title">Founder &amp; CEO — SEOULINKHEALTH</div>
+            </div>
+          </div>
+          <div class="reveal d1">
+            <div class="ceo-card">
+              <div class="ceo-avatar">JS</div>
+              <div>
+                <div class="ceo-card-name">J S Kim, Ph.D.</div>
+                <div class="ceo-card-role">Founder &amp; CEO</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OUR FOUNDER -->
+      <div class="about-pane" id="pane-founder">
+        <div class="founder-header">
+          <h2>Our <span style="color:var(--blue-acc)">Founder</span></h2>
+          <p style="color:rgba(255,255,255,.4);font-size:13px;letter-spacing:.5px">Jinsoo Kim</p>
+        </div>
+        <div class="founder-grid">
+          <div>
+            <div class="info-panel">
+              <div class="info-panel-label">Professional Experience</div>
+              <div class="exp-row"><div class="exp-dot"></div><span>Secretary for Health and Welfare, Office for 18th President Park Geun-Hye Administration, Republic of Korea</span></div>
+              <div class="exp-row"><div class="exp-dot"></div><span>Member, 18th Presidential Transition Committee for Health and Welfare</span></div>
+              <div class="exp-row"><div class="exp-dot"></div><span>Senior Research Fellow, Korea Institute for Health and Social Affairs</span></div>
+              <div class="exp-row"><div class="exp-dot"></div><span>Director of Research Coordination, Institute for Health Insurance Policy, National Health Insurance Corporation</span></div>
+              <div class="exp-row"><div class="exp-dot"></div><span>Research Fellow, Research Institute, Health Insurance Review &amp; Assessment Service</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="info-panel">
+              <div class="info-panel-label">Education</div>
+              <div class="edu-entry">
+                <div class="edu-badge">Ph.D.</div>
+                <div><div class="edu-deg">Ph.D. in Economics</div><div class="edu-school">University of Houston</div></div>
+              </div>
+              <div class="edu-entry">
+                <div class="edu-badge" style="background:var(--blue-mid)">M.A.</div>
+                <div><div class="edu-deg">M.A. in Economics</div><div class="edu-school">North Carolina State University</div></div>
+              </div>
+              <div class="edu-entry">
+                <div class="edu-badge" style="background:rgba(255,255,255,.1)">B.A.</div>
+                <div><div class="edu-deg">B.A. in Economics</div><div class="edu-school">Long Island University</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ENDORSEMENT -->
+      <div class="about-pane" id="pane-endorsement">
+        <div class="endorsement-header">
+          <h2>Endorsements</h2>
+          <p>Former Ministers · Vice-Ministers · Senior Officials</p>
+        </div>
+        <div class="endorsement-cats">
+          <div class="endorse-card minister">
+            <div class="endorse-cat-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              Former Minister-Level Officials
+            </div>
+            <p class="endorse-placeholder">"Endorsement messages from distinguished former ministers in the fields of health and welfare will be featured here."</p>
+            <div class="endorse-attribution">— Former Minister (Endorsement content will be added here)</div>
+          </div>
+          <div class="endorse-card vice">
+            <div class="endorse-cat-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+              Vice Minister-Level Officials
+            </div>
+            <p class="endorse-placeholder">"Recommendations from former vice-ministers and senior commissioners will be added upon confirmation."</p>
+            <div class="endorse-attribution">— Former Vice-Minister (Endorsement content will be added here)</div>
+          </div>
+          <div class="endorse-card agency">
+            <div class="endorse-cat-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+              Food-Related Agency Heads / Commissioners
+            </div>
+            <p class="endorse-placeholder">"Endorsements from food safety and health food agency leadership will be published here."</p>
+            <div class="endorse-attribution">— Agency Head / Commissioner (Endorsement content will be added here)</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /about-content -->
+  </div><!-- /about-layout -->
+</section>
+
+<!-- ══════════ OUR EXPERT NETWORK ══════════ -->
+<section class="network-section" id="network">
+  <div class="network-intro">
+    <div class="section-eyebrow reveal">Our Expert Network</div>
+    <h2 class="reveal">A distinguished network of<br/>K-Health professionals.</h2>
+    <p class="lead reveal d1">Our expert network is composed of K-HEALTH CARE, K-HEALTH INDUSTRY, K-BIO, and K-HEALTH FOOD. Each domain is supported by a distinguished group of professionals who possess both deep theoretical knowledge and extensive practical experience. Our experts are committed to delivering the most effective and tailored solutions to meet your specific needs.</p>
+    <div class="domain-grid reveal d2">
+      <div class="domain-card">
+        <div class="d-num">01</div>
+        <h3>K-Health Care</h3>
+        <p>Healthcare delivery systems, hospital management, telemedicine, and digital health infrastructure.</p>
+      </div>
+      <div class="domain-card">
+        <div class="d-num">02</div>
+        <h3>K-Health Industry</h3>
+        <p>Medical device regulations, pharmaceutical market entry, and strategic industry partnerships.</p>
+      </div>
+      <div class="domain-card">
+        <div class="d-num">03</div>
+        <h3>K-Bio</h3>
+        <p>Biopharmaceutical pipelines, clinical trial coordination, and cross-border drug licensing.</p>
+      </div>
+      <div class="domain-card">
+        <div class="d-num">04</div>
+        <h3>K-Health Food</h3>
+        <p>Functional food registration, safety assessment, distribution channels, and consumer market analysis.</p>
+      </div>
+    </div>
+  </div>
+  <div class="network-desc">
+    <p class="reveal">Our network is open to leading professionals around the world who are interested in contributing their expertise to the global K-Health ecosystem.</p>
+  </div>
+
+  <!-- JOIN US subsection -->
+  <div class="join-us">
+    <div class="join-us-inner">
+      <div class="reveal">
+        <div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:16px">Join Us</div>
+        <h2>Contribute your expertise<br/>to the K-Health ecosystem.</h2>
+        <p class="sub">We sincerely appreciate your interest in joining our expert network. If you are interested in contributing your expertise as a professional expert, please complete the application form and submit it to our Director.</p>
+        <p class="sub" style="margin-top:-6px">Upon receipt of your application, our team will promptly contact you with further details regarding the next steps. We once again thank you for your interest.</p>
+        <div class="join-email-block">
+          <div class="join-email-label">Contact — <span id="dirName"></span></div>
+          <div class="join-email-val" id="joinEmail"></div>
+        </div>
+        <button class="btn-app-form" style="margin-top:24px" onclick="openM('mAppForm')">APPLICATION FORM</button>
+      </div>
+      <div class="reveal d1">
+        <div class="join-right-visual">
+          <div class="jv-row"><div class="jv-dot"></div><span>K-Health Care Specialists</span></div>
+          <div class="jv-row"><div class="jv-dot"></div><span>K-Health Industry Experts</span></div>
+          <div class="jv-row"><div class="jv-dot"></div><span>K-Bio Researchers &amp; Advisors</span></div>
+          <div class="jv-row"><div class="jv-dot"></div><span>K-Health Food Authorities</span></div>
+        </div>
+        <div style="margin-top:16px;padding:20px 22px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.02)">
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:8px">Application Process</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:13px;color:rgba(255,255,255,.4);display:flex;gap:10px;align-items:flex-start"><span style="color:var(--blue-acc);font-weight:700;flex-shrink:0">1.</span> Complete the application form</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.4);display:flex;gap:10px;align-items:flex-start"><span style="color:var(--blue-acc);font-weight:700;flex-shrink:0">2.</span> Our team reviews your profile</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.4);display:flex;gap:10px;align-items:flex-start"><span style="color:var(--blue-acc);font-weight:700;flex-shrink:0">3.</span> We contact you with next steps</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ OUR PROCESS ══════════ -->
+<section class="process-section" id="process">
+  <div class="process-inner">
+    <div class="process-intro reveal">
+      <div class="section-eyebrow" style="color:var(--blue-mid)">Our Process</div>
+      <h2>How We Deliver Results</h2>
+      <p class="sub">Our solutions platform directs you to top-tier experts in the fields of K-HEALTH CARE, K-HEALTH INDUSTRY, K-BIO, and K-HEALTH FOOD. Through a structured systematic advisory framework, our experts deliver practical and globally competitive solutions tailored to your specific needs.</p>
+      <div class="process-tagline">SMART SUPPORT SYSTEM FOR INNOVATIVE PROBLEM SOLVING PROCESS WORKFLOW</div>
+    </div>
+
+    <!-- Step tracker -->
+    <div class="step-tracker" id="stepTracker">
+      <div class="st-item"><div class="st-num active" onclick="goStep(1)" data-step="1">1</div></div>
+      <div class="st-item"><div class="st-line" id="line-1-2"></div><div class="st-num" onclick="goStep(2)" data-step="2">2</div></div>
+      <div class="st-item"><div class="st-line" id="line-2-3"></div><div class="st-num" onclick="goStep(3)" data-step="3">3</div></div>
+      <div class="st-item"><div class="st-line" id="line-3-4"></div><div class="st-num" onclick="goStep(4)" data-step="4">4</div></div>
+      <div class="st-item"><div class="st-line" id="line-4-5"></div><div class="st-num" onclick="goStep(5)" data-step="5">5</div></div>
+      <div class="st-item"><div class="st-line" id="line-5-6"></div><div class="st-num" onclick="goStep(6)" data-step="6">6</div></div>
+      <div class="st-item"><div class="st-line" id="line-6-7"></div><div class="st-num" onclick="goStep(7)" data-step="7">7</div></div>
+    </div>
+
+    <!-- Step cards -->
+    <div class="step-card-wrap">
+      <div class="step-card active" data-step="1">
+        <div class="sc-num">01</div>
+        <div class="sc-eyebrow">Step 1 of 7</div>
+        <h3>Request Intake</h3>
+        <p>Confirmation and initial review of the client's submitted inquiry. Our team carefully examines each request to understand the scope, urgency, and domain requirements before proceeding to formal consultation.</p>
+      </div>
+      <div class="step-card" data-step="2">
+        <div class="sc-num">02</div>
+        <div class="sc-eyebrow">Step 2 of 7</div>
+        <h3>In-Depth Consultation</h3>
+        <p>Detailed discussions to clarify scope, objectives, and expectations. We engage directly with the client to fully understand their specific needs, target outcomes, and the strategic context of their inquiry.</p>
+      </div>
+      <div class="step-card" data-step="3">
+        <div class="sc-num">03</div>
+        <div class="sc-eyebrow">Step 3 of 7</div>
+        <h3>Primary Expert Review</h3>
+        <p>Preliminary analysis conducted by relevant subject-matter experts. Our network experts perform an initial assessment of the inquiry, drawing on their specialized knowledge to identify key considerations and pathways.</p>
+      </div>
+      <div class="step-card" data-step="4">
+        <div class="sc-num">04</div>
+        <div class="sc-eyebrow">Step 4 of 7</div>
+        <h3>Secondary Expert Consultation</h3>
+        <p>In-depth evaluation and assessment by domain specialists. Senior experts in the relevant K-Health domain conduct a thorough review, applying their practical and policy-level experience to the analysis.</p>
+      </div>
+      <div class="step-card" data-step="5">
+        <div class="sc-num">05</div>
+        <div class="sc-eyebrow">Step 5 of 7</div>
+        <h3>Client Strategy Discussion</h3>
+        <p>Collaborative discussion to validate and refine proposed solutions. We present preliminary findings to the client and engage in a strategic dialogue to ensure the proposed direction aligns with their objectives.</p>
+      </div>
+      <div class="step-card" data-step="6">
+        <div class="sc-num">06</div>
+        <div class="sc-eyebrow">Step 6 of 7</div>
+        <h3>Review &amp; Refinement</h3>
+        <p>Further enhancement and optimization of the solution. Based on client feedback, our experts refine the analysis and recommendations to ensure maximum relevance, accuracy, and actionability.</p>
+      </div>
+      <div class="step-card" data-step="7">
+        <div class="sc-num">07</div>
+        <div class="sc-eyebrow">Step 7 of 7</div>
+        <h3>Final Report Delivery</h3>
+        <p>Submission of a comprehensive report. A complete, professionally structured report is delivered to the client, containing expert analysis, strategic recommendations, and supporting documentation for implementation.</p>
+      </div>
+    </div>
+
+    <!-- Arrow controls -->
+    <div class="step-controls">
+      <button class="step-arrow" id="btnPrev" onclick="prevStep()" disabled aria-label="Previous step">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="step-counter" id="stepCounter">Step 1 / 7</span>
+      <button class="step-arrow" id="btnNext" onclick="nextStep()" aria-label="Next step">
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ REQUEST NOW ══════════ -->
+<section class="request-section" id="request">
+  <div class="request-inner">
+    <div class="request-grid">
+      <div class="request-left reveal">
+        <div class="section-eyebrow" style="color:var(--blue)">Request Now</div>
+        <h2>Begin your K-Health advisory journey.</h2>
+        <p class="lead">Thank you for your interest in our services. If you require our advisory services in relation to your business, please complete the inquiry form and submit it to our Director.</p>
+        <p class="lead" style="margin-top:-4px">Upon receipt of your request, we will contact you within two business days. We sincerely appreciate your interest in SEOULINKHEALTH and look forward to assisting you.</p>
+        <div class="request-contact-block">
+          <div class="req-contact-label">Submit your inquiry to</div>
+          <div class="req-contact-dir" id="reqDirName"></div>
+          <div class="req-contact-email" id="reqEmail"></div>
+        </div>
+      </div>
+      <div class="request-right reveal d1">
+        <h3>INQUIRY FORM</h3>
+        <p>Fill in your inquiry details and our team will respond within two business days.</p>
+        <button class="btn-inquiry" onclick="openM('mInquiry')">OPEN INQUIRY FORM</button>
+        <div class="request-points">
+          <div class="rp-item"><div class="rp-dot"></div>Response within 2 business days</div>
+          <div class="rp-item"><div class="rp-dot"></div>Handled by senior directors</div>
+          <div class="rp-item"><div class="rp-dot"></div>Confidential and professional</div>
+          <div class="rp-item"><div class="rp-dot"></div>All K-Health sectors covered</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="f-brand">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="logo-mark" style="width:32px;height:32px;font-size:12px">SL</div>
+          <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1.5px">SEOULINKHEALTH</span>
+        </div>
+        <p>Your strategic gateway to Korea's world-class healthcare capabilities.</p>
+        <div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.25);line-height:1.8">
+          13936 #101, 19 Gwanpyeong-ro 313 Beon-gil<br/>
+          Dongan-gu, Anyang-si, Gyeonggi-do<br/>South Korea
+        </div>
+      </div>
+      <div>
+        <h5>Navigation</h5>
+        <a class="flink" href="#about">About Us</a>
+        <a class="flink" href="#network">Our Expert Network</a>
+        <a class="flink" href="#process">Our Process</a>
+        <a class="flink" href="#request">Request Now</a>
+      </div>
+      <div>
+        <h5>Sectors</h5>
+        <a class="flink" href="#network">K-Health Care</a>
+        <a class="flink" href="#network">K-Health Industry</a>
+        <a class="flink" href="#network">K-Bio</a>
+        <a class="flink" href="#network">K-Health Food</a>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <div style="font-size:13px;color:rgba(255,255,255,.35);line-height:1.8;margin-bottom:4px">Anyang-si, Gyeonggi-do<br/>South Korea 13936</div>
+        <div class="f-email" id="footerEmail"></div>
+        <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,.3)" id="footerWeb"></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 SEOULINKHEALTH. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════
+     APPLICATION FORM MODAL
+══════════════════════════════════ -->
+<div class="overlay" id="mAppForm" onclick="overlayClick(event,'mAppForm')">
+  <div class="modal wide" onclick="event.stopPropagation()">
+    <button class="mclose" onclick="closeM('mAppForm')" aria-label="Close">✕</button>
+    <div class="m-head">
+      <h3>Expert Network Application Form</h3>
+      <p>Join our K-Health expert network. All fields marked * are required.</p>
+    </div>
+    <div class="m-body" id="appFormBody">
+      <!-- Success state -->
+      <div class="form-success" id="appSuccess">
+        <div class="success-icon">✓</div>
+        <h4>Application Submitted</h4>
+        <p>Thank you for your application. Our team will review your profile and contact you promptly with further details.</p>
+      </div>
+      <!-- Form -->
+      <form id="appForm" onsubmit="submitAppForm(event)" novalidate>
+        <div class="fg">
+          <label>Full Name *</label>
+          <input type="text" id="af-name" placeholder="Your full name" required/>
+        </div>
+        <div class="fg">
+          <label>Email Address *</label>
+          <div class="email-wrap">
+            <input type="email" id="af-email" placeholder="your@email.com" required autocomplete="off" oninput="emailHelper(this,'af-domains')" onblur="hideHelper('af-domains')"/>
+            <div class="domain-suggestions" id="af-domains"></div>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Telephone *</label>
+          <div class="phone-wrap" id="af-phone-wrap">
+            <select id="af-cc" aria-label="Country code"></select>
+            <input type="tel" id="af-tel" placeholder="Phone number" required/>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Professional Experiences</label>
+          <textarea id="af-exp" rows="4" placeholder="Please describe your professional background and key experiences..."></textarea>
+        </div>
+        <div class="fg">
+          <label>Education</label>
+          <textarea id="af-edu" rows="3" placeholder="Degrees, institutions, and years..."></textarea>
+        </div>
+        <div class="fg">
+          <label>Specialty</label>
+          <input type="text" id="af-spec" placeholder="e.g. Pharmaceutical Policy, Clinical Research, Health Food Regulation..."/>
+        </div>
+        <div class="fg">
+          <label>Country of Origin *</label>
+          <select id="af-country" required>
+            <option value="">Select country</option>
+          </select>
+        </div>
+        <!-- Honeypot (hidden, anti-spam) -->
+        <input type="text" name="_honeypot" style="display:none" tabindex="-1" autocomplete="off"/>
+        <button type="submit" class="btn-submit">SUBMIT APPLICATION</button>
+        <p class="form-note">Your application will be sent to our Director, <span id="appDirName"></span>, at <span id="appEmail"></span></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     INQUIRY FORM MODAL
+══════════════════════════════════ -->
+<div class="overlay" id="mInquiry" onclick="overlayClick(event,'mInquiry')">
+  <div class="modal wide" onclick="event.stopPropagation()">
+    <button class="mclose" onclick="closeM('mInquiry')" aria-label="Close">✕</button>
+    <div class="m-head">
+      <h3>INQUIRY FORM</h3>
+      <p>Submit your inquiry and we will respond within two business days.</p>
+    </div>
+    <div class="m-body" id="inquiryFormBody">
+      <!-- Success state -->
+      <div class="form-success" id="inqSuccess">
+        <div class="success-icon">✓</div>
+        <h4>Inquiry Submitted</h4>
+        <p>Thank you for your inquiry. We will contact you within two business days. We look forward to assisting you.</p>
+      </div>
+      <!-- Form -->
+      <form id="inquiryForm" onsubmit="submitInquiry(event)" novalidate>
+        <div class="frow">
+          <div class="fg">
+            <label>Full Name *</label>
+            <input type="text" id="iq-name" placeholder="Your full name" required/>
+          </div>
+          <div class="fg">
+            <label>Email Address *</label>
+            <div class="email-wrap">
+              <input type="email" id="iq-email" placeholder="your@email.com" required autocomplete="off" oninput="emailHelper(this,'iq-domains')" onblur="hideHelper('iq-domains')"/>
+              <div class="domain-suggestions" id="iq-domains"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Telephone *</label>
+          <div class="phone-wrap" id="iq-phone-wrap">
+            <select id="iq-cc" aria-label="Country code"></select>
+            <input type="tel" id="iq-tel" placeholder="Phone number" required/>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Current Employment Information</label>
+          <input type="text" id="iq-emp" placeholder="Organization / Position / Industry"/>
+        </div>
+        <div class="fg">
+          <label>Professional Experiences</label>
+          <textarea id="iq-exp" rows="3" placeholder="Briefly describe your professional background..."></textarea>
+        </div>
+        <!-- Inquiry Detail -->
+        <div class="inquiry-detail-box">
+          <div class="idb-header">Inquiry Detail</div>
+          <div class="idb-body">
+            <div class="fg">
+              <label>Subject *</label>
+              <input type="text" id="iq-subj" placeholder="Subject of your inquiry" required/>
+            </div>
+            <div class="fg">
+              <label>Descriptions</label>
+              <textarea id="iq-desc" rows="5" placeholder="Please describe your inquiry in detail..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Additional Comments</label>
+          <textarea id="iq-comments" rows="3" placeholder="Any additional information or comments..."></textarea>
+        </div>
+        <!-- Honeypot -->
+        <input type="text" name="_honeypot" style="display:none" tabindex="-1" autocomplete="off"/>
+        <button type="submit" class="btn-submit">SUBMIT INQUIRY</button>
+        <p class="form-note">Your inquiry will be sent to our Director, <span id="inqDirName"></span>, at <span id="inqEmail"></span></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     LOGIN MODAL (toggleable via CONFIG)
+══════════════════════════════════ -->
+<div class="overlay" id="mLogin" onclick="overlayClick(event,'mLogin')">
+  <div class="modal wide" onclick="event.stopPropagation()">
+    <button class="mclose" onclick="closeM('mLogin')" aria-label="Close">✕</button>
+    <div class="m-head">
+      <h3>Login</h3>
+      <p>Access the SEOULINKHEALTH platform.</p>
+    </div>
+    <div class="m-body">
+      <div class="l-types">
+        <div class="l-type sel" id="ltE" onclick="selLT('expert')">
+          <h4>Expert Login</h4>
+          <p>Advisory panel &amp; specialists</p>
+        </div>
+        <div class="l-type" id="ltC" onclick="selLT('company')">
+          <h4>Company Login</h4>
+          <p>Business consulting clients</p>
+        </div>
+      </div>
+      <div class="fg">
+        <label id="lbl-em">EXPERT EMAIL</label>
+        <input type="email" id="lin-em" placeholder="you@organization.com"/>
+      </div>
+      <div class="fg">
+        <label>PASSWORD</label>
+        <input type="password" id="lin-pw" placeholder="••••••••"/>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin:-6px 0 16px">
+        <a href="#" style="font-size:13px;color:var(--blue);text-decoration:none">Forgot password?</a>
+      </div>
+      <button class="btn-submit" onclick="doLogin()">LOGIN →</button>
+      <p class="form-note" style="margin-top:14px">For platform access, please contact <span id="loginEmail" style="color:var(--blue)"></span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Toast ══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<script>
+/* ─── Apply CONFIG ─── */
+(function(){
+  // email refs
+  const emails = ['joinEmail','reqEmail','footerEmail','appEmail','inqEmail','loginEmail'];
+  emails.forEach(id => { const el = document.getElementById(id); if(el) el.textContent = CONFIG.COMPANY_EMAIL; });
+  // director name refs
+  ['dirName','reqDirName','appDirName','inqDirName'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.textContent = CONFIG.DIRECTOR_NAME;
+  });
+  // website
+  const fw = document.getElementById('footerWeb'); if(fw) fw.textContent = CONFIG.WEBSITE;
+  // login visibility
+  if(CONFIG.LOGIN_ENABLED){
+    document.getElementById('btnLogin').style.display = '';
+    document.getElementById('mmenuLogin').style.display = '';
+  }
+})();
+
+/* ─── Country codes ─── */
+const CC_LIST = [
+  ['+1','US/CA'],   ['+7','Russia'],  ['+20','Egypt'],  ['+27','S.Africa'],
+  ['+30','Greece'], ['+31','Netherlands'],['+32','Belgium'],['+33','France'],
+  ['+34','Spain'],  ['+36','Hungary'],['+39','Italy'],   ['+40','Romania'],
+  ['+41','Switzerland'],['+43','Austria'],['+44','UK'],  ['+45','Denmark'],
+  ['+46','Sweden'], ['+47','Norway'], ['+48','Poland'],  ['+49','Germany'],
+  ['+51','Peru'],   ['+52','Mexico'], ['+54','Argentina'],['+55','Brazil'],
+  ['+56','Chile'],  ['+57','Colombia'],['+60','Malaysia'],['+61','Australia'],
+  ['+62','Indonesia'],['+63','Philippines'],['+64','NZ'],['+65','Singapore'],
+  ['+66','Thailand'],['+81','Japan'],['+82','Korea'],   ['+84','Vietnam'],
+  ['+86','China'],  ['+90','Turkey'], ['+91','India'],   ['+92','Pakistan'],
+  ['+94','Sri Lanka'],['+95','Myanmar'],['+98','Iran'],  ['+212','Morocco'],
+  ['+213','Algeria'],['+216','Tunisia'],['+218','Libya'],['+234','Nigeria'],
+  ['+254','Kenya'], ['+256','Uganda'],['+966','Saudi Arabia'],['+971','UAE'],
+  ['+972','Israel'],['+852','HK'],    ['+886','Taiwan']
+];
+['af-cc','iq-cc'].forEach(id => {
+  const sel = document.getElementById(id);
+  if(!sel) return;
+  CC_LIST.forEach(([code,name]) => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = code + ' ' + name;
+    if(code === '+82') opt.selected = true;
+    sel.appendChild(opt);
+  });
+});
+
+/* ─── Countries list ─── */
+const COUNTRIES = ['Afghanistan','Albania','Algeria','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belarus','Belgium','Bolivia','Brazil','Bulgaria','Cambodia','Cameroon','Canada','Chile','China','Colombia','Croatia','Czech Republic','Denmark','Ecuador','Egypt','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Guatemala','Hong Kong','Hungary','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Kyrgyzstan','Latvia','Lebanon','Libya','Lithuania','Luxembourg','Macau','Malaysia','Mexico','Moldova','Mongolia','Morocco','Myanmar','Nepal','Netherlands','New Zealand','Nigeria','Norway','Pakistan','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Saudi Arabia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sweden','Switzerland','Taiwan','Tanzania','Thailand','Tunisia','Turkey','Uganda','Ukraine','United Arab Emirates','United Kingdom','United States','Uzbekistan','Venezuela','Vietnam'];
+const afCountry = document.getElementById('af-country');
+COUNTRIES.forEach(c => {
+  const opt = document.createElement('option');
+  opt.value = c; opt.textContent = c;
+  afCountry.appendChild(opt);
+});
+
+/* ─── Email domain helper ─── */
+const COMMON_DOMAINS = ['gmail.com','yahoo.com','outlook.com','hotmail.com','icloud.com','naver.com','daum.net','kakao.com','live.com'];
+function emailHelper(input, sugId){
+  const sug = document.getElementById(sugId);
+  const val = input.value;
+  const atIdx = val.indexOf('@');
+  if(atIdx < 1){ sug.classList.remove('show'); sug.innerHTML=''; return; }
+  const localPart = val.substring(0, atIdx);
+  const domainPart = val.substring(atIdx+1);
+  const filtered = COMMON_DOMAINS.filter(d => d.startsWith(domainPart) && d !== domainPart);
+  if(!filtered.length){ sug.classList.remove('show'); sug.innerHTML=''; return; }
+  sug.innerHTML = filtered.slice(0,5).map(d =>
+    `<div class="domain-sug-item" onmousedown="pickDomain('${input.id}','${localPart}','${d}','${sugId}')">
+      <span class="domain-sug-email">${localPart}@${d}</span>
+    </div>`
+  ).join('');
+  sug.classList.add('show');
+}
+function pickDomain(inputId, local, domain, sugId){
+  document.getElementById(inputId).value = local + '@' + domain;
+  hideHelper(sugId);
+}
+function hideHelper(sugId){ setTimeout(()=>{ const el=document.getElementById(sugId); if(el){el.classList.remove('show');el.innerHTML='';} }, 200); }
+
+/* ─── About Us tabs ─── */
+function switchAbout(pane, btn){
+  document.querySelectorAll('.about-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidenav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-'+pane).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── Process steps ─── */
+let currentStep = 1;
+const TOTAL_STEPS = 7;
+function goStep(n){
+  document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+  document.querySelector('.step-card[data-step="'+n+'"]').classList.add('active');
+  document.querySelectorAll('.st-num').forEach(el => {
+    const s = parseInt(el.dataset.step);
+    el.classList.remove('active','done');
+    if(s === n) el.classList.add('active');
+    else if(s < n) el.classList.add('done');
+  });
+  for(let i=1;i<TOTAL_STEPS;i++){
+    const line = document.getElementById('line-'+i+'-'+(i+1));
+    if(line){ line.classList.toggle('done', i < n); }
+  }
+  currentStep = n;
+  document.getElementById('stepCounter').textContent = 'Step '+n+' / '+TOTAL_STEPS;
+  document.getElementById('btnPrev').disabled = (n===1);
+  document.getElementById('btnNext').disabled = (n===TOTAL_STEPS);
+}
+function prevStep(){ if(currentStep > 1) goStep(currentStep-1); }
+function nextStep(){ if(currentStep < TOTAL_STEPS) goStep(currentStep+1); }
+
+/* ─── Modal helpers ─── */
+function openM(id){ document.getElementById(id).classList.add('active'); document.body.style.overflow='hidden'; }
+function closeM(id){
+  document.getElementById(id).classList.remove('active');
+  document.body.style.overflow='';
+  // Reset forms
+  if(id==='mAppForm'){ resetModal('appForm','appSuccess'); }
+  if(id==='mInquiry'){ resetModal('inquiryForm','inqSuccess'); }
+}
+function overlayClick(e,id){ if(e.target===e.currentTarget) closeM(id); }
+function resetModal(formId, successId){
+  const f = document.getElementById(formId);
+  const s = document.getElementById(successId);
+  if(f){ f.reset(); f.style.display=''; }
+  if(s){ s.classList.remove('show'); }
+}
+
+/* ─── Login type toggle ─── */
+function selLT(t){
+  document.getElementById('ltE').classList.toggle('sel', t==='expert');
+  document.getElementById('ltC').classList.toggle('sel', t==='company');
+  document.getElementById('lbl-em').textContent = (t==='expert') ? 'EXPERT EMAIL' : 'COMPANY EMAIL';
+}
+function doLogin(){
+  const em = document.getElementById('lin-em').value;
+  const pw = document.getElementById('lin-pw').value;
+  if(!em||!pw){ showToast('Please enter email and password.','err'); return; }
+  showToast('Login functionality requires backend integration.','ok');
+  closeM('mLogin');
+}
+
+/* ─── Form submissions ─── */
+function validateRequired(ids){
+  let ok = true;
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(!el.value.trim()){ el.classList.add('err'); ok=false; }
+    else { el.classList.remove('err'); }
+  });
+  return ok;
+}
+
+function submitAppForm(e){
+  e.preventDefault();
+  if(!validateRequired(['af-name','af-email','af-tel','af-country'])) {
+    showToast('Please fill in all required fields.','err'); return;
+  }
+  /* ── BACKEND INTEGRATION POINT ──
+     Replace the block below with a fetch() call to your API endpoint, e.g.:
+     fetch('/api/applications', {
+       method:'POST', headers:{'Content-Type':'application/json'},
+       body: JSON.stringify({ name, email, tel, exp, edu, specialty, country })
+     }).then(r=>r.json()).then(data=>{ showSuccess(); }).catch(err=>{ showToast('Error','err'); });
+  */
+  const payload = {
+    type: 'APPLICATION_FORM',
+    timestamp: new Date().toISOString(),
+    name: document.getElementById('af-name').value,
+    email: document.getElementById('af-email').value,
+    countryCode: document.getElementById('af-cc').value,
+    telephone: document.getElementById('af-tel').value,
+    professionalExperiences: document.getElementById('af-exp').value,
+    education: document.getElementById('af-edu').value,
+    specialty: document.getElementById('af-spec').value,
+    countryOfOrigin: document.getElementById('af-country').value,
+    sendTo: CONFIG.COMPANY_EMAIL,
+  };
+  console.log('[SEOULINKHEALTH] Application submission payload:', payload);
+  document.getElementById('appForm').style.display = 'none';
+  document.getElementById('appSuccess').classList.add('show');
+  showToast('Application submitted successfully.','ok');
+}
+
+function submitInquiry(e){
+  e.preventDefault();
+  if(!validateRequired(['iq-name','iq-email','iq-tel','iq-subj'])){
+    showToast('Please fill in all required fields.','err'); return;
+  }
+  /* ── BACKEND INTEGRATION POINT ──
+     Replace with fetch() to your API endpoint, e.g.:
+     fetch('/api/inquiries', { method:'POST', body: JSON.stringify(payload) })
+  */
+  const payload = {
+    type: 'INQUIRY_FORM',
+    timestamp: new Date().toISOString(),
+    name: document.getElementById('iq-name').value,
+    email: document.getElementById('iq-email').value,
+    countryCode: document.getElementById('iq-cc').value,
+    telephone: document.getElementById('iq-tel').value,
+    currentEmployment: document.getElementById('iq-emp').value,
+    professionalExperiences: document.getElementById('iq-exp').value,
+    inquiry: {
+      subject: document.getElementById('iq-subj').value,
+      description: document.getElementById('iq-desc').value,
+    },
+    additionalComments: document.getElementById('iq-comments').value,
+    sendTo: CONFIG.COMPANY_EMAIL,
+  };
+  console.log('[SEOULINKHEALTH] Inquiry submission payload:', payload);
+  document.getElementById('inquiryForm').style.display = 'none';
+  document.getElementById('inqSuccess').classList.add('show');
+  showToast('Inquiry submitted successfully.','ok');
+}
+
+/* ─── Toast ─── */
+function showToast(msg, type='ok'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(()=>{ t.classList.remove('show'); }, 3500);
+}
+
+/* ─── Mobile menu ─── */
+function toggleMM(){ document.getElementById('mmenu').classList.toggle('open'); }
+function closeMM(){ document.getElementById('mmenu').classList.remove('open'); }
+
+/* ─── Scroll reveal ─── */
+const obs = new IntersectionObserver((entries)=>{
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
+}, {threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+/* ─── Active nav link on scroll ─── */
+const sections = ['about','network','process','request'];
+const navAs = document.querySelectorAll('.nav-a');
+const scrollSpy = new IntersectionObserver((entries)=>{
+  entries.forEach(en => {
+    if(en.isIntersecting){
+      const id = en.target.id;
+      navAs.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href')==='#'+id);
+      });
+    }
+  });
+},{threshold:0.35});
+sections.forEach(s => { const el=document.getElementById(s); if(el) scrollSpy.observe(el); });
+
+/* ─── Keyboard ESC to close modal ─── */
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){
+    ['mAppForm','mInquiry','mLogin'].forEach(id => {
+      if(document.getElementById(id).classList.contains('active')) closeM(id);
+    });
+    closeMM();
+  }
+});
+</script>
+</body>
+</html>

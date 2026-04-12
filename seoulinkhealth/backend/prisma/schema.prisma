@@ -1,0 +1,115 @@
+// This is your Prisma schema file.
+// Learn more at: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Submission status ────────────────────────────────────────────────────────
+// Shared status enum values (SQLite doesn't support native enums; stored as String)
+// Allowed values: "New" | "Reviewed" | "Contacted"
+
+// ─── Application Submissions ─────────────────────────────────────────────────
+model ApplicationSubmission {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Contact
+  fullName   String
+  email      String
+  dialCode   String
+  telephone  String
+
+  // Professional profile
+  experiences String
+  education   String
+  specialty   String
+  countryOfOrigin String
+
+  // Admin
+  status     String   @default("New")  // "New" | "Reviewed" | "Contacted"
+  adminNotes String?
+
+  @@map("application_submissions")
+}
+
+// ─── Inquiry Submissions ──────────────────────────────────────────────────────
+model InquirySubmission {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Contact
+  fullName   String
+  email      String
+  dialCode   String
+  telephone  String
+
+  // Background
+  currentEmployment  String
+  experiences        String
+
+  // Inquiry
+  inquirySubject      String
+  inquiryDescription  String
+  additionalComments  String?
+
+  // Admin
+  status     String   @default("New")  // "New" | "Reviewed" | "Contacted"
+  adminNotes String?
+
+  // Company link (optional)
+  companyId  String?
+  company    Company? @relation(fields: [companyId], references: [id])
+
+  @@map("inquiry_submissions")
+}
+
+// ─── Company ──────────────────────────────────────────────────────────────────
+model Company {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  companyName   String
+  contactPerson String
+  telephone     String   @default("")
+  dialCode      String   @default("+82")
+  country       String   @default("")
+  industry      String   @default("")
+  isVerified    Boolean  @default(false)
+  otpCode       String?
+  otpExpiresAt  DateTime?
+  tempPassword  Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  inquiries     InquirySubmission[]
+  threads       QAThread[]
+}
+
+// ─── Q&A Threads ──────────────────────────────────────────────────────────────
+model QAThread {
+  id         String      @id @default(cuid())
+  companyId  String
+  company    Company     @relation(fields: [companyId], references: [id])
+  subject    String
+  status     String      @default("Open")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  messages   QAMessage[]
+}
+
+// ─── Q&A Messages ─────────────────────────────────────────────────────────────
+model QAMessage {
+  id        String   @id @default(cuid())
+  threadId  String
+  thread    QAThread @relation(fields: [threadId], references: [id])
+  sender    String
+  content   String
+  createdAt DateTime @default(now())
+}
