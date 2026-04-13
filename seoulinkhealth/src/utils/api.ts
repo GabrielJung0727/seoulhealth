@@ -245,3 +245,91 @@ export async function updateInquiryStatus(
   )
   return res.data as SubmissionItem
 }
+
+/* ─── Company Auth helpers ─────────────────────────────────────────────── */
+export interface CompanyRegisterData {
+  companyName: string
+  contactPerson: string
+  email: string
+  password: string
+  telephone: string
+  dialCode: string
+  country: string
+  industry: string
+}
+
+export interface CompanyLoginData {
+  email: string
+  password: string
+}
+
+export interface CompanyVerifyOTPData {
+  tempToken: string
+  otp: string
+}
+
+export async function companyRegister(data: CompanyRegisterData) {
+  return api.post('/company/auth/register', data)
+}
+
+export async function companyLogin(data: CompanyLoginData) {
+  return api.post<{ tempToken: string }>('/company/auth/login', data)
+}
+
+export async function companyVerifyOTP(data: CompanyVerifyOTPData) {
+  return api.post('/company/auth/verify-otp', data)
+}
+
+export async function companyForgotPassword(email: string) {
+  return api.post('/company/auth/forgot-password', { email })
+}
+
+/* ─── Company Profile helpers ──────────────────────────────────────────── */
+export async function getCompanyProfile(token: string) {
+  return api.get('/company/profile', token)
+}
+
+export async function updateCompanyProfile(
+  token: string,
+  data: Partial<{ companyName: string; contactPerson: string; telephone: string }>
+) {
+  return api.patch('/company/profile', data, token)
+}
+
+/* ─── Company Q&A helpers ──────────────────────────────────────────────── */
+export interface QAThread {
+  id: string
+  subject: string
+  status: 'Open' | 'Answered' | 'Closed'
+  createdAt: string
+  updatedAt: string
+  messages: Array<{
+    id: string
+    sender: 'company' | 'admin'
+    content: string
+    createdAt: string
+  }>
+}
+
+export async function getQAThreads(token: string) {
+  return api.get<{ data: QAThread[] }>('/company/qa/threads', token)
+}
+
+export async function getQAThread(token: string, threadId: string) {
+  return api.get<QAThread>(`/company/qa/threads/${threadId}`, token)
+}
+
+export async function createQAThread(
+  token: string,
+  data: { subject: string; message: string }
+) {
+  return api.post('/company/qa/threads', data, token)
+}
+
+export async function replyToQAThread(
+  token: string,
+  threadId: string,
+  message: string
+) {
+  return api.post(`/company/qa/threads/${threadId}/reply`, { message }, token)
+}

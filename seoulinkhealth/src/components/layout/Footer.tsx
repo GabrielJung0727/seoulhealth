@@ -43,7 +43,7 @@ export default function Footer() {
           >
             <Link to="/" className="inline-block mb-5 group" aria-label="SEOULINKHEALTH Home">
               <div className="text-base font-bold tracking-[0.12em] text-white group-hover:text-brand-gold transition-colors duration-300">
-                SEOULINKHEALTH
+                SEOUL<span className="text-brand-gold">INK</span>HEALTH
               </div>
               <div className="text-[0.55rem] tracking-[0.28em] text-brand-gold font-bold uppercase mt-1">
                 K-HEALTH BUSINESS PLATFORM
@@ -106,12 +106,12 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {SITE_CONFIG.quickLinks.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.href}
                     className="text-sm text-white/60 hover:text-white transition-colors duration-200 hover-underline"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

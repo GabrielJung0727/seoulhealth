@@ -28,9 +28,7 @@ export default function Header() {
       role="banner"
       className={[
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-        scrolled
-          ? 'bg-white shadow-premium border-b border-brand-border'
-          : 'bg-white/0 backdrop-blur-none border-b border-transparent',
+        'bg-brand-navy shadow-lg border-b border-brand-navy',
       ].join(' ')}
     >
       {/* Skip-to-content for keyboard accessibility */}
@@ -50,14 +48,11 @@ export default function Header() {
           onClick={closeMobile}
         >
           <motion.span
-            className={[
-              'text-sm sm:text-base lg:text-lg font-bold tracking-[0.06em] sm:tracking-[0.1em] transition-colors duration-300',
-              scrolled ? 'text-brand-navy' : 'text-brand-navy',
-            ].join(' ')}
+            className="text-sm sm:text-base lg:text-lg font-bold tracking-[0.06em] sm:tracking-[0.1em] transition-colors duration-300 text-white"
             whileHover={{ scale: 1.01 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
           >
-            SEOUL<span className="text-brand-gold">LINK</span>HEALTH
+            SEOUL<span className="text-brand-gold">INK</span>HEALTH
           </motion.span>
           <span className="text-[0.5rem] sm:text-[0.55rem] lg:text-[0.6rem] tracking-[0.18em] sm:tracking-[0.25em] text-brand-gold font-bold uppercase mt-0.5">
             K-HEALTH BUSINESS PLATFORM
@@ -83,8 +78,8 @@ export default function Header() {
                   [
                     'px-5 py-2 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-300 rounded-sm',
                     a
-                      ? 'bg-brand-navy text-white border-brand-navy'
-                      : 'border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white',
+                      ? 'bg-brand-gold text-brand-navy border-brand-gold'
+                      : 'border-white/60 text-white hover:bg-brand-gold hover:text-brand-navy hover:border-brand-gold',
                   ].join(' ')
                 }
               >
@@ -102,17 +97,17 @@ export default function Header() {
           aria-controls="mobile-menu"
         >
           <motion.span
-            className="block w-6 h-0.5 bg-brand-navy origin-center rounded-full"
+            className="block w-6 h-0.5 bg-white origin-center rounded-full"
             animate={mobileOpen ? { rotate: 45, y: 5.5 } : { rotate: 0, y: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
           />
           <motion.span
-            className="block w-6 h-0.5 bg-brand-navy rounded-full"
+            className="block w-6 h-0.5 bg-white rounded-full"
             animate={mobileOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
             transition={{ duration: 0.2 }}
           />
           <motion.span
-            className="block w-6 h-0.5 bg-brand-navy origin-center rounded-full"
+            className="block w-6 h-0.5 bg-white origin-center rounded-full"
             animate={mobileOpen ? { rotate: -45, y: -5.5 } : { rotate: 0, y: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
           />
@@ -146,7 +141,7 @@ export default function Header() {
                       [
                         'block py-3 px-2 text-sm font-bold tracking-[0.15em] uppercase border-b border-brand-border/50',
                         'transition-colors duration-200',
-                        a ? 'text-brand-teal' : 'text-brand-navy hover:text-brand-teal',
+                        a ? 'text-brand-gold' : 'text-brand-navy hover:text-brand-gold',
                       ].join(' ')
                     }
                   >
@@ -208,7 +203,7 @@ function DesktopNavLink({ to, label, active }: DesktopNavLinkProps) {
       <span
         className={[
           'text-[0.7rem] font-bold tracking-[0.15em] uppercase transition-colors duration-200',
-          active ? 'text-brand-teal' : 'text-brand-navy group-hover:text-brand-teal',
+          active ? 'text-brand-gold' : 'text-white/80 group-hover:text-brand-gold',
         ].join(' ')}
       >
         {label}

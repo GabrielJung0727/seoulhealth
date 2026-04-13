@@ -12,10 +12,18 @@ import RequestPage from '@/pages/Request'
 import LoginPage   from '@/pages/Login'
 import AdminPage   from '@/pages/Admin'
 import NotFoundPage from '@/pages/NotFound'
+import PrivacyPolicyPage from '@/pages/PrivacyPolicy'
+import TermsOfServicePage from '@/pages/TermsOfService'
+import FAQPage from '@/pages/FAQ'
+import CompanyLoginPage from '@/pages/CompanyLogin'
+import CompanyRegisterPage from '@/pages/CompanyRegister'
+import CompanyDashboardPage from '@/pages/CompanyDashboard'
+import CompanyQAPage from '@/pages/CompanyQA'
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 import Layout from '@/components/layout/Layout'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import CompanyProtectedRoute from '@/components/auth/CompanyProtectedRoute'
 
 // ─── Global UI ────────────────────────────────────────────────────────────────
 import ToastContainer from '@/components/ui/Toast'
@@ -45,6 +53,9 @@ function App() {
             <Route path="/network" element={<NetworkPage />} />
             <Route path="/process" element={<ProcessPage />} />
             <Route path="/request" element={<RequestPage />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms"   element={<TermsOfServicePage />} />
+            <Route path="/faq"     element={<FAQPage />} />
 
             {/* LOGIN nav item is toggled by config, but the /login route is
                 always registered so ProtectedRoute can redirect here */}
@@ -57,6 +68,26 @@ function App() {
           {!SITE_CONFIG.loginEnabled && (
             <Route path="/login" element={<LoginPage />} />
           )}
+
+          {/* ── Company pages — separate layout (no public nav) ── */}
+          <Route path="/company/login"    element={<CompanyLoginPage />} />
+          <Route path="/company/register" element={<CompanyRegisterPage />} />
+          <Route
+            path="/company/dashboard"
+            element={
+              <CompanyProtectedRoute>
+                <CompanyDashboardPage />
+              </CompanyProtectedRoute>
+            }
+          />
+          <Route
+            path="/company/qa"
+            element={
+              <CompanyProtectedRoute>
+                <CompanyQAPage />
+              </CompanyProtectedRoute>
+            }
+          />
 
           {/* ── Admin — protected, separate layout (no public nav) ── */}
           <Route

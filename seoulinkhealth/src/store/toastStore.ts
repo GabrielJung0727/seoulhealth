@@ -25,3 +25,16 @@ export const useToastStore = create<ToastStore>((set) => ({
     set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }))
   },
 }))
+
+/** Convenience hook — returns { success, error, info } helpers */
+export function useToast() {
+  const addToast = useToastStore((s) => s.addToast)
+  return {
+    success: (message: string, duration?: number) =>
+      addToast({ message, type: 'success', duration }),
+    error: (message: string, duration?: number) =>
+      addToast({ message, type: 'error', duration }),
+    info: (message: string, duration?: number) =>
+      addToast({ message, type: 'info', duration }),
+  }
+}
