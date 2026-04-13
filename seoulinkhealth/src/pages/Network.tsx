@@ -72,9 +72,10 @@ export default function NetworkPage() {
                   </p>
                   <p>
                     Our network is open to leading professionals around the world who are
-                    interested in contributing their expertise to the global K-Health ecosystem.
-                    If you are interested in contributing your expertise in our network as a
-                    professional expert, please complete the application form and submit it
+                    interested in sharing their expertise to the global K-Health ecosystem.
+                    If you are interested in sharing your expertise in our network as a
+                    professional expert in K-HEALTH CARE, K-HEALTH INDUSTRY, K-BIO, or K-HEALTH FOOD,
+                    please complete the application form and submit it
                     via the email address provided below.
                   </p>
                   <p>

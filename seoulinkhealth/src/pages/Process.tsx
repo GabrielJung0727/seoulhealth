@@ -16,65 +16,65 @@ const STEPS: Step[] = [
   {
     step: 1,
     title: 'REQUEST INTAKE',
-    subtitle: 'Confirmation & Initial Review',
+    subtitle: 'Confirmation and initial review of the client\'s submitted inquiry',
     description:
       'Confirmation and initial review of the client\'s submitted inquiry.',
     detail:
-      'Upon receiving your inquiry, our team conducts a thorough initial review to understand the nature, scope, and urgency of your request. We confirm receipt and assess which domain specialists are best suited to address your needs. A preliminary response is provided within two business days.',
+      'Upon receipt of the client\'s inquiry, we conduct a preliminary review. The submitted information is thoroughly examined for accuracy and relevance.',
   },
   {
     step: 2,
     title: 'IN-DEPTH CONSULTATION',
-    subtitle: 'Scope Clarification & Alignment',
+    subtitle: 'Detailed discussions to clarify scope, objectives, and expectations',
     description:
       'Detailed discussions to clarify scope, objectives, and expectations.',
     detail:
-      'Our advisory team engages in structured dialogue with the client to fully understand the objectives, expected outcomes, constraints, and timeline. This collaborative phase ensures complete alignment before expert resources are mobilized, minimizing revision cycles and maximizing solution quality.',
+      'We conduct in-depth discussions to establish a clear understanding of the project scope. These interactive conversations facilitate alignment on core objectives and desired outcomes.',
   },
   {
     step: 3,
     title: 'PRIMARY EXPERT REVIEW',
-    subtitle: 'Preliminary Analysis',
+    subtitle: 'Preliminary analysis conducted by relevant subject-matter experts',
     description:
       'Preliminary analysis conducted by relevant subject-matter experts.',
     detail:
-      'A curated group of primary experts from our network — selected based on their direct relevance to your inquiry — conducts an independent preliminary analysis. Their initial findings are compiled into a structured brief that forms the foundation for deeper specialist evaluation.',
+      'Relevant subject-matter experts perform a preliminary analysis based on their specialized knowledge and experience. This process ensures an informed and accurate assessment of the matter at hand.',
   },
   {
     step: 4,
     title: 'SECONDARY EXPERT CONSULTATION',
-    subtitle: 'In-Depth Domain Evaluation',
+    subtitle: 'In-depth evaluation and assessment by domain specialists',
     description:
       'In-depth evaluation and assessment by domain specialists.',
     detail:
-      'Domain-specific specialists conduct a rigorous, multi-dimensional review of the primary expert brief. This peer-review mechanism ensures intellectual rigor and cross-validates findings across different professional perspectives, producing a comprehensive and reliable knowledge base.',
+      'With domain specialists, the matter extensively undergoes a secondary consultation. These experts conduct an in-depth evaluation based on their practically advanced expertise. Their assessment provides deeper insights and supports a practically comprehensive understanding of the issue.',
   },
   {
     step: 5,
     title: 'CLIENT STRATEGY DISCUSSION',
-    subtitle: 'Solution Validation & Refinement',
+    subtitle: 'Collaborative discussion to validate and refine proposed solutions',
     description:
       'Collaborative discussion to validate and refine proposed solutions.',
     detail:
-      'The refined advisory findings are presented to the client in a structured strategy session. This collaborative dialogue allows the client to provide real-time feedback, enabling our experts to tailor the solution with maximum precision to the client\'s specific operational context.',
+      'The client participates in a strategy discussion to review the proposed solutions. This collaborative exchange ensures to validate the direction and underlying assumptions. It also enables refinement of the solutions to better align with the client\'s needs and objectives.',
   },
   {
     step: 6,
     title: 'REVIEW & REFINEMENT',
-    subtitle: 'Enhancement & Optimization',
+    subtitle: 'Further enhancement and optimization of the solution',
     description:
       'Further enhancement and optimization of the solution.',
     detail:
-      'Incorporating all client feedback, our expert team undertakes a final comprehensive review and quality assurance process. The solution is stress-tested against practical implementation scenarios, and any remaining gaps are addressed to ensure a complete, actionable, and globally competitive advisory output.',
+      'Based on the outcomes of these collaborative discussions, additional enhancements are identified and implemented. This stage focuses on refining and optimizing the solution to achieve the best possible outcome.',
   },
   {
     step: 7,
     title: 'FINAL REPORT DELIVERY',
-    subtitle: 'Comprehensive Report Submission',
+    subtitle: 'Submission of a comprehensive report',
     description:
       'Submission of a comprehensive report.',
     detail:
-      'The completed advisory report — encompassing all findings, strategic recommendations, supporting evidence, and implementation guidance — is formally delivered to the client. The report is structured for immediate practical use and is accompanied by a briefing session to ensure full comprehension and seamless adoption.',
+      'Finally, the completed report is delivered to the client. This completed advisory report encompasses all findings involving strategic recommendations and implementation guidance for the client\'s needs.',
   },
 ]
 

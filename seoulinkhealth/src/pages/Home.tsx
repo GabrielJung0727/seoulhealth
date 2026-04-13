@@ -239,7 +239,7 @@ export default function HomePage() {
                 Ready to engage with the K-Health ecosystem?
               </h2>
               <p className="text-brand-muted text-sm leading-relaxed">
-                Submit your inquiry and our team of experts will respond as soon as possible.
+                Submit your inquiry, and our team of experts will respond as soon as possible.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 shrink-0">

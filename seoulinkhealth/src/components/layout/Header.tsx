@@ -57,7 +57,7 @@ export default function Header() {
             whileHover={{ scale: 1.01 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
           >
-            SEOULINKHEALTH
+            SEOUL<span className="text-brand-gold">LINK</span>HEALTH
           </motion.span>
           <span className="text-[0.5rem] sm:text-[0.55rem] lg:text-[0.6rem] tracking-[0.18em] sm:tracking-[0.25em] text-brand-gold font-bold uppercase mt-0.5">
             K-HEALTH BUSINESS PLATFORM
@@ -76,10 +76,9 @@ export default function Header() {
             </li>
           ))}
 
-          {SITE_CONFIG.loginEnabled && (
-            <li>
+          <li>
               <NavLink
-                to="/login"
+                to="/company/login"
                 className={({ isActive: a }) =>
                   [
                     'px-5 py-2 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-300 rounded-sm',
@@ -92,7 +91,6 @@ export default function Header() {
                 LOGIN
               </NavLink>
             </li>
-          )}
         </ul>
 
         {/* ── Mobile Hamburger ─────────────────────────────────────────────── */}
@@ -157,8 +155,7 @@ export default function Header() {
                 </motion.li>
               ))}
 
-              {SITE_CONFIG.loginEnabled && (
-                <motion.li
+              <motion.li
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{
@@ -168,7 +165,7 @@ export default function Header() {
                   className="pt-3"
                 >
                   <NavLink
-                    to="/login"
+                    to="/company/login"
                     onClick={closeMobile}
                     className={({ isActive: a }) =>
                       [
@@ -182,7 +179,6 @@ export default function Header() {
                     LOGIN
                   </NavLink>
                 </motion.li>
-              )}
             </ul>
           </motion.div>
         )}

@@ -89,21 +89,19 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
-              {SITE_CONFIG.loginEnabled && (
-                <li>
+              <li>
                   <Link
-                    to="/login"
+                    to="/company/login"
                     className="text-sm text-white/60 hover:text-white transition-colors duration-200 hover-underline"
                   >
                     LOGIN
                   </Link>
                 </li>
-              )}
             </ul>
 
             {/* Quick Links */}
             <h3 className="text-[0.6rem] tracking-[0.22em] uppercase font-bold text-brand-gold mb-4 mt-8">
-              Quick Links
+              Legal
             </h3>
             <ul className="space-y-2.5">
               {SITE_CONFIG.quickLinks.map((link) => (
@@ -179,7 +177,7 @@ export default function Footer() {
         {/* ── Bottom Bar ───────────────────────────────────────────────────── */}
         <div className="border-t border-white/8 mt-14 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/30">
           <p>© {new Date().getFullYear()} SEOULINKHEALTH. All rights reserved.</p>
-          <p className="tracking-wider">GYEONGGI-DO, SOUTH KOREA</p>
+          <p className="tracking-wider">GYEONGGI-DO, REPUBLIC OF KOREA</p>
         </div>
       </div>
     </footer>

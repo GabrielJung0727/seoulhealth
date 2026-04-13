@@ -29,7 +29,7 @@ export const SITE_CONFIG = {
     postalCode: '13936',
     line1: '#101, 19 Gwanpyeong-ro 313 Beon-gil',
     line2: 'Dongan-gu, Anyang-si',
-    line3: 'Gyeonggi-do, South Korea',
+    line3: 'Gyeonggi-do, Republic of Korea',
   },
 
   // ─── Feature Flags ────────────────────────────────────────────────────────
