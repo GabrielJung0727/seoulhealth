@@ -30,17 +30,10 @@ interface PasswordForm {
   confirmNewPassword: string
 }
 
-/* ─── Animation ──────────────────────────────────────────────────────────── */
-const fadeIn = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] } },
-}
-
 export default function CompanyDashboardPage() {
   usePageTitle('Company Dashboard')
   const navigate = useNavigate()
   const { token, company, setAuth, clearAuth } = useCompanyAuthStore()
-  const toast = useToast()
 
   const [activeTab, setActiveTab] = useState<Tab>('overview')
   const [inquiries, setInquiries] = useState<InquiryItem[]>([])
@@ -138,17 +131,17 @@ export default function CompanyDashboardPage() {
         {/* Tab Content */}
         <AnimatePresence mode="wait">
           {activeTab === 'overview' && (
-            <motion.div key="overview" {...fadeIn}>
+            <motion.div key="overview" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}>
               <OverviewTab stats={stats} inquiries={inquiries} loading={loadingInquiries} />
             </motion.div>
           )}
           {activeTab === 'inquiries' && (
-            <motion.div key="inquiries" {...fadeIn}>
+            <motion.div key="inquiries" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}>
               <InquiriesTab inquiries={inquiries} loading={loadingInquiries} />
             </motion.div>
           )}
           {activeTab === 'settings' && (
-            <motion.div key="settings" {...fadeIn}>
+            <motion.div key="settings" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}>
               <SettingsTab company={company} token={token} setAuth={setAuth} />
             </motion.div>
           )}

@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { motion } from 'framer-motion'
 import { usePageTitle } from '@/hooks/usePageTitle'
-import { useCompanyAuthStore } from '@/store/companyAuthStore'
+import { useCompanyAuthStore, type CompanyInfo } from '@/store/companyAuthStore'
 import { useToast } from '@/store/toastStore'
 import EmailInput from '@/components/ui/EmailInput'
 import { api } from '@/utils/api'
@@ -115,11 +115,11 @@ export default function CompanyLoginPage() {
         tempToken,
         otp: code,
       })
-      const data = res as unknown as { token: string; company: typeof import('@/store/companyAuthStore').useCompanyAuthStore extends (s: infer S) => unknown ? S : never }
-      const token = data.token || (res.data as { token: string })?.token || ''
-      const company = data.company || (res.data as { company: import('@/store/companyAuthStore').CompanyInfo })?.company
+      const data = res as unknown as Record<string, unknown>
+      const token = (data.token || (data.data as Record<string, unknown>)?.token || '') as string
+      const company = (data.company || (data.data as Record<string, unknown>)?.company) as CompanyInfo | undefined
       if (token && company) {
-        setAuth(token, company)
+        setAuth(token, company as CompanyInfo)
         toast.success('Login successful!')
         navigate(from, { replace: true })
       }

@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SITE_CONFIG } from '@/config/site'
-import { useScrolled } from '@/hooks/useScrolled'
 
 /**
  * SEOULINKHEALTH — Main Header / Navigation Bar
@@ -16,7 +15,6 @@ import { useScrolled } from '@/hooks/useScrolled'
  */
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
-  const scrolled = useScrolled(20)
   const location = useLocation()
 
   const closeMobile = () => setMobileOpen(false)
