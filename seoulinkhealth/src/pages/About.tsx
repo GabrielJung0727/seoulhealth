@@ -47,9 +47,133 @@ export default function AboutPage() {
             transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
           >
             <span className="section-label text-brand-gold/80 mb-4 block">About Us</span>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-5">
-              {SITE_CONFIG.domains.join(' · ')}
-            </h1>
+
+            {/* Big K + 4 domain lines — animated connection */}
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: {
+                  transition: { staggerChildren: 0.45, delayChildren: 0.3 },
+                },
+              }}
+              className="flex items-center gap-3 sm:gap-5 lg:gap-6 mb-5"
+            >
+              {/* Big K — scales in */}
+              <motion.span
+                aria-hidden="true"
+                variants={{
+                  hidden: { opacity: 0, scale: 0.7 },
+                  visible: {
+                    opacity: 1,
+                    scale: 1,
+                    transition: { duration: 0.7, ease: [0.4, 0, 0.2, 1] },
+                  },
+                }}
+                className="font-bold text-brand-gold leading-none tracking-tighter
+                           text-[6rem] sm:text-[9rem] lg:text-[12rem] select-none"
+              >
+                K
+              </motion.span>
+
+              {/* Bracket connector + domain list */}
+              <motion.div
+                variants={{
+                  hidden: {},
+                  visible: {
+                    transition: { staggerChildren: 0.15 },
+                  },
+                }}
+                className="relative flex flex-col justify-center py-2 pl-4 sm:pl-6 lg:pl-7"
+              >
+                {/* Vertical gold bar — grows from top */}
+                <motion.span
+                  aria-hidden="true"
+                  variants={{
+                    hidden: { scaleY: 0 },
+                    visible: {
+                      scaleY: 1,
+                      transition: { duration: 0.55, ease: [0.4, 0, 0.2, 1] },
+                    },
+                  }}
+                  style={{ transformOrigin: 'top' }}
+                  className="absolute left-0 top-3 bottom-3 w-[3px] bg-brand-gold rounded-full"
+                />
+
+                {/* Pulsing energy dot at bar top — continuous loop (indicates live connection) */}
+                <motion.span
+                  aria-hidden="true"
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{
+                    opacity: [0, 0.9, 0.4, 0.9, 0.4],
+                    scale: [0, 1, 1.35, 1, 1.35],
+                  }}
+                  transition={{
+                    delay: 1.4,
+                    duration: 2.6,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  className="absolute -left-[3px] top-[4px] w-[9px] h-[9px] rounded-full bg-brand-gold
+                             shadow-[0_0_14px_rgba(184,150,90,0.9)]"
+                />
+
+                {/* Signal traveling down the bar — subtle, repeating */}
+                <motion.span
+                  aria-hidden="true"
+                  initial={{ opacity: 0, y: 0 }}
+                  animate={{
+                    opacity: [0, 0.8, 0.8, 0],
+                    y: ['0%', '0%', '100%', '100%'],
+                  }}
+                  transition={{
+                    delay: 1.8,
+                    duration: 2.4,
+                    times: [0, 0.15, 0.85, 1],
+                    repeat: Infinity,
+                    repeatDelay: 1.6,
+                    ease: 'easeInOut',
+                  }}
+                  className="absolute left-[-1px] top-3 h-8 w-[5px] rounded-full
+                             bg-gradient-to-b from-brand-gold via-brand-gold to-transparent blur-[2px]"
+                />
+
+                {/* Domain list */}
+                <motion.ul
+                  variants={{
+                    hidden: {},
+                    visible: {
+                      transition: { staggerChildren: 0.14, delayChildren: 0.2 },
+                    },
+                  }}
+                  className="flex flex-col gap-1.5 sm:gap-2 text-white font-bold uppercase
+                             leading-tight tracking-wide
+                             text-lg sm:text-2xl lg:text-3xl"
+                >
+                  {['HEALTH CARE', 'HEALTH INDUSTRY', 'BIO', 'HEALTH FOOD'].map((label) => (
+                    <motion.li
+                      key={label}
+                      variants={{
+                        hidden: { opacity: 0, x: -16 },
+                        visible: {
+                          opacity: 1,
+                          x: 0,
+                          transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
+                        },
+                      }}
+                      className="relative pl-4 sm:pl-5
+                                 before:content-[''] before:absolute before:left-0 before:top-1/2
+                                 before:-translate-y-1/2 before:w-3 sm:before:w-4
+                                 before:h-[2px] before:bg-brand-gold"
+                    >
+                      {label}
+                    </motion.li>
+                  ))}
+                </motion.ul>
+              </motion.div>
+            </motion.div>
+
             <div className="w-14 h-px bg-brand-gold mb-6" />
             <p className="text-white/60 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl">
               {SITE_CONFIG.description}
@@ -305,7 +429,24 @@ function FounderContent() {
 /* ═══════════════════════════════════════════════════════════════════════════
    TAB 3 — ENDORSEMENT
 ═══════════════════════════════════════════════════════════════════════════ */
-const ENDORSEMENT_CATEGORIES = [
+interface EndorsementCategory {
+  id: string
+  title: string
+  subtitle: string
+  icon: React.ReactNode
+  letter?: {
+    greeting?: string
+    paragraphs?: string[]
+    closing?: string
+    signatureImage?: string
+    signerInitials?: string
+    signerName?: string
+    signerCredentials?: string
+    signerRole?: string
+  }
+}
+
+const ENDORSEMENT_CATEGORIES: EndorsementCategory[] = [
   {
     id: 'minister',
     title: 'Former Minister of Health and Welfare',
@@ -316,6 +457,22 @@ const ENDORSEMENT_CATEGORIES = [
           stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
       </svg>
     ),
+    letter: {
+      greeting: 'Hello,',
+      paragraphs: [
+        'I am CHIN YOUB CHUNG, and I had the distinct privilege of serving as the Minister of Health and Welfare under the 18th President of the Republic of Korea, President Park Geun-Hye.',
+        "As is widely recognized, Korea's healthcare system, health industry, pharmaceutical sector, and health-related food industries have been experiencing remarkable growth, firmly establishing themselves at the forefront of the global marketplace.",
+        "During my tenure, I often noted — with a degree of concern — the relative shortage of highly qualified professionals capable of providing precise, reliable, and strategic guidance to foreign enterprises seeking entry into the Korean healthcare market, as well as to those endeavoring to adapt and implement Korea's advanced healthcare systems within their own countries.",
+        "It is therefore my great pleasure to offer this recommendation for Dr. J. S. Kim, an exceptionally qualified and capable expert in this field. Dr. Kim served as the Presidential Secretary for Health and Welfare during my time in office and has made significant contributions to the development and advancement of Korea's national healthcare policies. His expertise and dedication are widely recognized.",
+        "I am confident that numerous individuals and organizations will greatly benefit from his insight and counsel, and that his endeavors will serve as a vital bridge in advancing Korea's healthcare excellence on the global stage.",
+      ],
+      closing: 'Sincerely Yours,',
+      signatureImage: '/endorsements/chin-signature.gif',
+      signerInitials: 'CYC',
+      signerName: 'CHIN YOUB CHUNG',
+      signerCredentials: 'MD, PhD.',
+      signerRole: 'Former Minister of Health and Welfare, Republic of Korea',
+    },
   },
   {
     id: 'vice-minister',
@@ -327,6 +484,7 @@ const ENDORSEMENT_CATEGORIES = [
         <path d="M6 27c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     ),
+    letter: {},
   },
   {
     id: 'food-agency',
@@ -340,6 +498,7 @@ const ENDORSEMENT_CATEGORIES = [
         <path d="M9 19h6M9 23h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     ),
+    letter: {},
   },
 ]
 
@@ -352,44 +511,307 @@ function EndorsementContent() {
       </h2>
       <div className="accent-line" />
 
-      <div className="mt-8 space-y-5">
+      <div className="mt-8 space-y-6">
         {ENDORSEMENT_CATEGORIES.map((cat) => (
-          <div
-            key={cat.id}
-            className="card p-7 flex flex-col sm:flex-row gap-5 items-start"
-          >
-            {/* Icon */}
-            <div className="shrink-0 w-14 h-14 rounded-xl bg-brand-cream border border-brand-border
-                            flex items-center justify-center text-brand-gold">
-              {cat.icon}
-            </div>
-
-            {/* Text */}
-            <div className="flex-1">
-              <h3 className="text-sm font-bold text-brand-navy mb-0.5">
-                {cat.title}
-              </h3>
-              <p className="text-[0.7rem] font-semibold tracking-wide text-brand-gold uppercase mb-3">
-                {cat.subtitle}
-              </p>
-
-              {/* Placeholder content area */}
-              <div className="bg-brand-cream/60 border border-dashed border-brand-border rounded-lg px-5 py-4">
-                <p className="text-xs text-brand-muted/70 italic">
-                  Endorsement content will be added here.
-                </p>
-              </div>
-            </div>
-
-            {/* Status badge */}
-            <span className="shrink-0 self-start text-[0.6rem] font-bold tracking-wider uppercase
-                             px-2.5 py-1 rounded-full border border-brand-gold/30
-                             text-brand-gold/70 bg-brand-gold/5 whitespace-nowrap">
-              Forthcoming
-            </span>
-          </div>
+          <LetterheadCard key={cat.id} cat={cat} />
         ))}
       </div>
     </article>
+  )
+}
+
+/* ─── Ornamental rule: thin line with centered gold diamond ─────────────── */
+function OrnamentalRule({ className = '' }: { className?: string }) {
+  return (
+    <div aria-hidden="true" className={`flex items-center justify-center gap-3 ${className}`}>
+      <span className="flex-1 h-px bg-gradient-to-r from-transparent via-brand-gold/35 to-brand-gold/50" />
+      <svg viewBox="0 0 12 12" className="w-2.5 h-2.5 text-brand-gold/70 shrink-0" fill="currentColor">
+        <path d="M6 0 L7.2 4.8 L12 6 L7.2 7.2 L6 12 L4.8 7.2 L0 6 L4.8 4.8 Z" />
+      </svg>
+      <span className="flex-1 h-px bg-gradient-to-l from-transparent via-brand-gold/35 to-brand-gold/50" />
+    </div>
+  )
+}
+
+/* ─── Corner flourish: small L-shaped gold bracket ──────────────────────── */
+function CornerFlourish({ position }: { position: 'tl' | 'tr' | 'bl' | 'br' }) {
+  const pos = {
+    tl: 'top-4 left-4 border-t border-l rounded-tl-md',
+    tr: 'top-4 right-4 border-t border-r rounded-tr-md',
+    bl: 'bottom-4 left-4 border-b border-l rounded-bl-md',
+    br: 'bottom-4 right-4 border-b border-r rounded-br-md',
+  }[position]
+  return (
+    <span
+      aria-hidden="true"
+      className={`absolute w-5 h-5 border-brand-gold/45 pointer-events-none ${pos}`}
+    />
+  )
+}
+
+/* ─── Full letterhead card (published or forthcoming) ───────────────────── */
+function LetterheadCard({ cat }: { cat: EndorsementCategory }) {
+  const letter = cat.letter ?? {}
+  const hasContent = (letter.paragraphs?.length ?? 0) > 0
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+      className="relative rounded-2xl bg-white border border-brand-border shadow-premium overflow-hidden"
+    >
+      {/* Subtle parchment warmth */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none opacity-[0.04]"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 15% 10%, #B8965A 0%, transparent 45%), radial-gradient(circle at 85% 95%, #1B3A5B 0%, transparent 50%)',
+        }}
+      />
+
+      {/* Corner flourishes */}
+      <CornerFlourish position="tl" />
+      <CornerFlourish position="tr" />
+      <CornerFlourish position="bl" />
+      <CornerFlourish position="br" />
+
+      {/* Main content */}
+      <div className="relative px-6 sm:px-12 lg:px-20 py-10 sm:py-14 lg:py-16">
+
+        {/* ─── Ceremonial header ─── */}
+        <header className="text-center mb-8 lg:mb-10">
+          <OrnamentalRule className="mb-6" />
+          <p className="text-[0.6rem] font-bold tracking-[0.3em] uppercase text-brand-gold mb-3">
+            Official Endorsement
+          </p>
+          <h3 className="text-xl sm:text-2xl font-bold text-brand-navy leading-tight mb-2.5 font-serif">
+            {cat.title}
+          </h3>
+          <p className="text-[0.7rem] sm:text-xs font-semibold tracking-[0.22em] text-brand-muted uppercase">
+            {cat.subtitle}
+          </p>
+          <OrnamentalRule className="mt-6" />
+        </header>
+
+        {/* ─── Signatory preview — only when letter is signed ─── */}
+        {letter.signerName && (
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="relative w-12 h-12 rounded-full
+                            ring-1 ring-brand-gold/50 ring-offset-2 ring-offset-white shrink-0
+                            bg-gradient-to-br from-brand-navy to-[#0F2238]
+                            flex items-center justify-center">
+              <span className="text-[0.65rem] font-bold text-brand-gold font-serif tracking-[0.15em]">
+                {letter.signerInitials}
+              </span>
+            </div>
+            <div className="text-left">
+              <p className="text-[0.55rem] font-bold tracking-[0.22em] uppercase text-brand-gold mb-0.5">
+                Signed by
+              </p>
+              <p className="text-sm font-bold text-brand-navy font-serif leading-tight">
+                {letter.signerName},{' '}
+                <span className="text-brand-gold">{letter.signerCredentials}</span>
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ─── Status chip for forthcoming ─── */}
+        {!hasContent && (
+          <div className="flex justify-center mb-6">
+            <span className="text-[0.6rem] font-bold tracking-[0.22em] uppercase
+                             px-3 py-1.5 rounded-full border border-brand-gold/30
+                             text-brand-gold/80 bg-brand-gold/5">
+              Forthcoming
+            </span>
+          </div>
+        )}
+
+        {/* ─── Expand/collapse toggle ─── */}
+        <div className="flex justify-center">
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            aria-controls={`letter-${cat.id}`}
+            className="group flex items-center gap-2.5 px-6 py-3 rounded-full
+                       border border-brand-gold/40 bg-white hover:bg-brand-cream
+                       text-[0.65rem] font-bold tracking-[0.22em] uppercase text-brand-navy
+                       transition-all duration-300 shadow-sm hover:shadow-card
+                       hover:border-brand-gold focus-visible:outline-2 focus-visible:outline-brand-teal"
+          >
+            <span>
+              {expanded
+                ? hasContent ? 'Collapse Letter' : 'Hide Details'
+                : hasContent ? 'Read Full Letter' : 'View Details'}
+            </span>
+            <motion.svg
+              animate={{ rotate: expanded ? 180 : 0 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              className="w-3.5 h-3.5 text-brand-gold"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M3.47 5.22a.75.75 0 011.06 0L8 8.69l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" />
+            </motion.svg>
+          </button>
+        </div>
+
+        {/* ─── Collapsible body ─── */}
+        <AnimatePresence initial={false}>
+          {expanded && (
+            <motion.section
+              id={`letter-${cat.id}`}
+              key="letter-body"
+              initial="collapsed"
+              animate="open"
+              exit="collapsed"
+              variants={{
+                open:      { opacity: 1, height: 'auto' },
+                collapsed: { opacity: 0, height: 0 },
+              }}
+              transition={{ duration: 0.45, ease: [0.04, 0.62, 0.23, 0.98] }}
+              className="overflow-hidden"
+            >
+              {hasContent ? (
+                <FullLetterBody letter={letter} />
+              ) : (
+                <ForthcomingBody cat={cat} />
+              )}
+            </motion.section>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  )
+}
+
+/* ─── Full letter body ──────────────────────────────────────────────────── */
+function FullLetterBody({
+  letter,
+}: {
+  letter: NonNullable<EndorsementCategory['letter']>
+}) {
+  return (
+    <div className="pt-10 lg:pt-12">
+      <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
+
+        {/* Left: Avatar + identity */}
+        <aside className="lg:w-48 shrink-0">
+          <div className="sticky top-8 flex flex-col items-center lg:items-start">
+            <div className="relative w-24 h-24 rounded-full
+                            bg-gradient-to-br from-brand-navy to-[#0F2238]
+                            flex items-center justify-center
+                            ring-1 ring-brand-gold/50 ring-offset-[3px] ring-offset-white">
+              <span className="text-xl font-bold text-brand-gold font-serif tracking-[0.15em]">
+                {letter.signerInitials}
+              </span>
+            </div>
+
+            <div className="mt-6 text-center lg:text-left">
+              <p className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-brand-gold mb-1.5">
+                Signatory
+              </p>
+              <p className="text-sm font-bold text-brand-navy leading-tight font-serif">
+                {letter.signerName}
+              </p>
+              <p className="text-xs text-brand-muted tracking-wide mt-0.5">
+                {letter.signerCredentials}
+              </p>
+              <div className="w-8 h-px bg-brand-gold/50 my-4 mx-auto lg:mx-0" />
+              <p className="text-[0.7rem] text-brand-muted/90 leading-relaxed">
+                {letter.signerRole}
+              </p>
+            </div>
+          </div>
+        </aside>
+
+        {/* Right: Letter text */}
+        <div className="flex-1 min-w-0">
+          <p className="font-serif text-brand-navy text-base sm:text-lg mb-5">
+            {letter.greeting}
+          </p>
+
+          <div className="space-y-5 font-serif text-[0.95rem] sm:text-base leading-[1.85] text-brand-navy/85">
+            {letter.paragraphs?.map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
+
+          <p className="mt-10 font-serif text-brand-navy text-base">
+            {letter.closing}
+          </p>
+
+          {letter.signatureImage && (
+            <div className="mt-3 -ml-1">
+              <img
+                src={letter.signatureImage}
+                alt={`Signature of ${letter.signerName}`}
+                className="h-14 sm:h-16 w-auto select-none pointer-events-none"
+                style={{ mixBlendMode: 'multiply' }}
+                draggable={false}
+              />
+            </div>
+          )}
+
+          <div className="mt-3">
+            <p className="text-base font-bold text-brand-navy tracking-wide font-serif">
+              {letter.signerName},{' '}
+              <span className="text-brand-gold">{letter.signerCredentials}</span>
+            </p>
+            <p className="text-xs text-brand-muted mt-1 tracking-wide">
+              {letter.signerRole}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <OrnamentalRule className="mt-12 lg:mt-14" />
+    </div>
+  )
+}
+
+/* ─── Forthcoming placeholder body ──────────────────────────────────────── */
+function ForthcomingBody({ cat }: { cat: EndorsementCategory }) {
+  return (
+    <div className="pt-10 lg:pt-12">
+      <div className="max-w-xl mx-auto text-center">
+        {/* Icon in dignified circle */}
+        <div className="inline-flex w-16 h-16 rounded-full
+                        bg-gradient-to-br from-brand-navy to-[#0F2238]
+                        ring-1 ring-brand-gold/40 ring-offset-[3px] ring-offset-white
+                        items-center justify-center text-brand-gold/80 mb-6">
+          {cat.icon}
+        </div>
+
+        <p className="text-[0.65rem] font-bold tracking-[0.22em] uppercase text-brand-gold mb-3">
+          Endorsement Forthcoming
+        </p>
+
+        <p className="font-serif text-base sm:text-lg text-brand-navy leading-relaxed mb-4">
+          An official endorsement letter from a <strong>{cat.title}</strong> is
+          currently being prepared.
+        </p>
+
+        <p className="text-sm text-brand-muted leading-relaxed">
+          Once received, the letter will be published here along with the
+          signatory's credentials and a verified signature.
+        </p>
+
+        {/* Skeleton preview lines */}
+        <div className="mt-10 space-y-3 max-w-md mx-auto">
+          <div className="h-2 bg-brand-border/60 rounded-full w-full" />
+          <div className="h-2 bg-brand-border/60 rounded-full w-11/12 mx-auto" />
+          <div className="h-2 bg-brand-border/60 rounded-full w-10/12 mx-auto" />
+          <div className="h-2 bg-brand-border/60 rounded-full w-9/12 mx-auto" />
+        </div>
+      </div>
+
+      <OrnamentalRule className="mt-12 lg:mt-14" />
+    </div>
   )
 }

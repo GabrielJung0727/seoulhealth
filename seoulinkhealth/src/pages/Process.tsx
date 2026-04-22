@@ -47,7 +47,7 @@ const STEPS: Step[] = [
     description:
       'In-depth evaluation and assessment by domain specialists.',
     detail:
-      'With domain specialists, the matter extensively undergoes a secondary consultation. These experts conduct an in-depth evaluation based on their practically advanced expertise. Their assessment provides deeper insights and supports a practically comprehensive understanding of the issue.',
+      'With domain specialists, the matter extensively undergoes a secondary consultation. These experts conduct an in-depth evaluation based on their practically advanced expertise. Their assessment provides deeper insights and supports a comprehensive understanding of the issue on a practical basis.',
   },
   {
     step: 5,
@@ -65,7 +65,7 @@ const STEPS: Step[] = [
     description:
       'Further enhancement and optimization of the solution.',
     detail:
-      'Based on the outcomes of these collaborative discussions, additional enhancements are identified and implemented. This stage focuses on refining and optimizing the solution to achieve the best possible outcome.',
+      'Based on the outcomes of the collaborative discussions, additional enhancements are identified and implemented. This stage focuses on refining and optimizing the solution to achieve the best possible outcome.',
   },
   {
     step: 7,
