@@ -195,12 +195,22 @@ export default function CompanyLoginPage() {
               </div>
 
               <div className="text-right">
-                <Link
-                  to="/company/forgot-password"
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const email = watch('email')
+                    if (!email) { toast.error('Please enter your email first.'); return }
+                    try {
+                      await api.post('/company/auth/forgot-password', { email })
+                      toast.success('A temporary password has been sent to your email.')
+                    } catch {
+                      toast.error('Failed to send reset email. Please try again.')
+                    }
+                  }}
                   className="text-xs text-brand-teal hover:underline"
                 >
                   Forgot password?
-                </Link>
+                </button>
               </div>
 
               <button
