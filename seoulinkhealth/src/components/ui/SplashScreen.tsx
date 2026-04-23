@@ -30,7 +30,7 @@ export default function SplashScreen({ onComplete }: Props) {
         transition={{ duration: 0.5, ease: 'easeOut' }}
       >
         <h1 className="text-4xl md:text-5xl font-bold text-white tracking-wider mb-3">
-          SEOU<span className="text-[#D4C4A8]">L</span><span className="text-brand-gold">INK</span>HEALTH
+          SEOU<span className="text-[#D4C4A8]">L</span><span className="text-brand-gold">IN</span><span className="text-[#D4C4A8]">K</span>HEALTH
         </h1>
         <p className="text-sm md:text-base tracking-[0.25em] text-brand-gold uppercase">
           K-Health Business Platform

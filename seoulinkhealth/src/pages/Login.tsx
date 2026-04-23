@@ -84,7 +84,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-block">
             <h1 className="text-2xl font-bold text-white tracking-[0.1em]">
-              SEOU<span className="text-[#D4C4A8]">L</span><span className="text-brand-gold">INK</span>HEALTH
+              SEOU<span className="text-[#D4C4A8]">L</span><span className="text-brand-gold">IN</span><span className="text-[#D4C4A8]">K</span>HEALTH
             </h1>
             <p className="text-[0.5rem] tracking-[0.25em] text-white/30 font-semibold uppercase mt-1">
               K-Health Business Platform

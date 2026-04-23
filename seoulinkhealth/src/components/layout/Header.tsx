@@ -50,7 +50,7 @@ export default function Header() {
             whileHover={{ scale: 1.01 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
           >
-            SEOU<span className="text-[#D4C4A8]">L</span><span className="text-brand-gold">INK</span>HEALTH
+            SEOU<span className="text-[#D4C4A8]">L</span><span className="text-brand-gold">IN</span><span className="text-[#D4C4A8]">K</span>HEALTH
           </motion.span>
           <span className="text-[0.5rem] sm:text-[0.55rem] lg:text-[0.6rem] tracking-[0.18em] sm:tracking-[0.25em] text-brand-gold font-bold uppercase mt-0.5">
             K-HEALTH BUSINESS PLATFORM

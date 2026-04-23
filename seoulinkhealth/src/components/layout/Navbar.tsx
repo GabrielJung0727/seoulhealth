@@ -29,7 +29,7 @@ export default function Navbar() {
           aria-label="SEOULINKHEALTH Home"
         >
           <span className="text-base lg:text-lg font-bold tracking-[0.1em] text-brand-navy group-hover:text-brand-teal transition-colors duration-200">
-            SEOU<span className="text-[#D4C4A8]">L</span><span className="text-brand-gold">INK</span>HEALTH
+            SEOU<span className="text-[#D4C4A8]">L</span><span className="text-brand-gold">IN</span><span className="text-[#D4C4A8]">K</span>HEALTH
           </span>
           <span className="text-[0.55rem] lg:text-[0.6rem] tracking-[0.25em] text-brand-gold font-semibold uppercase mt-0.5">
             K-HEALTH BUSINESS PLATFORM
