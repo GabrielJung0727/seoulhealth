@@ -138,22 +138,18 @@ export default function AdminPage() {
     try {
       setQaLoading(true)
       const threads = await adminGetQAThreads(token)
-      setQaThreads(threads)
-      // If a thread was selected, refresh it
-      if (selectedThread) {
-        const updated = threads.find((t) => t.id === selectedThread.id)
-        if (updated) setSelectedThread(updated)
-      }
+      setQaThreads(Array.isArray(threads) ? threads : [])
     } catch (err) {
       console.error('[Admin] fetchQAThreads error:', err)
+      setQaThreads([])
     } finally {
       setQaLoading(false)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token])
 
   /* Fetch data */
   const fetchData = useCallback(async () => {
+    if (tab === 'qa') return // Q&A tab has its own fetch
     try {
       setLoading(true)
       const params = {

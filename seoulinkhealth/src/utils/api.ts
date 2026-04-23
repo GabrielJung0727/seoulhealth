@@ -351,9 +351,11 @@ export interface AdminQAThread {
   }>
 }
 
-export async function adminGetQAThreads(token: string) {
+export async function adminGetQAThreads(token: string): Promise<AdminQAThread[]> {
   const res = await api.get<AdminQAThread[]>('/admin/qa', token)
-  return res.data as AdminQAThread[]
+  const raw = res as unknown as Record<string, unknown>
+  const threads = raw.threads ?? raw.data ?? res.data
+  return Array.isArray(threads) ? threads : []
 }
 
 export async function adminGetQAThread(token: string, threadId: string) {
