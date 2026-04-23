@@ -139,9 +139,7 @@ export default function HomePage() {
               variants={fadeUp}
               className="text-3xl sm:text-5xl lg:text-7xl font-bold text-white leading-[1.05] tracking-[-0.02em] mb-6"
             >
-              SEOUL
-              <span className="text-brand-gold">INK</span>
-              HEALTH
+              SEOU<span className="text-[#D4C4A8]">L</span><span className="text-brand-gold">INK</span>HEALTH
             </motion.h1>
 
             {/* Domain subtitle */}

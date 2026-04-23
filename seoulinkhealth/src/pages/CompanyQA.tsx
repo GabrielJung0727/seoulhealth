@@ -128,7 +128,7 @@ export default function CompanyQAPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <Link to="/" className="flex flex-col leading-none">
             <span className="text-sm sm:text-base font-bold tracking-[0.1em] text-white">
-              SEOUL<span className="text-brand-gold">INK</span>HEALTH
+              SEOU<span className="text-[#D4C4A8]">L</span><span className="text-brand-gold">INK</span>HEALTH
             </span>
             <span className="text-[0.5rem] tracking-[0.25em] text-brand-gold font-bold uppercase mt-0.5">
               K-HEALTH BUSINESS PLATFORM
