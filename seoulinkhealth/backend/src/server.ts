@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import path from 'path'
 import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
@@ -82,10 +83,18 @@ app.get('/api/health', (_req, res) => {
   })
 })
 
-/* ─── 404 handler ────────────────────────────────────────────────────────── */
-app.use((_req, res) => {
-  res.status(404).json({ success: false, error: 'Route not found.' })
-})
+/* ─── Serve frontend (production) ────────────────────────────────────────── */
+if (process.env.NODE_ENV === 'production') {
+  const publicPath = path.join(__dirname, '..', 'public')
+  app.use(express.static(publicPath))
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'))
+  })
+} else {
+  app.use((_req, res) => {
+    res.status(404).json({ success: false, error: 'Route not found.' })
+  })
+}
 
 /* ─── Error handler ──────────────────────────────────────────────────────── */
 app.use(errorHandler)
