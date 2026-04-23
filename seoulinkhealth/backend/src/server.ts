@@ -8,6 +8,7 @@ import applyRouter from './routes/apply'
 import inquiryRouter from './routes/inquiry'
 import adminRouter from './routes/admin'
 import authRouter from './routes/auth'
+import { qaCompanyRouter, qaAdminRouter } from './routes/qa'
 import { errorHandler } from './middleware/errorHandler'
 
 /* ─── App ────────────────────────────────────────────────────────────────── */
@@ -67,6 +68,8 @@ const adminLimiter = rateLimit({
 app.use('/api/auth',    adminLimiter,      authRouter)    // POST /api/auth/login
 app.use('/api/apply',   submissionLimiter, applyRouter)
 app.use('/api/inquiry', submissionLimiter, inquiryRouter)
+app.use('/api/company/qa', adminLimiter,  qaCompanyRouter)
+app.use('/api/admin/qa',   adminLimiter,  qaAdminRouter)
 app.use('/api/admin',   adminLimiter,      adminRouter)
 
 /* ─── Health check ───────────────────────────────────────────────────────── */

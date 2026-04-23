@@ -333,3 +333,51 @@ export async function replyToQAThread(
 ) {
   return api.post(`/company/qa/threads/${threadId}/reply`, { message }, token)
 }
+
+/* ─── Admin Q&A helpers ─────────────────────────────────────────────────── */
+export interface AdminQAThread {
+  id: string
+  companyId: string
+  subject: string
+  status: string
+  createdAt: string
+  updatedAt: string
+  company: { companyName: string }
+  messages: Array<{
+    id: string
+    sender: 'company' | 'admin'
+    content: string
+    createdAt: string
+  }>
+}
+
+export async function adminGetQAThreads(token: string) {
+  const res = await api.get<AdminQAThread[]>('/admin/qa', token)
+  return res.data as AdminQAThread[]
+}
+
+export async function adminGetQAThread(token: string, threadId: string) {
+  const res = await api.get<AdminQAThread>(`/admin/qa/${threadId}`, token)
+  return res.data as AdminQAThread
+}
+
+export async function adminReplyQA(
+  token: string,
+  threadId: string,
+  message: string
+) {
+  return api.post(`/admin/qa/${threadId}/reply`, { message }, token)
+}
+
+export async function adminTranslateText(
+  token: string,
+  text: string,
+  targetLang: string
+) {
+  const res = await api.post<{ translatedText: string; sourceLang: string }>(
+    '/admin/qa/translate',
+    { text, targetLang },
+    token
+  )
+  return res as unknown as { success: boolean; translatedText: string; sourceLang: string }
+}

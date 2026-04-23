@@ -66,3 +66,48 @@ model InquirySubmission {
 
   @@map("inquiry_submissions")
 }
+
+// ─── Company ─────────────────────────────────────────────────────────────────
+model Company {
+  id            String      @id @default(cuid())
+  companyName   String
+  contactPerson String
+  email         String      @unique
+  password      String
+  telephone     String
+  dialCode      String
+  country       String
+  industry      String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  threads       QAThread[]
+
+  @@map("companies")
+}
+
+// ─── Q&A Threads ─────────────────────────────────────────────────────────────
+model QAThread {
+  id         String      @id @default(cuid())
+  companyId  String
+  company    Company     @relation(fields: [companyId], references: [id])
+  subject    String
+  status     String      @default("Open")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  messages   QAMessage[]
+
+  @@map("qa_threads")
+}
+
+// ─── Q&A Messages ────────────────────────────────────────────────────────────
+model QAMessage {
+  id        String   @id @default(cuid())
+  threadId  String
+  thread    QAThread @relation(fields: [threadId], references: [id])
+  sender    String
+  content   String
+  createdAt DateTime @default(now())
+
+  @@map("qa_messages")
+}
