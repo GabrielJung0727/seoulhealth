@@ -1,78 +1,124 @@
-# SEOULINKHEALTH
+# SEOULINKHEALTH — K-HEALTH BUSINESS PLATFORM
 
-`SEOULINKHEALTH`는 글로벌 파트너와 한국 헬스케어 산업을 연결하는 K-Health 비즈니스 플랫폼 랜딩 페이지 시안입니다. 현재 저장소는 빌드 과정이 없는 정적 프로토타입 중심 구조이며, 가장 완성도 높은 버전은 `seoulinkhealth-v4.html`입니다.
+Full-stack web application connecting global partners with Korea's healthcare ecosystem.
 
-## 프로젝트 개요
+**Frontend:** React 18 + TypeScript + Vite + Tailwind CSS + Framer Motion
+**Backend:** Node.js + Express + Prisma ORM + PostgreSQL
+**Auth:** JWT-based admin authentication
+**Email:** Nodemailer (SMTP)
 
-- 단일 HTML 기반의 반응형 랜딩 페이지
-- K-Health Care / K-Health Industry / K-Bio / K-Health Food 섹션 구성
-- 멤버 전용 영역, 자문단 모집, 채용, 뉴스레터, 문의 폼 UI 포함
-- 로그인 / 회원가입 / 2FA 흐름은 프런트엔드 데모용 인터랙션으로 구현
+## Pages
 
-## 주요 파일
+| Route | Description |
+|-------|-------------|
+| `/` | Landing page — Hero, CTA, domain cards |
+| `/about` | About Us — Greetings, Founder, Endorsement tabs |
+| `/network` | Expert Network + Application Form modal |
+| `/process` | 7-step interactive process navigator |
+| `/request` | Request Now + Inquiry Form modal |
+| `/login` | Admin login (conditional via `LOGIN_ENABLED`) |
+| `/admin` | Dashboard — Applications & Inquiries management |
 
-- `seoulinkhealth-v4.html`: 최신 정적 시안
-- `seoulinkhealth-v3.html`: 이전 버전 시안
-- `seoulinkhealth-v2.html`: 이전 버전 시안
-- `seoulinkhealth-preview.html`: 축약 프리뷰 버전
-- `seoulinkhealth-design.jsx`: React/JSX 형태의 디자인 참고 소스
+## Local Development
 
-## 실행 방법
+### Prerequisites
 
-별도 설치 없이 브라우저에서 바로 확인할 수 있습니다.
+- Node.js 20+
+- npm 9+
 
-```powershell
-start .\seoulinkhealth-v4.html
+### Frontend
+
+```bash
+cp .env.example .env
+npm install
+npm run dev
 ```
 
-또는 간단한 로컬 서버로 실행할 수 있습니다.
+Opens at `http://localhost:5173`
 
-```powershell
-python -m http.server 8000
+### Backend
+
+```bash
+cd backend
+cp .env.example .env
+npm install
+npx prisma generate
+npx prisma migrate dev
+npm run dev
 ```
 
-이후 브라우저에서 `http://localhost:8000/seoulinkhealth-v4.html`로 접속하면 됩니다.
+Runs at `http://localhost:3001`
 
-## 현재 구현 범위
+## Environment Variables
 
-- 스크롤 기반 섹션 이동 및 활성 메뉴 표시
-- 모바일 메뉴 토글
-- Google Translate 위젯 연동
-- 로그인 / 회원가입 모달 및 OTP 입력 UI
-- 뉴스레터 / 문의 폼 제출 시 토스트 메시지 표시
+### Frontend (`.env`)
 
-다음 항목은 아직 실제 서버 연동이 없습니다.
+| Variable | Description |
+|----------|-------------|
+| `VITE_COMPANY_EMAIL` | Company contact email |
+| `VITE_DIRECTOR_NAME` | Director name for forms |
+| `VITE_LOGIN_ENABLED` | Show/hide LOGIN nav item (`true`/`false`) |
+| `VITE_API_BASE_URL` | Backend API URL |
 
-- 로그인 인증
-- 회원가입 저장 및 검증
-- 뉴스레터 구독 저장
-- 문의 폼 전송
-- 멤버 전용 콘텐츠 권한 제어
+### Backend (`backend/.env`)
 
-## 외부 의존성
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | Database connection string |
+| `SMTP_HOST` | SMTP server host |
+| `SMTP_PORT` | SMTP server port |
+| `SMTP_SECURE` | Use TLS (`true`/`false`) |
+| `SMTP_USER` | SMTP username |
+| `SMTP_PASS` | SMTP password |
+| `COMPANY_EMAIL` | Notification recipient email |
+| `DIRECTOR_NAME` | Director name in email templates |
+| `JWT_SECRET` | JWT signing secret |
+| `ADMIN_PASSWORD` | Admin dashboard password |
+| `PORT` | Server port (default: 3001) |
+| `CORS_ORIGINS` | Allowed origins (comma-separated) |
 
-페이지는 아래 외부 리소스를 사용합니다.
+## API Endpoints
 
-- Google Fonts
-- Google Translate 스크립트
-- 외부 호스팅 배경 이미지
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `POST` | `/api/apply` | No | Submit application form |
+| `POST` | `/api/inquiry` | No | Submit inquiry form |
+| `POST` | `/api/auth/login` | No | Admin login |
+| `GET` | `/api/admin/applications` | JWT | List applications |
+| `GET` | `/api/admin/inquiries` | JWT | List inquiries |
+| `PATCH` | `/api/admin/applications/:id/status` | JWT | Update status |
+| `PATCH` | `/api/admin/inquiries/:id/status` | JWT | Update status |
+| `GET` | `/api/health` | No | Health check |
 
-따라서 일부 UI는 인터넷 연결이 있어야 정상적으로 표시됩니다.
+## Deployment
 
-## 수정 포인트
+### Frontend — Vercel
 
-- 브랜드 문구, 연락처, 회사 소개 텍스트 교체
-- 외부 이미지와 폰트를 자체 호스팅 자산으로 전환
-- 폼 및 인증 모달을 실제 백엔드 API와 연결
-- `Privacy Policy`, `Terms of Service`, `Compliance` 링크 대상 페이지 추가
+- `vercel.json` configured with SPA fallback
+- Set environment variables in Vercel dashboard
+- Connect GitHub repo for auto-deploy
 
-## 연락처 정보
+### Backend — Railway
 
-현재 페이지에 표시된 연락처는 아래와 같습니다.
+- `railway.toml` and `Procfile` included
+- Set environment variables in Railway dashboard
+- Connect Supabase PostgreSQL for production DB
 
-- Email: `contact@seoulinkhealth.com`
-- Address: `#101, 19 Gwanpyeong-ro 313 Beon-gil, Dongan-gu, Anyang-si, Gyeonggi-do, South Korea 13936`
+## Tech Stack
 
-## 참고
+- **React 18** + TypeScript + Vite
+- **Tailwind CSS** v3 — Utility-first styling
+- **Framer Motion** — Animations & transitions
+- **React Router** v6 — Client-side routing
+- **Zustand** — State management
+- **React Hook Form** + **Zod** — Form validation
+- **Express.js** — API server
+- **Prisma** ORM — Database access
+- **Nodemailer** — Email notifications
+- **Helmet.js** + Rate Limiting — Security
 
-이 저장소에는 `package.json`이나 별도 빌드 설정이 없으므로, 정적 파일 기준으로 관리하는 프로젝트입니다.
+## Contact
+
+- Email: contact@seoulinkhealth.com
+- Address: #101, 19 Gwanpyeong-ro 313 Beon-gil, Dongan-gu, Anyang-si, Gyeonggi-do, South Korea 13936
+- Website: www.seoulinkhealth.com

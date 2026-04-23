@@ -1,0 +1,68 @@
+// This is your Prisma schema file.
+// Learn more at: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Submission status ────────────────────────────────────────────────────────
+// Shared status enum values (SQLite doesn't support native enums; stored as String)
+// Allowed values: "New" | "Reviewed" | "Contacted"
+
+// ─── Application Submissions ─────────────────────────────────────────────────
+model ApplicationSubmission {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Contact
+  fullName   String
+  email      String
+  dialCode   String
+  telephone  String
+
+  // Professional profile
+  experiences String
+  education   String
+  specialty   String
+  countryOfOrigin String
+
+  // Admin
+  status     String   @default("New")  // "New" | "Reviewed" | "Contacted"
+  adminNotes String?
+
+  @@map("application_submissions")
+}
+
+// ─── Inquiry Submissions ──────────────────────────────────────────────────────
+model InquirySubmission {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Contact
+  fullName   String
+  email      String
+  dialCode   String
+  telephone  String
+
+  // Background
+  currentEmployment  String
+  experiences        String
+
+  // Inquiry
+  inquirySubject      String
+  inquiryDescription  String
+  additionalComments  String?
+
+  // Admin
+  status     String   @default("New")  // "New" | "Reviewed" | "Contacted"
+  adminNotes String?
+
+  @@map("inquiry_submissions")
+}
