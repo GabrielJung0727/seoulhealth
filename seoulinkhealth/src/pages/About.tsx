@@ -302,7 +302,7 @@ function GreetingsContent() {
         </p>
       </div>
 
-      {/* Signature */}
+      {/* CEO Signature */}
       <div className="mt-10 pt-8 border-t border-brand-border">
         <p className="text-brand-muted text-sm mb-2">Sincerely,</p>
         <p className="text-brand-navy font-bold text-lg tracking-wide">
@@ -311,6 +311,49 @@ function GreetingsContent() {
         <p className="text-brand-gold text-[0.7rem] font-bold tracking-[0.18em] uppercase mt-1">
           {SITE_CONFIG.founder.title}
         </p>
+      </div>
+
+      {/* ── COO Message ──────────────────────────────────────────────────── */}
+      <div className="mt-16 pt-12 border-t-2 border-brand-gold/20">
+        <p className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-brand-gold mb-4">
+          Message from the Chief Operating Officer
+        </p>
+
+        <div className="text-brand-muted text-sm sm:text-base leading-relaxed space-y-5">
+          <p>Hello,</p>
+
+          <p>
+            The global health industry market is evolving at an unprecedented pace, and the
+            Republic of Korea stands at the forefront of this transformation.
+          </p>
+
+          <p>
+            During my tenure as Head of Future Policy Headquarters at the Korea Health
+            Industry Development Institute and as Executive Director of the Health Policy
+            Research Institute at the Health Insurance Review and Assessment Service, I had
+            the privilege of contributing to the advancement and global competitiveness of
+            Korea's healthcare sector.
+          </p>
+
+          <p>
+            As a COO, I am truly delighted to have the opportunity to share my experience
+            and insights with a global audience those who have a keen interest in Korea's
+            health industry.
+          </p>
+
+          <p>Thank you.</p>
+        </div>
+
+        {/* COO Signature */}
+        <div className="mt-8 pt-6 border-t border-brand-border">
+          <p className="text-brand-muted text-sm mb-2">Sincerely,</p>
+          <p className="text-brand-navy font-bold text-lg tracking-wide">
+            Youn Tae Lee, Ph.D.
+          </p>
+          <p className="text-brand-gold text-[0.7rem] font-bold tracking-[0.18em] uppercase mt-1">
+            Chief Operating Officer
+          </p>
+        </div>
       </div>
     </article>
   )
