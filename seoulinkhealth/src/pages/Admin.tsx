@@ -293,7 +293,7 @@ export default function AdminPage() {
   }
 
   const items = data?.data ?? []
-  const totalPages = data?.pagination.totalPages ?? 1
+  const totalPages = data?.pagination?.totalPages ?? 1
 
   return (
     <div className="admin-layout min-h-screen bg-gray-50 no-print">
