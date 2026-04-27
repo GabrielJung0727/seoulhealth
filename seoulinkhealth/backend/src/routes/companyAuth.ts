@@ -381,10 +381,11 @@ router.get(
       ])
 
       // Combine and sort by date
-      const combined = [
-        ...inquiries.map((i: Record<string, unknown>) => ({ ...i, type: 'inquiry' })),
-        ...applications.map((a: Record<string, unknown>) => ({ ...a, type: 'application', inquirySubject: a.specialty ? `Expert Application — ${a.specialty}` : 'Expert Network Application' })),
-      ].sort((a, b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime())
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const combined: any[] = [
+        ...inquiries.map((i) => ({ ...(i as any), type: 'inquiry' })),
+        ...applications.map((a) => ({ ...(a as any), type: 'application', inquirySubject: (a as any).specialty ? `Expert Application — ${(a as any).specialty}` : 'Expert Network Application' })),
+      ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
       res.json({
         success: true,
