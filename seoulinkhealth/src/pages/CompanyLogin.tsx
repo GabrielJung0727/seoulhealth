@@ -58,7 +58,7 @@ export default function CompanyLoginPage() {
   const onSubmitCredentials = async (data: LoginForm) => {
     setLoading(true)
     try {
-      const res = await api.post<{ tempToken: string }>('/company/auth/login', {
+      await api.post('/company/auth/login', {
         email: data.email,
         password: data.password,
       })
