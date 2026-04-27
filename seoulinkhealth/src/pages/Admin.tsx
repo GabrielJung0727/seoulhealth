@@ -18,12 +18,18 @@ import {
   adminGetAllFiles,
   adminDownloadFile,
   adminGetEmailLogs,
+  adminGetProjects,
+  adminGetExperts,
+  adminGetAnalytics,
   type SubmissionItem,
   type PaginatedResponse,
   type AdminQAThread,
   type FileItem,
   type FileGrouped,
   type EmailLogItem,
+  type AdminProject,
+  type AdminExpert,
+  type AdminAnalytics,
 } from '@/utils/api'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
@@ -181,6 +187,20 @@ export default function AdminPage() {
   const [emailDebouncedSearch, setEmailDebouncedSearch] = useState('')
   const [emailPage, setEmailPage] = useState(1)
 
+  /* Projects state */
+  const [projects, setProjects] = useState<AdminProject[]>([])
+  const [projectsLoading, setProjectsLoading] = useState(false)
+
+  /* Experts state */
+  const [experts, setExperts] = useState<AdminExpert[]>([])
+  const [expertsLoading, setExpertsLoading] = useState(false)
+  const [expertSearch, setExpertSearch] = useState('')
+  const [expertDomainFilter, setExpertDomainFilter] = useState('전체')
+
+  /* Analytics state */
+  const [analyticsData, setAnalyticsData] = useState<AdminAnalytics | null>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+
   /* Dark mode state */
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('sih_admin_dark') === 'true')
 
@@ -253,6 +273,48 @@ export default function AdminPage() {
     }
   }, [token, emailPage, emailDebouncedSearch])
 
+  /* Fetch projects */
+  const fetchProjects = useCallback(async () => {
+    try {
+      setProjectsLoading(true)
+      const items = await adminGetProjects(token)
+      setProjects(Array.isArray(items) ? items : [])
+    } catch (err) {
+      console.error('[Admin] fetchProjects error:', err)
+      setProjects([])
+    } finally {
+      setProjectsLoading(false)
+    }
+  }, [token])
+
+  /* Fetch experts */
+  const fetchExperts = useCallback(async () => {
+    try {
+      setExpertsLoading(true)
+      const items = await adminGetExperts(token)
+      setExperts(Array.isArray(items) ? items : [])
+    } catch (err) {
+      console.error('[Admin] fetchExperts error:', err)
+      setExperts([])
+    } finally {
+      setExpertsLoading(false)
+    }
+  }, [token])
+
+  /* Fetch analytics */
+  const fetchAnalytics = useCallback(async () => {
+    try {
+      setAnalyticsLoading(true)
+      const data = await adminGetAnalytics(token)
+      setAnalyticsData(data)
+    } catch (err) {
+      console.error('[Admin] fetchAnalytics error:', err)
+      setAnalyticsData(null)
+    } finally {
+      setAnalyticsLoading(false)
+    }
+  }, [token])
+
   /* Fetch data */
   const fetchData = useCallback(async () => {
     if (tab !== 'applications' && tab !== 'inquiries') return // Only these tabs use fetchData
@@ -294,16 +356,22 @@ export default function AdminPage() {
       if (tab === 'qa') fetchQAThreads()
       if (tab === 'documents') fetchFiles()
       if (tab === 'emailLogs') fetchEmailLogs()
+      if (tab === 'projects') fetchProjects()
+      if (tab === 'experts') fetchExperts()
+      if (tab === 'analytics') fetchAnalytics()
     }, 30_000)
     return () => clearInterval(refreshRef.current)
-  }, [fetchData, fetchQAThreads, fetchFiles, fetchEmailLogs, tab])
+  }, [fetchData, fetchQAThreads, fetchFiles, fetchEmailLogs, fetchProjects, fetchExperts, fetchAnalytics, tab])
 
   /* Fetch Q&A threads when Q&A tab is selected */
   useEffect(() => {
     if (tab === 'qa') fetchQAThreads()
     if (tab === 'documents') fetchFiles()
     if (tab === 'emailLogs') fetchEmailLogs()
-  }, [tab, fetchQAThreads, fetchFiles, fetchEmailLogs])
+    if (tab === 'projects') fetchProjects()
+    if (tab === 'experts') fetchExperts()
+    if (tab === 'analytics') fetchAnalytics()
+  }, [tab, fetchQAThreads, fetchFiles, fetchEmailLogs, fetchProjects, fetchExperts, fetchAnalytics])
 
   /* FEATURE 3: Alert badge — update browser tab title with new item count */
   useEffect(() => {
@@ -560,7 +628,7 @@ export default function AdminPage() {
         </div>
 
         {/* ── Applications / Inquiries content ─────────────────────────── */}
-        {tab !== 'qa' && tab !== 'documents' && tab !== 'emailLogs' && (
+        {(tab === 'applications' || tab === 'inquiries') && (
           <>
             {/* ── Search + Filter ──────────────────────────────────────────── */}
             <div className="flex flex-col sm:flex-row gap-3">
@@ -1076,40 +1144,279 @@ export default function AdminPage() {
 
         {/* ── Projects Tab ─────────────────────────────────────────────── */}
         {tab === 'projects' && (
-          <div className="text-center py-16">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 mb-4">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-blue-600">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-brand-navy dark:text-white mb-2">{L.projects}</h3>
-            <p className="text-gray-500 dark:text-gray-400">프로젝트 관리 기능이 준비되었습니다. 곧 활성화됩니다.</p>
+          <div className="space-y-4">
+            {projectsLoading && projects.length === 0 ? (
+              Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={`proj-sk-${i}`} />)
+            ) : projects.length === 0 ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
+                <p className="text-xl text-gray-400 dark:text-gray-500">등록된 프로젝트가 없습니다.</p>
+              </motion.div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <AnimatePresence mode="popLayout">
+                  {projects.map((proj, i) => {
+                    const statusColor: Record<string, string> = {
+                      Planning: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+                      'In Progress': 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300',
+                      Review: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+                      Completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+                    }
+                    return (
+                      <motion.div
+                        key={proj.id}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ delay: i * 0.03 }}
+                        className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-brand-teal/40 hover:shadow-md p-5 transition-all cursor-pointer"
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">{proj.title}</h3>
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 ${statusColor[proj.status] ?? 'bg-gray-100 text-gray-600'}`}>
+                            {proj.status}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{proj.companyName}</p>
+                        {proj.domain && (
+                          <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-brand-navy/10 text-brand-navy dark:bg-brand-teal/20 dark:text-brand-teal mb-3">
+                            {proj.domain}
+                          </span>
+                        )}
+                        {/* Progress bar */}
+                        <div className="mb-2">
+                          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                            <span>진행률</span>
+                            <span>{proj.progress}%</span>
+                          </div>
+                          <div className="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-brand-teal rounded-full transition-all"
+                              style={{ width: `${Math.min(100, Math.max(0, proj.progress))}%` }}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 mt-3">
+                          {proj.expertName && <span>담당: {proj.expertName}</span>}
+                          <span>
+                            {proj.startDate ? toKoreanDate(proj.startDate) : ''}
+                            {proj.startDate && proj.endDate ? ' ~ ' : ''}
+                            {proj.endDate ? toKoreanDate(proj.endDate) : ''}
+                          </span>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
         )}
 
         {/* ── Experts Tab ──────────────────────────────────────────────── */}
         {tab === 'experts' && (
-          <div className="text-center py-16">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 dark:bg-green-900 mb-4">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-green-600">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-              </svg>
+          <div className="space-y-4">
+            {/* Search + Domain filter */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2">
+                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                </svg>
+                <input
+                  type="text"
+                  value={expertSearch}
+                  onChange={(e) => setExpertSearch(e.target.value)}
+                  placeholder="이름 또는 전공 검색"
+                  className="w-full h-14 pl-12 pr-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-colors"
+                />
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {['전체', 'K-HEALTH CARE', 'K-HEALTH INDUSTRY', 'K-BIO', 'K-HEALTH FOOD'].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setExpertDomainFilter(d)}
+                    className={`admin-btn rounded-full text-sm ${
+                      expertDomainFilter === d
+                        ? 'bg-brand-navy text-white'
+                        : 'bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
             </div>
-            <h3 className="text-xl font-bold text-brand-navy dark:text-white mb-2">{L.experts}</h3>
-            <p className="text-gray-500 dark:text-gray-400">전문가 데이터베이스가 준비되었습니다. 곧 활성화됩니다.</p>
+
+            {/* Expert cards */}
+            {expertsLoading && experts.length === 0 ? (
+              Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={`exp-sk-${i}`} />)
+            ) : (() => {
+              const filtered = experts.filter((e) => {
+                const matchDomain = expertDomainFilter === '전체' || e.domain === expertDomainFilter
+                const q = expertSearch.toLowerCase()
+                const matchSearch = !q || e.name.toLowerCase().includes(q) || e.specialty.toLowerCase().includes(q) || e.email.toLowerCase().includes(q)
+                return matchDomain && matchSearch
+              })
+              if (filtered.length === 0) {
+                return (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
+                    <p className="text-xl text-gray-400 dark:text-gray-500">
+                      {experts.length === 0 ? '등록된 전문가가 없습니다.' : '검색 결과가 없습니다.'}
+                    </p>
+                  </motion.div>
+                )
+              }
+              const domainColor: Record<string, string> = {
+                'K-HEALTH CARE': 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+                'K-HEALTH INDUSTRY': 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
+                'K-BIO': 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+                'K-HEALTH FOOD': 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+              }
+              return (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <AnimatePresence mode="popLayout">
+                    {filtered.map((exp, i) => (
+                      <motion.div
+                        key={exp.id}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ delay: i * 0.03 }}
+                        className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-brand-teal/40 hover:shadow-md p-5 transition-all"
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">{exp.name}</h3>
+                          <span className={`w-3 h-3 rounded-full shrink-0 mt-1.5 ${exp.status === 'Active' ? 'bg-green-400' : 'bg-gray-300'}`} title={exp.status} />
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate mb-1">{exp.email}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{exp.specialty}</p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`px-2 py-0.5 rounded text-xs font-semibold ${domainColor[exp.domain] ?? 'bg-gray-100 text-gray-600'}`}>
+                            {exp.domain}
+                          </span>
+                          {exp.country && (
+                            <span className="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                              {exp.country}
+                            </span>
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )
+            })()}
           </div>
         )}
 
         {/* ── Analytics Tab ────────────────────────────────────────────── */}
         {tab === 'analytics' && (
-          <div className="text-center py-16">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900 mb-4">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-purple-600">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-brand-navy dark:text-white mb-2">{L.analytics}</h3>
-            <p className="text-gray-500 dark:text-gray-400">통계 분석 대시보드가 준비되었습니다. 곧 활성화됩니다.</p>
+          <div className="space-y-6">
+            {analyticsLoading && !analyticsData ? (
+              Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={`ana-sk-${i}`} />)
+            ) : !analyticsData ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
+                <p className="text-xl text-gray-400 dark:text-gray-500">통계 데이터를 불러올 수 없습니다.</p>
+              </motion.div>
+            ) : (
+              <>
+                {/* Metric cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[
+                    { label: '이번 달 문의', value: analyticsData.totalInquiriesThisMonth, color: 'text-blue-600' },
+                    { label: '전환율', value: `${analyticsData.conversionRate}%`, color: 'text-green-600' },
+                    { label: '전체 프로젝트', value: analyticsData.totalProjects, color: 'text-purple-600' },
+                    { label: '전체 전문가', value: analyticsData.totalExperts, color: 'text-amber-600' },
+                  ].map((m) => (
+                    <div key={m.label} className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 p-5 text-center">
+                      <div className={`text-3xl font-bold ${m.color}`}>{m.value}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">{m.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Monthly bar chart */}
+                {analyticsData.monthlyInquiries?.length > 0 && (
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 p-5">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">월별 문의 현황</h3>
+                    <div className="flex items-end gap-2 h-48">
+                      {(() => {
+                        const maxCount = Math.max(...analyticsData.monthlyInquiries.map((m) => m.count), 1)
+                        return analyticsData.monthlyInquiries.map((m) => (
+                          <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
+                            <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">{m.count}</span>
+                            <div
+                              className="w-full bg-brand-navy dark:bg-brand-teal rounded-t transition-all min-h-[4px]"
+                              style={{ height: `${(m.count / maxCount) * 100}%` }}
+                            />
+                            <span className="text-[10px] text-gray-400 dark:text-gray-500 truncate w-full text-center">{m.month}</span>
+                          </div>
+                        ))
+                      })()}
+                    </div>
+                  </div>
+                )}
+
+                {/* Domain distribution */}
+                {analyticsData.domainDistribution?.length > 0 && (
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 p-5">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">분야별 분포</h3>
+                    {(() => {
+                      const total = analyticsData.domainDistribution.reduce((s, d) => s + d.count, 0) || 1
+                      const colors = ['bg-blue-500', 'bg-amber-500', 'bg-purple-500', 'bg-green-500', 'bg-red-500', 'bg-teal-500']
+                      return (
+                        <>
+                          <div className="w-full h-8 rounded-full overflow-hidden flex">
+                            {analyticsData.domainDistribution.map((d, i) => (
+                              <div
+                                key={d.domain}
+                                className={`${colors[i % colors.length]} transition-all`}
+                                style={{ width: `${(d.count / total) * 100}%` }}
+                                title={`${d.domain}: ${d.count}`}
+                              />
+                            ))}
+                          </div>
+                          <div className="flex flex-wrap gap-3 mt-3">
+                            {analyticsData.domainDistribution.map((d, i) => (
+                              <div key={d.domain} className="flex items-center gap-1.5 text-sm">
+                                <span className={`w-3 h-3 rounded-full ${colors[i % colors.length]}`} />
+                                <span className="text-gray-600 dark:text-gray-400">{d.domain}</span>
+                                <span className="font-bold text-gray-800 dark:text-gray-200">{d.count}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )
+                    })()}
+                  </div>
+                )}
+
+                {/* Top countries */}
+                {analyticsData.topCountries?.length > 0 && (
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 p-5">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">국가별 현황</h3>
+                    <div className="space-y-3">
+                      {(() => {
+                        const maxC = Math.max(...analyticsData.topCountries.map((c) => c.count), 1)
+                        return analyticsData.topCountries.slice(0, 10).map((c) => (
+                          <div key={c.country} className="flex items-center gap-3">
+                            <span className="w-24 text-sm font-semibold text-gray-700 dark:text-gray-300 truncate shrink-0">{c.country}</span>
+                            <div className="flex-1 h-5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-brand-navy dark:bg-brand-teal rounded-full transition-all"
+                                style={{ width: `${(c.count / maxC) * 100}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-bold text-gray-600 dark:text-gray-400 w-10 text-right">{c.count}</span>
+                          </div>
+                        ))
+                      })()}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
 

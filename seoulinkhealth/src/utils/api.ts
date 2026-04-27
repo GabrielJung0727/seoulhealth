@@ -535,3 +535,99 @@ export async function adminDownloadFile(token: string, fileId: string): Promise<
   a.click()
   URL.revokeObjectURL(blobUrl)
 }
+
+/* ─── Admin Projects helpers ─────────────────────────────────────────────── */
+export interface AdminProject {
+  id: string
+  title: string
+  description: string
+  companyId: string
+  companyName: string
+  domain: string
+  status: 'Planning' | 'In Progress' | 'Review' | 'Completed'
+  progress: number
+  expertId?: string | null
+  expertName?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export async function adminGetProjects(token: string): Promise<AdminProject[]> {
+  const res = await api.get<AdminProject[]>('/admin/projects', token)
+  const raw = res as unknown as Record<string, unknown>
+  const items = raw.projects ?? raw.data ?? res.data
+  return Array.isArray(items) ? items : []
+}
+
+export async function adminCreateProject(
+  token: string,
+  data: Partial<AdminProject>
+): Promise<AdminProject> {
+  const res = await api.post<AdminProject>('/admin/projects', data, token)
+  return res.data as AdminProject
+}
+
+export async function adminUpdateProject(
+  token: string,
+  id: string,
+  data: Partial<AdminProject>
+): Promise<AdminProject> {
+  const res = await api.patch<AdminProject>(`/admin/projects/${id}`, data, token)
+  return res.data as AdminProject
+}
+
+/* ─── Admin Experts helpers ──────────────────────────────────────────────── */
+export interface AdminExpert {
+  id: string
+  name: string
+  email: string
+  specialty: string
+  domain: string
+  country: string
+  status: 'Active' | 'Inactive'
+  createdAt: string
+  updatedAt: string
+}
+
+export async function adminGetExperts(token: string): Promise<AdminExpert[]> {
+  const res = await api.get<AdminExpert[]>('/admin/experts', token)
+  const raw = res as unknown as Record<string, unknown>
+  const items = raw.experts ?? raw.data ?? res.data
+  return Array.isArray(items) ? items : []
+}
+
+export async function adminCreateExpert(
+  token: string,
+  data: Partial<AdminExpert>
+): Promise<AdminExpert> {
+  const res = await api.post<AdminExpert>('/admin/experts', data, token)
+  return res.data as AdminExpert
+}
+
+export async function adminUpdateExpert(
+  token: string,
+  id: string,
+  data: Partial<AdminExpert>
+): Promise<AdminExpert> {
+  const res = await api.patch<AdminExpert>(`/admin/experts/${id}`, data, token)
+  return res.data as AdminExpert
+}
+
+/* ─── Admin Analytics helpers ────────────────────────────────────────────── */
+export interface AdminAnalytics {
+  totalInquiriesThisMonth: number
+  conversionRate: number
+  totalProjects: number
+  totalExperts: number
+  monthlyInquiries: { month: string; count: number }[]
+  domainDistribution: { domain: string; count: number }[]
+  topCountries: { country: string; count: number }[]
+}
+
+export async function adminGetAnalytics(token: string): Promise<AdminAnalytics> {
+  const res = await api.get<AdminAnalytics>('/admin/analytics', token)
+  const raw = res as unknown as Record<string, unknown>
+  return (raw.data ?? res.data ?? raw) as AdminAnalytics
+}
