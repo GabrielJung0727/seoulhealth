@@ -1,7 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body, validationResult } from 'express-validator'
 import prisma from '../lib/prisma'
-import { sendInquiryNotification, sendSubmissionConfirmation } from '../utils/mailer'
+import { sendInquiryNotification, sendSubmissionConfirmation, sendTempPasswordEmail, sendWelcomeEmail } from '../utils/mailer'
+import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 import { createError } from '../middleware/errorHandler'
 
 const router = Router()
@@ -72,6 +74,26 @@ router.post('/', inquiryValidation, async (req: Request, res: Response, next: Ne
       inquirySubject, inquiryDescription, additionalComments,
     }).catch(() => {})
     sendSubmissionConfirmation(email, fullName, 'inquiry').catch(() => {})
+
+    // Auto-create company account if not exists
+    const existingCompany = await prisma.company.findUnique({ where: { email } })
+    if (!existingCompany) {
+      const tempPw = crypto.randomBytes(4).toString('hex')
+      const hashedPw = await bcrypt.hash(tempPw, 12)
+      await prisma.company.create({
+        data: {
+          email,
+          password: hashedPw,
+          companyName: currentEmployment || fullName,
+          contactPerson: fullName,
+          telephone: telephone ?? '',
+          dialCode: dialCode ?? '+82',
+          tempPassword: true,
+        },
+      })
+      sendTempPasswordEmail(email, tempPw).catch(() => {})
+      sendWelcomeEmail(email, currentEmployment || fullName).catch(() => {})
+    }
 
     res.status(201).json({
       success: true,
