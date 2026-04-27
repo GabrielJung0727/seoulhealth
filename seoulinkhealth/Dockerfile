@@ -1,5 +1,6 @@
 # ── Build stage ────────────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
@@ -9,7 +10,7 @@ RUN npm ci
 
 # Install backend dependencies
 COPY backend/package.json backend/package-lock.json* ./backend/
-RUN cd backend && npm ci
+RUN cd backend && npm install
 
 # Copy source and build frontend
 COPY . .
@@ -20,16 +21,17 @@ RUN cd backend && npx prisma generate && npm run build
 
 # ── Production stage ──────────────────────────────────────────────────────────
 FROM node:20-alpine AS production
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
 # Copy backend production files
 COPY --from=builder /app/backend/package.json /app/backend/package-lock.json* ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/backend/prisma ./prisma
-COPY --from=builder /app/backend/node_modules/.prisma ./node_modules/.prisma
+RUN npx prisma generate
 
 # Copy built frontend into backend's public directory
 COPY --from=builder /app/dist ./public
@@ -42,4 +44,4 @@ ENV PORT=3001
 
 EXPOSE 3001
 
-CMD ["node", "dist/server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy 2>/dev/null; node dist/server.js"]
