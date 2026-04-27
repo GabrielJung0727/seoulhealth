@@ -29,7 +29,6 @@ import {
   type EmailLogItem,
   type AdminProject,
   type AdminExpert,
-  type AdminAnalytics,
 } from '@/utils/api'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
@@ -198,7 +197,8 @@ export default function AdminPage() {
   const [expertDomainFilter, setExpertDomainFilter] = useState('전체')
 
   /* Analytics state */
-  const [analyticsData, setAnalyticsData] = useState<AdminAnalytics | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
 
   /* Dark mode state */
@@ -265,12 +265,8 @@ export default function AdminPage() {
   const fetchEmailLogs = useCallback(async () => {
     try {
       setEmailLogsLoading(true)
-      const result = await adminGetEmailLogs(token, {
-        page: emailPage,
-        limit: 20,
-        search: emailDebouncedSearch || undefined,
-      })
-      setEmailLogs(result)
+      const result = await adminGetEmailLogs(token)
+      setEmailLogs({ data: result, pagination: { page: 1, limit: 100, total: result.length, totalPages: 1 } })
     } catch (err) {
       console.error('[Admin] fetchEmailLogs error:', err)
       setEmailLogs(null)
@@ -1387,8 +1383,8 @@ export default function AdminPage() {
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">월별 문의 현황</h3>
                     <div className="flex items-end gap-2 h-48">
                       {(() => {
-                        const maxCount = Math.max(...analyticsData.monthlyInquiries.map((m) => m.count), 1)
-                        return analyticsData.monthlyInquiries.map((m) => (
+                        const maxCount = Math.max(...analyticsData.monthlyInquiries.map((m: {month: string; count: number}) => m.count), 1)
+                        return analyticsData.monthlyInquiries.map((m: {month: string; count: number}) => (
                           <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
                             <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">{m.count}</span>
                             <div
@@ -1408,12 +1404,12 @@ export default function AdminPage() {
                   <div className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 p-5">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">분야별 분포</h3>
                     {(() => {
-                      const total = analyticsData.domainDistribution.reduce((s, d) => s + d.count, 0) || 1
+                      const total = analyticsData.domainDistribution.reduce((s: number, d: {domain: string; count: number}) => s + d.count, 0) || 1
                       const colors = ['bg-blue-500', 'bg-amber-500', 'bg-purple-500', 'bg-green-500', 'bg-red-500', 'bg-teal-500']
                       return (
                         <>
                           <div className="w-full h-8 rounded-full overflow-hidden flex">
-                            {analyticsData.domainDistribution.map((d, i) => (
+                            {analyticsData.domainDistribution.map((d: {domain: string; count: number}, i: number) => (
                               <div
                                 key={d.domain}
                                 className={`${colors[i % colors.length]} transition-all`}
@@ -1423,7 +1419,7 @@ export default function AdminPage() {
                             ))}
                           </div>
                           <div className="flex flex-wrap gap-3 mt-3">
-                            {analyticsData.domainDistribution.map((d, i) => (
+                            {analyticsData.domainDistribution.map((d: {domain: string; count: number}, i: number) => (
                               <div key={d.domain} className="flex items-center gap-1.5 text-sm">
                                 <span className={`w-3 h-3 rounded-full ${colors[i % colors.length]}`} />
                                 <span className="text-gray-600 dark:text-gray-400">{d.domain}</span>
@@ -1443,8 +1439,8 @@ export default function AdminPage() {
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">국가별 현황</h3>
                     <div className="space-y-3">
                       {(() => {
-                        const maxC = Math.max(...analyticsData.topCountries.map((c) => c.count), 1)
-                        return analyticsData.topCountries.slice(0, 10).map((c) => (
+                        const maxC = Math.max(...analyticsData.topCountries.map((c: {country: string; count: number}) => c.count), 1)
+                        return analyticsData.topCountries.slice(0, 10).map((c: {country: string; count: number}) => (
                           <div key={c.country} className="flex items-center gap-3">
                             <span className="w-24 text-sm font-semibold text-gray-700 dark:text-gray-300 truncate shrink-0">{c.country}</span>
                             <div className="flex-1 h-5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">

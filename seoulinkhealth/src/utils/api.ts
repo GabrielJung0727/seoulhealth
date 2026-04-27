@@ -684,3 +684,102 @@ export async function adminGetEmailLogs(token: string): Promise<EmailLogItem[]> 
   const res = await api.get<EmailLogItem[]>('/admin/email-logs', token)
   return (res.data ?? []) as EmailLogItem[]
 }
+
+/* ─── Admin Notes ────────────────────────────────────────────────────────── */
+export interface AdminNoteItem {
+  id: string
+  targetType: string
+  targetId: string
+  content: string
+  createdAt: string
+}
+
+export async function adminAddNote(token: string, data: { targetType: string; targetId: string; content: string }): Promise<void> {
+  await api.post('/admin/notes', data, token)
+}
+
+export async function adminGetNotes(token: string, targetType: string, targetId: string): Promise<AdminNoteItem[]> {
+  const res = await api.get<AdminNoteItem[]>(`/admin/notes/${targetType}/${targetId}`, token)
+  const raw = res as unknown as Record<string, unknown>
+  return (raw.notes ?? raw.data ?? res.data ?? []) as AdminNoteItem[]
+}
+
+/* ─── Admin Projects ─────────────────────────────────────────────────────── */
+export interface AdminProject {
+  id: string
+  title: string
+  description?: string
+  companyId: string
+  companyName?: string
+  domain?: string
+  status: string
+  progress: number
+  assignedExpert?: string
+  startDate?: string
+  endDate?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export async function adminGetProjects(token: string): Promise<AdminProject[]> {
+  const res = await api.get<AdminProject[]>('/admin/projects', token)
+  const raw = res as unknown as Record<string, unknown>
+  return (raw.projects ?? raw.data ?? res.data ?? []) as AdminProject[]
+}
+
+export async function adminCreateProject(token: string, data: Partial<AdminProject>): Promise<void> {
+  await api.post('/admin/projects', data, token)
+}
+
+export async function adminUpdateProject(token: string, id: string, data: Partial<AdminProject>): Promise<void> {
+  await api.patch(`/admin/projects/${id}`, data, token)
+}
+
+/* ─── Admin Experts ──────────────────────────────────────────────────────── */
+export interface AdminExpert {
+  id: string
+  fullName: string
+  email: string
+  telephone?: string
+  dialCode?: string
+  specialty: string
+  domain: string
+  education?: string
+  experiences?: string
+  country?: string
+  status: string
+  createdAt: string
+  updatedAt: string
+}
+
+export async function adminGetExperts(token: string): Promise<AdminExpert[]> {
+  const res = await api.get<AdminExpert[]>('/admin/experts', token)
+  const raw = res as unknown as Record<string, unknown>
+  return (raw.experts ?? raw.data ?? res.data ?? []) as AdminExpert[]
+}
+
+export async function adminCreateExpert(token: string, data: Partial<AdminExpert>): Promise<void> {
+  await api.post('/admin/experts', data, token)
+}
+
+export async function adminUpdateExpert(token: string, id: string, data: Partial<AdminExpert>): Promise<void> {
+  await api.patch(`/admin/experts/${id}`, data, token)
+}
+
+/* ─── Admin Analytics ────────────────────────────────────────────────────── */
+export async function adminGetAnalytics(token: string): Promise<Record<string, unknown>> {
+  const res = await api.get('/admin/analytics', token)
+  const raw = res as unknown as Record<string, unknown>
+  return (raw.data ?? raw) as Record<string, unknown>
+}
+
+/* ─── Company Projects ───────────────────────────────────────────────────── */
+export async function companyGetProjects(token: string): Promise<AdminProject[]> {
+  try {
+    const res = await api.get<AdminProject[]>('/company/projects', token)
+    const raw = res as unknown as Record<string, unknown>
+    return (raw.projects ?? raw.data ?? res.data ?? []) as AdminProject[]
+  } catch {
+    return []
+  }
+}
