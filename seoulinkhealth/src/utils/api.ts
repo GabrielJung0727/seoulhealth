@@ -164,11 +164,12 @@ export async function getApplications(
   if (params?.page) qs.set('page', String(params.page))
   if (params?.limit) qs.set('limit', String(params.limit))
   if (params?.search) qs.set('search', params.search)
-  const res = await api.get<PaginatedResponse<SubmissionItem>>(
+  const res = await api.get<SubmissionItem[]>(
     `/admin/applications${qs.toString() ? `?${qs}` : ''}`,
     token
   )
-  return res.data as PaginatedResponse<SubmissionItem>
+  const raw = res as unknown as { data: SubmissionItem[]; pagination?: PaginatedResponse<SubmissionItem>['pagination'] }
+  return { data: raw.data ?? [], pagination: raw.pagination ?? { page: 1, limit: 10, total: 0, totalPages: 1 } }
 }
 
 export async function getInquiries(
@@ -180,11 +181,12 @@ export async function getInquiries(
   if (params?.page) qs.set('page', String(params.page))
   if (params?.limit) qs.set('limit', String(params.limit))
   if (params?.search) qs.set('search', params.search)
-  const res = await api.get<PaginatedResponse<SubmissionItem>>(
+  const res = await api.get<SubmissionItem[]>(
     `/admin/inquiries${qs.toString() ? `?${qs}` : ''}`,
     token
   )
-  return res.data as PaginatedResponse<SubmissionItem>
+  const raw = res as unknown as { data: SubmissionItem[]; pagination?: PaginatedResponse<SubmissionItem>['pagination'] }
+  return { data: raw.data ?? [], pagination: raw.pagination ?? { page: 1, limit: 10, total: 0, totalPages: 1 } }
 }
 
 /* ─── CSV Export ─────────────────────────────────────────────────────────── */
