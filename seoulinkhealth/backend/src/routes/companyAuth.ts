@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body, validationResult } from 'express-validator'
 import crypto from 'crypto'
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import prisma from '../lib/prisma'
 import { createError } from '../middleware/errorHandler'
@@ -67,7 +68,7 @@ router.post(
       }
 
       // Hash password
-      const hashedPassword = crypto.createHash('sha256').update(password).digest('hex')
+      const hashedPassword = await bcrypt.hash(password, 12)
 
       await prisma.company.create({
         data: {
@@ -111,8 +112,8 @@ router.post(
       }
 
       // Verify password
-      const hashedPassword = crypto.createHash('sha256').update(password).digest('hex')
-      if (hashedPassword !== company.password) {
+      const isValid = await bcrypt.compare(password, company.password)
+      if (!isValid) {
         return next(createError('Invalid credentials.', 401))
       }
 
@@ -120,9 +121,12 @@ router.post(
       const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
       const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
 
+      // Hash OTP before storing
+      const otpHash = crypto.createHash('sha256').update(otpCode).digest('hex')
+
       await prisma.company.update({
         where: { id: company.id },
-        data: { otpCode, otpExpiresAt },
+        data: { otpCode: otpHash, otpExpiresAt },
       })
 
       // TODO: Send OTP via email — for now just store it
@@ -154,8 +158,9 @@ router.post(
         return next(createError('Invalid credentials.', 401))
       }
 
-      // Verify OTP matches and is not expired
-      if (!company.otpCode || company.otpCode !== otpCode) {
+      // Verify OTP matches and is not expired (compare hashed values)
+      const otpHash = crypto.createHash('sha256').update(otpCode).digest('hex')
+      if (!company.otpCode || company.otpCode !== otpHash) {
         return next(createError('Invalid OTP code.', 401))
       }
 
@@ -221,14 +226,13 @@ router.post(
       const tempPassword = crypto.randomBytes(4).toString('hex') // 8 hex chars
 
       // Hash and save
-      const hashedPassword = crypto.createHash('sha256').update(tempPassword).digest('hex')
+      const hashedTemp = await bcrypt.hash(tempPassword, 12)
       await prisma.company.update({
         where: { id: company.id },
-        data: { password: hashedPassword, tempPassword: true },
+        data: { password: hashedTemp, tempPassword: true },
       })
 
       // TODO: Send temp password via email
-      console.log(`[CompanyAuth] Temp password for ${email}: ${tempPassword}`)
 
       res.json({ success: true, message: 'If the email exists, a temporary password has been sent.' })
     } catch (err) {
@@ -293,8 +297,8 @@ router.patch(
           return next(createError('Current password is required to set a new password.', 400))
         }
 
-        const currentHash = crypto.createHash('sha256').update(currentPassword).digest('hex')
-        if (currentHash !== company.password) {
+        const passwordMatch = await bcrypt.compare(currentPassword, company.password)
+        if (!passwordMatch) {
           return next(createError('Current password is incorrect.', 401))
         }
 
@@ -313,7 +317,7 @@ router.patch(
       if (industry !== undefined) updateData.industry = industry
 
       if (newPassword) {
-        updateData.password = crypto.createHash('sha256').update(newPassword).digest('hex')
+        updateData.password = await bcrypt.hash(newPassword, 12)
         updateData.tempPassword = false
       }
 

@@ -15,11 +15,23 @@ import { fileCompanyRouter, fileAdminRouter } from './routes/files'
 import emailLogRouter from './routes/emailLog'
 import { errorHandler } from './middleware/errorHandler'
 
+/* ─── Environment validation ────────────────────────────────────────────── */
+const REQUIRED_ENV = ['JWT_SECRET', 'ADMIN_PASSWORD']
+for (const key of REQUIRED_ENV) {
+  if (!process.env[key]) {
+    console.error(`Missing required env: ${key}`)
+    process.exit(1)
+  }
+}
+
 /* ─── App ────────────────────────────────────────────────────────────────── */
 const app = express()
 
 /* ─── Security headers ───────────────────────────────────────────────────── */
-app.use(helmet())
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}))
 
 /* ─── CORS ───────────────────────────────────────────────────────────────── */
 const allowedOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5173')
@@ -60,6 +72,15 @@ const submissionLimiter = rateLimit({
   skip: (req) => process.env.NODE_ENV === 'development' && req.ip === '::1',
 })
 
+// Auth endpoints: strict limit to prevent brute-force
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Too many attempts. Please try again later.' },
+})
+
 // Admin endpoints: slightly more lenient (for dashboard use)
 const adminLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -72,7 +93,7 @@ const adminLimiter = rateLimit({
 app.use('/api/auth',    adminLimiter,      authRouter)    // POST /api/auth/login
 app.use('/api/apply',   submissionLimiter, applyRouter)
 app.use('/api/inquiry', submissionLimiter, inquiryRouter)
-app.use('/api/company/auth',  adminLimiter,  companyAuthRouter)
+app.use('/api/company/auth',  authLimiter,   companyAuthRouter)
 app.use('/api/company/qa',    adminLimiter,  qaCompanyRouter)
 app.use('/api/company/files', adminLimiter,  fileCompanyRouter)
 app.use('/api/admin/qa',     adminLimiter,  qaAdminRouter)

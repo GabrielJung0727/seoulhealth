@@ -202,6 +202,11 @@ fileCompanyRouter.get(
         return next(createError('Access denied.', 403))
       }
 
+      // Validate stored filename format to prevent path traversal
+      if (!/^[\w-]+\.\w+$/.test(file.storedName)) {
+        return next(createError('Invalid file.', 400))
+      }
+
       const filePath = path.join(FILES_BASE_DIR, file.companyId, file.storedName)
       if (!fs.existsSync(filePath)) {
         return next(createError('File not found on disk.', 404))
@@ -329,6 +334,11 @@ fileAdminRouter.get(
       })
 
       if (!file) return next(createError('File not found.', 404))
+
+      // Validate stored filename format to prevent path traversal
+      if (!/^[\w-]+\.\w+$/.test(file.storedName)) {
+        return next(createError('Invalid file.', 400))
+      }
 
       const filePath = path.join(FILES_BASE_DIR, file.companyId, file.storedName)
       if (!fs.existsSync(filePath)) {

@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body, param, query, validationResult } from 'express-validator'
+import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import prisma from '../lib/prisma'
 import { requireAuth, AuthRequest } from '../middleware/auth'
@@ -21,7 +22,9 @@ router.post(
     }
 
     const { password } = req.body
-    if (password !== process.env.ADMIN_PASSWORD) {
+    const isValid = password.length === process.env.ADMIN_PASSWORD!.length &&
+      crypto.timingSafeEqual(Buffer.from(password), Buffer.from(process.env.ADMIN_PASSWORD!))
+    if (!isValid) {
       return next(createError('Invalid credentials.', 401))
     }
 
@@ -269,7 +272,7 @@ router.post(
   [
     body('targetType').isIn(['application', 'inquiry']).withMessage('targetType must be application or inquiry'),
     body('targetId').notEmpty().withMessage('targetId is required'),
-    body('content').notEmpty().trim().isLength({ max: 2000 }).withMessage('content is required (max 2000 chars)'),
+    body('content').notEmpty().trim().isLength({ max: 2000 }).escape().withMessage('content is required (max 2000 chars)'),
   ],
   async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
