@@ -82,8 +82,23 @@ model Company {
   updatedAt     DateTime    @updatedAt
 
   threads       QAThread[]
+  files         FileUpload[]
 
   @@map("companies")
+}
+
+// ─── File Uploads ────────────────────────────────────────────────────────────
+model FileUpload {
+  id           String   @id @default(cuid())
+  companyId    String
+  company      Company  @relation(fields: [companyId], references: [id])
+  originalName String
+  storedName   String
+  mimeType     String
+  size         Int
+  createdAt    DateTime @default(now())
+
+  @@map("file_uploads")
 }
 
 // ─── Q&A Threads ─────────────────────────────────────────────────────────────

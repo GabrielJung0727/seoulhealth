@@ -135,6 +135,12 @@ export const SITE_CONFIG = {
       noSubmissions: '제출 내역이 없습니다.',
       // Q&A tab
       qa: '질문답변',
+      // Documents tab
+      documents: '서류',
+      documentsNoFiles: '업로드된 서류가 없습니다.',
+      documentsFiles: '개 파일',
+      documentsDownload: '다운로드',
+      documentsTotal: '총',
       qaThreads: 'Q&A 목록',
       qaNoThreads: '질문답변 내역이 없습니다.',
       qaSubject: '제목',

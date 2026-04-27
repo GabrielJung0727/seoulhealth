@@ -383,3 +383,103 @@ export async function adminTranslateText(
   )
   return res as unknown as { success: boolean; translatedText: string; sourceLang: string }
 }
+
+/* ─── File Upload helpers ──────────────────────────────────────────────── */
+export interface FileItem {
+  id: string
+  companyId: string
+  originalName: string
+  storedName: string
+  mimeType: string
+  size: number
+  createdAt: string
+  company?: { companyName: string }
+}
+
+export interface FileGrouped {
+  companyId: string
+  companyName: string
+  files: FileItem[]
+  totalSize: number
+}
+
+export async function companyUploadFiles(token: string, files: File[]): Promise<FileItem[]> {
+  const url = `${BASE_URL}/company/files/upload`
+  const formData = new FormData()
+  files.forEach((f) => formData.append('files', f))
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  })
+
+  const json = await res.json()
+  if (!res.ok) {
+    throw new ApiError(res.status, json.error ?? 'Upload failed.', json.details)
+  }
+  return json.data as FileItem[]
+}
+
+export async function companyGetFiles(token: string): Promise<FileItem[]> {
+  const res = await api.get<FileItem[]>('/company/files', token)
+  return (res.data ?? []) as FileItem[]
+}
+
+export async function companyDownloadFile(token: string, fileId: string): Promise<void> {
+  const url = `${BASE_URL}/company/files/${fileId}/download`
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}))
+    throw new ApiError(res.status, (json as Record<string, string>).error ?? 'Download failed.')
+  }
+  const blob = await res.blob()
+  const disposition = res.headers.get('Content-Disposition') ?? ''
+  const match = disposition.match(/filename="?(.+?)"?$/)
+  const filename = match ? decodeURIComponent(match[1]) : 'download'
+
+  const blobUrl = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = blobUrl
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(blobUrl)
+}
+
+export async function companyDeleteFile(token: string, fileId: string): Promise<void> {
+  await api.delete('/company/files/' + fileId, token)
+}
+
+export async function adminGetAllFiles(token: string): Promise<Record<string, FileGrouped>> {
+  const res = await api.get<Record<string, FileGrouped>>('/admin/files', token)
+  return (res.data ?? {}) as Record<string, FileGrouped>
+}
+
+export async function adminGetCompanyFiles(token: string, companyId: string): Promise<FileItem[]> {
+  const res = await api.get<FileItem[]>(`/admin/files/company/${companyId}`, token)
+  return (res.data ?? []) as FileItem[]
+}
+
+export async function adminDownloadFile(token: string, fileId: string): Promise<void> {
+  const url = `${BASE_URL}/admin/files/${fileId}/download`
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}))
+    throw new ApiError(res.status, (json as Record<string, string>).error ?? 'Download failed.')
+  }
+  const blob = await res.blob()
+  const disposition = res.headers.get('Content-Disposition') ?? ''
+  const match = disposition.match(/filename="?(.+?)"?$/)
+  const filename = match ? decodeURIComponent(match[1]) : 'download'
+
+  const blobUrl = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = blobUrl
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(blobUrl)
+}

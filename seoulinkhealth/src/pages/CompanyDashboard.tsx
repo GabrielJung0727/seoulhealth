@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { useCompanyAuthStore, type CompanyInfo } from '@/store/companyAuthStore'
 import { useToast } from '@/store/toastStore'
-import { api } from '@/utils/api'
+import { api, companyUploadFiles, companyGetFiles, companyDownloadFile, companyDeleteFile, type FileItem } from '@/utils/api'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
-type Tab = 'overview' | 'inquiries' | 'settings'
+type Tab = 'overview' | 'inquiries' | 'files' | 'settings'
 
 interface InquiryItem {
   id: string
@@ -43,6 +43,7 @@ export default function CompanyDashboardPage() {
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
     { key: 'inquiries', label: 'My Inquiries' },
+    { key: 'files', label: 'Documents' },
     { key: 'settings', label: 'Settings' },
   ]
 
@@ -138,6 +139,11 @@ export default function CompanyDashboardPage() {
           {activeTab === 'inquiries' && (
             <motion.div key="inquiries" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}>
               <InquiriesTab inquiries={inquiries} loading={loadingInquiries} />
+            </motion.div>
+          )}
+          {activeTab === 'files' && (
+            <motion.div key="files" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}>
+              <FilesTab token={token} />
             </motion.div>
           )}
           {activeTab === 'settings' && (
@@ -389,6 +395,230 @@ function SettingsTab({
             {savingPassword ? 'Changing...' : 'Change Password'}
           </button>
         </form>
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FILES TAB
+   ═══════════════════════════════════════════════════════════════════════════ */
+const ACCEPTED_TYPES = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.zip,.txt'
+const MAX_SIZE_MB = 10
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function getFileIcon(mimeType: string): string {
+  if (mimeType.startsWith('image/')) return 'img'
+  if (mimeType.includes('pdf')) return 'pdf'
+  if (mimeType.includes('word') || mimeType.includes('document')) return 'doc'
+  if (mimeType.includes('sheet') || mimeType.includes('excel')) return 'xls'
+  if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return 'ppt'
+  if (mimeType.includes('zip')) return 'zip'
+  return 'txt'
+}
+
+const FILE_ICON_COLORS: Record<string, string> = {
+  pdf: 'bg-red-100 text-red-600',
+  doc: 'bg-blue-100 text-blue-600',
+  xls: 'bg-green-100 text-green-600',
+  ppt: 'bg-orange-100 text-orange-600',
+  img: 'bg-purple-100 text-purple-600',
+  zip: 'bg-amber-100 text-amber-600',
+  txt: 'bg-gray-100 text-gray-600',
+}
+
+function FilesTab({ token }: { token: string | null }) {
+  const toast = useToast()
+  const [files, setFiles] = useState<FileItem[]>([])
+  const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [dragOver, setDragOver] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const fetchFiles = useCallback(async () => {
+    if (!token) return
+    setLoading(true)
+    try {
+      const data = await companyGetFiles(token)
+      setFiles(data)
+    } catch {
+      // silently fail
+    } finally {
+      setLoading(false)
+    }
+  }, [token])
+
+  useEffect(() => {
+    fetchFiles()
+  }, [fetchFiles])
+
+  const handleUpload = async (fileList: FileList | File[]) => {
+    if (!token) return
+    const selected = Array.from(fileList).slice(0, 5)
+    if (selected.length === 0) return
+
+    // Client-side validation
+    for (const f of selected) {
+      if (f.size > MAX_SIZE_MB * 1024 * 1024) {
+        toast.error(`"${f.name}" exceeds the ${MAX_SIZE_MB}MB limit.`)
+        return
+      }
+    }
+
+    setUploading(true)
+    try {
+      await companyUploadFiles(token, selected)
+      toast.success(`${selected.length} file(s) uploaded successfully.`)
+      await fetchFiles()
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Upload failed.')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const handleDelete = async (fileId: string, fileName: string) => {
+    if (!token) return
+    if (!confirm(`Delete "${fileName}"?`)) return
+    try {
+      await companyDeleteFile(token, fileId)
+      toast.success('File deleted.')
+      setFiles((prev) => prev.filter((f) => f.id !== fileId))
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Delete failed.')
+    }
+  }
+
+  const handleDownload = async (fileId: string) => {
+    if (!token) return
+    try {
+      await companyDownloadFile(token, fileId)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Download failed.')
+    }
+  }
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDragOver(false)
+    if (e.dataTransfer.files.length) {
+      handleUpload(e.dataTransfer.files)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Upload Area */}
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={onDrop}
+        className={[
+          'bg-white rounded-xl shadow-sm border-2 border-dashed p-8 text-center transition-all cursor-pointer',
+          dragOver ? 'border-brand-teal bg-brand-teal/5' : 'border-brand-border hover:border-brand-teal/40',
+        ].join(' ')}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept={ACCEPTED_TYPES}
+          className="hidden"
+          onChange={(e) => e.target.files && handleUpload(e.target.files)}
+        />
+
+        <div className="flex flex-col items-center gap-3">
+          {uploading ? (
+            <>
+              <div className="w-10 h-10 border-4 border-brand-teal border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm font-semibold text-brand-navy">Uploading...</p>
+            </>
+          ) : (
+            <>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-10 h-10 text-brand-teal">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+              <div>
+                <p className="text-sm font-semibold text-brand-navy">
+                  Drag & drop files here, or <span className="text-brand-teal underline">click to browse</span>
+                </p>
+                <p className="text-xs text-brand-muted mt-1">
+                  Max {MAX_SIZE_MB}MB per file, up to 5 files at once
+                </p>
+                <p className="text-xs text-brand-muted mt-0.5">
+                  PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, ZIP, TXT
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* File List */}
+      <div className="bg-white rounded-xl shadow-sm border border-brand-border overflow-hidden">
+        <div className="p-5 border-b border-brand-border flex items-center justify-between">
+          <h3 className="text-sm font-bold text-brand-navy tracking-wide uppercase">Uploaded Documents</h3>
+          <span className="text-xs text-brand-muted">{files.length} file(s)</span>
+        </div>
+
+        {loading ? (
+          <div className="p-8 text-center text-brand-muted text-sm">Loading...</div>
+        ) : files.length === 0 ? (
+          <div className="p-8 text-center text-brand-muted text-sm">No files uploaded yet.</div>
+        ) : (
+          <ul className="divide-y divide-brand-border">
+            {files.map((file) => {
+              const icon = getFileIcon(file.mimeType)
+              return (
+                <li key={file.id} className="p-4 hover:bg-brand-cream/30 transition-colors">
+                  <div className="flex items-center gap-4">
+                    {/* File type icon */}
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold uppercase shrink-0 ${FILE_ICON_COLORS[icon]}`}>
+                      {icon}
+                    </div>
+
+                    {/* File info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-brand-navy truncate">{file.originalName}</p>
+                      <p className="text-xs text-brand-muted mt-0.5">
+                        {formatFileSize(file.size)} &middot; {new Date(file.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleDownload(file.id)}
+                        className="p-2 rounded-lg text-brand-teal hover:bg-brand-teal/10 transition-colors"
+                        title="Download"
+                      >
+                        <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                          <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(file.id, file.originalName)}
+                        className="p-2 rounded-lg text-red-400 hover:bg-red-50 transition-colors"
+                        title="Delete"
+                      >
+                        <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </div>
     </div>
   )

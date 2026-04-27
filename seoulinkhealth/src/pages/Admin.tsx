@@ -15,13 +15,17 @@ import {
   adminGetQAThreads,
   adminReplyQA,
   adminTranslateText,
+  adminGetAllFiles,
+  adminDownloadFile,
   type SubmissionItem,
   type PaginatedResponse,
   type AdminQAThread,
+  type FileItem,
+  type FileGrouped,
 } from '@/utils/api'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
-type Tab = 'applications' | 'inquiries' | 'qa'
+type Tab = 'applications' | 'inquiries' | 'qa' | 'documents'
 type Status = 'New' | 'Reviewed' | 'Contacted'
 
 const L = SITE_CONFIG.admin.labels
@@ -77,6 +81,36 @@ function toKoreanDate(iso: string): string {
   })
 }
 
+/* ─── File Helpers ───────────────────────────────────────────────────────── */
+function formatAdminFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function getAdminFileIcon(mimeType: string): string {
+  if (mimeType.startsWith('image/')) return 'img'
+  if (mimeType.includes('pdf')) return 'pdf'
+  if (mimeType.includes('word') || mimeType.includes('document')) return 'doc'
+  if (mimeType.includes('sheet') || mimeType.includes('excel')) return 'xls'
+  if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return 'ppt'
+  if (mimeType.includes('zip')) return 'zip'
+  return 'txt'
+}
+
+function getAdminFileIconColor(mimeType: string): string {
+  const colors: Record<string, string> = {
+    pdf: 'bg-red-100 text-red-600',
+    doc: 'bg-blue-100 text-blue-600',
+    xls: 'bg-green-100 text-green-600',
+    ppt: 'bg-orange-100 text-orange-600',
+    img: 'bg-purple-100 text-purple-600',
+    zip: 'bg-amber-100 text-amber-600',
+    txt: 'bg-gray-100 text-gray-600',
+  }
+  return colors[getAdminFileIcon(mimeType)] ?? 'bg-gray-100 text-gray-600'
+}
+
 /* ─── Skeleton Card ──────────────────────────────────────────────────────── */
 function SkeletonCard() {
   return (
@@ -113,6 +147,11 @@ export default function AdminPage() {
   const [selectedItem, setSelectedItem] = useState<SubmissionItem | null>(null)
   const refreshRef = useRef<ReturnType<typeof setInterval>>()
 
+  /* Documents state */
+  const [fileGroups, setFileGroups] = useState<Record<string, FileGrouped>>({})
+  const [filesLoading, setFilesLoading] = useState(false)
+  const [expandedCompanies, setExpandedCompanies] = useState<Set<string>>(new Set())
+
   /* Q&A state */
   const [qaThreads, setQaThreads] = useState<AdminQAThread[]>([])
   const [qaLoading, setQaLoading] = useState(false)
@@ -147,9 +186,23 @@ export default function AdminPage() {
     }
   }, [token])
 
+  /* Fetch files */
+  const fetchFiles = useCallback(async () => {
+    try {
+      setFilesLoading(true)
+      const groups = await adminGetAllFiles(token)
+      setFileGroups(groups)
+    } catch (err) {
+      console.error('[Admin] fetchFiles error:', err)
+      setFileGroups({})
+    } finally {
+      setFilesLoading(false)
+    }
+  }, [token])
+
   /* Fetch data */
   const fetchData = useCallback(async () => {
-    if (tab === 'qa') return // Q&A tab has its own fetch
+    if (tab === 'qa' || tab === 'documents') return // These tabs have own fetch
     try {
       setLoading(true)
       const params = {
@@ -186,14 +239,16 @@ export default function AdminPage() {
     refreshRef.current = setInterval(() => {
       fetchData()
       if (tab === 'qa') fetchQAThreads()
+      if (tab === 'documents') fetchFiles()
     }, 30_000)
     return () => clearInterval(refreshRef.current)
-  }, [fetchData, fetchQAThreads, tab])
+  }, [fetchData, fetchQAThreads, fetchFiles, tab])
 
   /* Fetch Q&A threads when Q&A tab is selected */
   useEffect(() => {
     if (tab === 'qa') fetchQAThreads()
-  }, [tab, fetchQAThreads])
+    if (tab === 'documents') fetchFiles()
+  }, [tab, fetchQAThreads, fetchFiles])
 
   /* Close lang dropdown on outside click */
   useEffect(() => {
@@ -267,6 +322,28 @@ export default function AdminPage() {
     }
   }
 
+  /* File download handler */
+  const handleFileDownload = async (fileId: string) => {
+    try {
+      await adminDownloadFile(token, fileId)
+    } catch {
+      addToast({ type: 'error', message: '파일 다운로드에 실패했습니다.' })
+    }
+  }
+
+  /* Toggle company folder expand */
+  const toggleCompanyExpand = (companyId: string) => {
+    setExpandedCompanies((prev) => {
+      const next = new Set(prev)
+      if (next.has(companyId)) {
+        next.delete(companyId)
+      } else {
+        next.add(companyId)
+      }
+      return next
+    })
+  }
+
   /* Sign out */
   const handleSignOut = () => {
     clearToken()
@@ -282,6 +359,7 @@ export default function AdminPage() {
     setSelectedThread(null)
     setReplyText('')
     setTranslatedMessages({})
+    setExpandedCompanies(new Set())
   }
 
   /* CSV export */
@@ -349,7 +427,7 @@ export default function AdminPage() {
 
         {/* ── Tabs ───────────────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center gap-3">
-          {(['applications', 'inquiries', 'qa'] as Tab[]).map((t) => (
+          {(['applications', 'inquiries', 'qa', 'documents'] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => handleTabChange(t)}
@@ -359,7 +437,7 @@ export default function AdminPage() {
                   : 'bg-white border-2 border-gray-200 text-gray-600 hover:bg-gray-50'
               }`}
             >
-              {t === 'applications' ? L.applications : t === 'inquiries' ? L.inquiries : L.qa}
+              {t === 'applications' ? L.applications : t === 'inquiries' ? L.inquiries : t === 'qa' ? L.qa : L.documents}
             </button>
           ))}
 
@@ -378,7 +456,7 @@ export default function AdminPage() {
         </div>
 
         {/* ── Applications / Inquiries content ─────────────────────────── */}
-        {tab !== 'qa' && (
+        {tab !== 'qa' && tab !== 'documents' && (
           <>
             {/* ── Search + Filter ──────────────────────────────────────────── */}
             <div className="flex flex-col sm:flex-row gap-3">
@@ -487,6 +565,95 @@ export default function AdminPage() {
               </div>
             )}
           </>
+        )}
+
+        {/* ── Documents Tab Content ──────────────────────────────────────── */}
+        {tab === 'documents' && (
+          <div className="space-y-4">
+            {filesLoading && Object.keys(fileGroups).length === 0 ? (
+              Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={`files-sk-${i}`} />)
+            ) : Object.keys(fileGroups).length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-16"
+              >
+                <p className="text-xl text-gray-400">{L.documentsNoFiles}</p>
+              </motion.div>
+            ) : (
+              <AnimatePresence mode="popLayout">
+                {Object.values(fileGroups).map((group, i) => {
+                  const isExpanded = expandedCompanies.has(group.companyId)
+                  return (
+                    <motion.div
+                      key={group.companyId}
+                      layout
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="bg-white rounded-2xl border-2 border-gray-100 overflow-hidden"
+                    >
+                      {/* Folder header */}
+                      <button
+                        onClick={() => toggleCompanyExpand(group.companyId)}
+                        className="w-full text-left p-4 sm:p-5 lg:p-6 hover:bg-gray-50 transition-colors flex items-center gap-4"
+                      >
+                        <svg
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className={`w-6 h-6 text-brand-teal transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                        >
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <svg viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6 text-amber-400">
+                          <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                        </svg>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base sm:text-xl font-bold text-gray-900 truncate">
+                            {group.companyName}
+                          </h3>
+                          <p className="text-sm text-gray-400">
+                            {group.files.length} {L.documentsFiles} &middot; {L.documentsTotal} {formatAdminFileSize(group.totalSize)}
+                          </p>
+                        </div>
+                      </button>
+
+                      {/* Expanded file list */}
+                      {isExpanded && (
+                        <div className="border-t border-gray-100">
+                          <ul className="divide-y divide-gray-50">
+                            {group.files.map((file: FileItem) => (
+                              <li key={file.id} className="px-6 py-3 flex items-center gap-4 hover:bg-gray-50 transition-colors">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[0.6rem] font-bold uppercase shrink-0 ${getAdminFileIconColor(file.mimeType)}`}>
+                                  {getAdminFileIcon(file.mimeType)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-semibold text-gray-800 truncate">{file.originalName}</p>
+                                  <p className="text-xs text-gray-400">
+                                    {formatAdminFileSize(file.size)} &middot; {toKoreanDate(file.createdAt)}
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={() => handleFileDownload(file.id)}
+                                  className="admin-btn bg-white border-2 border-gray-200 text-gray-600 hover:bg-gray-50 text-sm"
+                                >
+                                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                                  </svg>
+                                  {L.documentsDownload}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </motion.div>
+                  )
+                })}
+              </AnimatePresence>
+            )}
+          </div>
         )}
 
         {/* ── Q&A Tab Content ────────────────────────────────────────────── */}
