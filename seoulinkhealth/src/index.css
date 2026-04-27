@@ -230,8 +230,68 @@
 @media print {
   .no-print { display: none !important; }
   .print-only { display: block !important; }
-  body { font-size: 14px; }
-  .admin-layout { font-size: 14px; }
+
+  * { box-shadow: none !important; }
+
+  body {
+    font-size: 12pt;
+    color: #000;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .admin-layout { font-size: 12pt; background: #fff !important; }
+
+  /* Print header */
+  @page {
+    size: A4;
+    margin: 20mm 15mm;
+  }
+
+  /* Detail modal print layout */
+  .fixed { position: relative !important; overflow: visible !important; background: transparent !important; }
+  .shadow-premium-lg { box-shadow: none !important; }
+
+  /* Card styles for print */
+  [class*="rounded-2xl"] {
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    page-break-inside: avoid;
+  }
+
+  /* Status badges keep colors */
+  [class*="bg-blue-100"],
+  [class*="bg-amber-100"],
+  [class*="bg-green-100"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Add SEOULINKHEALTH branding to print */
+  body::before {
+    content: "SEOULINKHEALTH — K-HEALTH BUSINESS PLATFORM";
+    display: block;
+    text-align: center;
+    font-size: 10pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #0D1B2A;
+    border-bottom: 2px solid #B8965A;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+
+  body::after {
+    content: "This document is confidential and intended for the named recipient(s) only. © " attr(data-year) " SEOULINKHEALTH";
+    display: block;
+    text-align: center;
+    font-size: 8pt;
+    color: #999;
+    border-top: 1px solid #ddd;
+    padding-top: 8px;
+    margin-top: 24px;
+  }
 }
 
 /* ─── Utility Classes ────────────────────────────────────────────────────────── */

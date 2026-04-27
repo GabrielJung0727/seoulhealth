@@ -17,7 +17,7 @@ function createTransport() {
 const COMPANY_EMAIL = process.env.COMPANY_EMAIL!
 const DIRECTOR_NAME = process.env.DIRECTOR_NAME ?? 'Byung-Joo Kim'
 
-/* ─── Shared HTML wrapper ────────────────────────────────────────────────── */
+/* ─── Shared HTML wrapper (SAS-style premium design) ─────────────────────── */
 function htmlWrapper(title: string, body: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -25,31 +25,66 @@ function htmlWrapper(title: string, body: string): string {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>${title}</title>
-<style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; background:#f4f4f4; margin:0; padding:0; }
-  .container { max-width:620px; margin:32px auto; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); }
-  .header { background:#0D1B2A; color:#fff; padding:28px 32px; }
-  .header h1 { margin:0 0 4px; font-size:18px; letter-spacing:0.04em; }
-  .header p { margin:0; color:#B8965A; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; }
-  .body { padding:28px 32px; color:#374151; font-size:14px; line-height:1.7; }
-  .field { margin-bottom:16px; }
-  .field label { display:block; font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#6B7280; margin-bottom:3px; }
-  .field p { margin:0; color:#111827; font-size:14px; background:#F9FAFB; border:1px solid #E5E7EB; border-radius:6px; padding:8px 12px; white-space:pre-wrap; }
-  .divider { border:none; border-top:1px solid #E5E7EB; margin:20px 0; }
-  .section-title { font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#1A3A5C; margin:20px 0 12px; }
-  .badge { display:inline-block; background:#0D1B2A; color:#B8965A; font-size:11px; font-weight:700; letter-spacing:0.08em; padding:4px 10px; border-radius:20px; }
-  .footer { background:#F9FAFB; padding:16px 32px; font-size:12px; color:#9CA3AF; text-align:center; border-top:1px solid #E5E7EB; }
-</style>
 </head>
-<body>
-<div class="container">
-  <div class="header">
-    <p>SEOULINKHEALTH</p>
-    <h1>${title}</h1>
-  </div>
-  <div class="body">${body}</div>
-  <div class="footer">SEOULINKHEALTH · K-HEALTH BUSINESS PLATFORM · www.seoulinkhealth.com</div>
-</div>
+<body style="margin:0;padding:0;background:#f0ede8;font-family:'Segoe UI',Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0ede8;padding:32px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:0;overflow:hidden;">
+
+  <!-- Top Navy Banner with Logo -->
+  <tr><td style="background:#0D1B2A;padding:24px 40px;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="color:#ffffff;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">
+        SEOU<span style="color:#D4C4A8;">L</span><span style="color:#B8965A;">INK</span>HEALTH
+      </td>
+      <td align="right" style="color:#B8965A;font-size:11px;font-weight:600;letter-spacing:1px;">
+        K-HEALTH BUSINESS PLATFORM
+      </td>
+    </tr>
+    </table>
+  </td></tr>
+
+  <!-- Gold Accent Line -->
+  <tr><td style="background:#B8965A;height:3px;font-size:0;line-height:0;">&nbsp;</td></tr>
+
+  <!-- Title Section -->
+  <tr><td style="padding:32px 40px 0;">
+    <h1 style="margin:0;font-size:22px;font-weight:700;color:#0D1B2A;letter-spacing:-0.02em;">${title}</h1>
+  </td></tr>
+
+  <!-- Body Content -->
+  <tr><td style="padding:16px 40px 32px;">
+    <div style="color:#4B5563;font-size:14px;line-height:1.8;">${body}</div>
+  </td></tr>
+
+  <!-- Footer Divider -->
+  <tr><td style="padding:0 40px;">
+    <hr style="border:none;border-top:1px solid #E5E7EB;margin:0;" />
+  </td></tr>
+
+  <!-- Footer -->
+  <tr><td style="padding:20px 40px 24px;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="font-size:11px;color:#9CA3AF;line-height:1.5;">
+        SEOULINKHEALTH · K-HEALTH BUSINESS PLATFORM<br/>
+        <a href="https://www.seoulinkhealth.com" style="color:#B8965A;text-decoration:none;">www.seoulinkhealth.com</a>
+      </td>
+    </tr>
+    </table>
+  </td></tr>
+
+  <!-- Confidentiality Notice -->
+  <tr><td style="background:#F9FAFB;padding:16px 40px;">
+    <p style="margin:0;font-size:10px;color:#B0B0B0;line-height:1.5;font-family:'Courier New',monospace;">
+      This e-mail (including any attached documents) is proprietary and confidential and may contain legally privileged information. It is intended for the named recipient(s) only. If you are not the intended recipient, you may not review, retain, copy or distribute this message.
+    </p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
 </body>
 </html>`
 }
