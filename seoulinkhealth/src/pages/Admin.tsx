@@ -1218,7 +1218,7 @@ export default function AdminPage() {
                             {proj.status}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{proj.companyName}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{(proj as unknown as Record<string, string>).companyName ?? ''}</p>
                         {proj.domain && (
                           <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-brand-navy/10 text-brand-navy dark:bg-brand-teal/20 dark:text-brand-teal mb-3">
                             {proj.domain}
@@ -1238,7 +1238,7 @@ export default function AdminPage() {
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 mt-3">
-                          {proj.expertName && <span>담당: {proj.expertName}</span>}
+                          {proj.assignedExpert && <span>담당: {proj.assignedExpert}</span>}
                           <span>
                             {proj.startDate ? toKoreanDate(proj.startDate) : ''}
                             {proj.startDate && proj.endDate ? ' ~ ' : ''}
@@ -1295,7 +1295,7 @@ export default function AdminPage() {
               const filtered = experts.filter((e) => {
                 const matchDomain = expertDomainFilter === '전체' || e.domain === expertDomainFilter
                 const q = expertSearch.toLowerCase()
-                const matchSearch = !q || e.name.toLowerCase().includes(q) || e.specialty.toLowerCase().includes(q) || e.email.toLowerCase().includes(q)
+                const matchSearch = !q || e.fullName.toLowerCase().includes(q) || e.specialty.toLowerCase().includes(q) || e.email.toLowerCase().includes(q)
                 return matchDomain && matchSearch
               })
               if (filtered.length === 0) {
@@ -1327,7 +1327,7 @@ export default function AdminPage() {
                         className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-brand-teal/40 hover:shadow-md p-5 transition-all"
                       >
                         <div className="flex items-start justify-between gap-2 mb-2">
-                          <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">{exp.name}</h3>
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">{exp.fullName}</h3>
                           <span className={`w-3 h-3 rounded-full shrink-0 mt-1.5 ${exp.status === 'Active' ? 'bg-green-400' : 'bg-gray-300'}`} title={exp.status} />
                         </div>
                         <p className="text-sm text-gray-500 dark:text-gray-400 truncate mb-1">{exp.email}</p>

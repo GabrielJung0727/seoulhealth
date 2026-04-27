@@ -80,8 +80,8 @@ export default function DetailModal({ isOpen, onClose, item, type, onStatusChang
     if (!noteText.trim() || !item) return
     try {
       setNoteSaving(true)
-      const newNote = await adminAddNote(token, { targetType, targetId: item.id, content: noteText.trim() })
-      setNotes((prev) => [...prev, newNote])
+      await adminAddNote(token, { targetType, targetId: item.id, content: noteText.trim() })
+      setNotes((prev) => [...prev, { id: Date.now().toString(), targetType, targetId: item.id, content: noteText.trim(), createdAt: new Date().toISOString() }])
       setNoteText('')
     } catch (err) {
       console.error('[DetailModal] addNote error:', err)
