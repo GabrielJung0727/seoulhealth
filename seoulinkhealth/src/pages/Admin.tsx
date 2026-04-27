@@ -205,6 +205,11 @@ export default function AdminPage() {
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('sih_admin_dark') === 'true')
   const [showHelp, setShowHelp] = useState(false)
 
+  /* Welcome notification state */
+  const [notifications, setNotifications] = useState<{type: string; count: number; label: string; tab: Tab}[]>([])
+  const [showNotifications, setShowNotifications] = useState(false)
+  const notificationsShownRef = useRef(false)
+
   /* Debounce search */
   useEffect(() => {
     const t = setTimeout(() => {
@@ -381,6 +386,34 @@ export default function AdminPage() {
     document.title = count > 0
       ? `(${count}) Admin Dashboard | SEOULINKHEALTH`
       : 'Admin Dashboard | SEOULINKHEALTH'
+  }, [stats])
+
+  /* Welcome notification popup — show once on login when there are new items */
+  useEffect(() => {
+    if (!stats || notificationsShownRef.current) return
+    notificationsShownRef.current = true
+
+    const items: {type: string; count: number; label: string; tab: Tab}[] = []
+    if (stats.applications.new > 0) items.push({ type: 'app', count: stats.applications.new, label: `새 지원서 ${stats.applications.new}건`, tab: 'applications' })
+    if (stats.inquiries.new > 0) items.push({ type: 'inq', count: stats.inquiries.new, label: `새 문의 ${stats.inquiries.new}건`, tab: 'inquiries' })
+
+    // Check Q&A threads with Open status
+    adminGetQAThreads(token).then(threads => {
+      const openQA = Array.isArray(threads) ? threads.filter(t => t.status === 'Open').length : 0
+      if (openQA > 0) items.push({ type: 'qa', count: openQA, label: `대기중인 Q&A ${openQA}건`, tab: 'qa' })
+
+      if (items.length > 0) {
+        setNotifications(items)
+        setShowNotifications(true)
+        // Play notification sound
+        try {
+          const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbsGczGiF+t97LdkQaEFGd0eeXUiQLQ4zK56NiLAwtiMPkqnQ8Cj2Bv+KzijIJL3/C3rl4OQAAA')
+          audio.volume = 0.3
+          audio.play().catch(() => {})
+        } catch {}
+      }
+    }).catch(() => {})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats])
 
   /* Close lang dropdown on outside click */
@@ -1431,6 +1464,81 @@ export default function AdminPage() {
             )}
           </div>
         )}
+
+      {/* ── Notification Popup ──────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showNotifications && notifications.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[65] flex items-center justify-center bg-black/40 p-4"
+            onClick={() => setShowNotifications(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+            >
+              {/* Header with bell animation */}
+              <div className="bg-brand-navy px-6 py-5 text-center">
+                <motion.div
+                  animate={{ rotate: [0, -15, 15, -10, 10, 0] }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="inline-block text-4xl mb-2"
+                >
+                  🔔
+                </motion.div>
+                <h2 className="text-xl font-bold text-white">알림이 있습니다</h2>
+                <p className="text-white/50 text-sm mt-1">확인이 필요한 항목이 있습니다</p>
+              </div>
+
+              {/* Notification items */}
+              <div className="p-4 space-y-2">
+                {notifications.map((n, i) => (
+                  <motion.button
+                    key={n.type}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 * (i + 1) }}
+                    onClick={() => {
+                      setShowNotifications(false)
+                      handleTabChange(n.tab)
+                    }}
+                    className="w-full flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-gray-600 transition-colors group text-left"
+                  >
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold text-white shrink-0 ${
+                      n.type === 'app' ? 'bg-blue-500' : n.type === 'inq' ? 'bg-amber-500' : 'bg-purple-500'
+                    }`}>
+                      {n.count}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-base font-bold text-gray-900 dark:text-white">{n.label}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">클릭하면 바로 이동합니다 →</p>
+                    </div>
+                    <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-300 group-hover:text-blue-500 transition-colors">
+                      <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                    </svg>
+                  </motion.button>
+                ))}
+              </div>
+
+              {/* Dismiss */}
+              <div className="px-4 pb-4">
+                <button
+                  onClick={() => setShowNotifications(false)}
+                  className="w-full min-h-[44px] text-sm font-bold rounded-xl border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  확인했습니다
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Help Modal ──────────────────────────────────────────────────── */}
       <AnimatePresence>
