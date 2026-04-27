@@ -249,8 +249,39 @@
     margin: 20mm 15mm;
   }
 
-  /* Detail modal print layout */
-  .fixed { position: relative !important; overflow: visible !important; background: transparent !important; }
+  /* Hide everything except the modal when printing */
+  .admin-layout > header,
+  .admin-layout > div > .grid,
+  .admin-layout > div > .flex,
+  .admin-layout > div > .space-y-3 { display: none !important; }
+
+  /* Make modal fill the page */
+  .fixed {
+    position: relative !important;
+    overflow: visible !important;
+    background: #fff !important;
+    padding: 0 !important;
+    inset: auto !important;
+    z-index: auto !important;
+  }
+
+  .fixed > div {
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Show modal content fields nicely */
+  .fixed [class*="bg-gray-50"] {
+    background: #f8f8f8 !important;
+    border: 1px solid #e0e0e0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
   .shadow-premium-lg { box-shadow: none !important; }
 
   /* Card styles for print */
