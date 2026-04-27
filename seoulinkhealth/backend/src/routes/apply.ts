@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body, validationResult } from 'express-validator'
 import prisma from '../lib/prisma'
-import { sendApplicationNotification } from '../utils/mailer'
+import { sendApplicationNotification, sendSubmissionConfirmation } from '../utils/mailer'
 import { createError } from '../middleware/errorHandler'
 
 const router = Router()
@@ -62,13 +62,12 @@ router.post('/', applicationValidation, async (req: Request, res: Response, next
       },
     })
 
-    // Send email notification (non-blocking — log but don't fail request)
+    // Send email notifications (non-blocking)
     sendApplicationNotification({
       fullName, email, dialCode, telephone,
       professionalExperiences, education, specialty, countryOfOrigin,
-    }).catch((err: unknown) => {
-      console.error('[Mailer] Failed to send application notification:', err)
-    })
+    }).catch(() => {})
+    sendSubmissionConfirmation(email, fullName, 'application').catch(() => {})
 
     res.status(201).json({
       success: true,

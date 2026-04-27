@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body, validationResult } from 'express-validator'
 import prisma from '../lib/prisma'
-import { sendInquiryNotification } from '../utils/mailer'
+import { sendInquiryNotification, sendSubmissionConfirmation } from '../utils/mailer'
 import { createError } from '../middleware/errorHandler'
 
 const router = Router()
@@ -65,14 +65,13 @@ router.post('/', inquiryValidation, async (req: Request, res: Response, next: Ne
       },
     })
 
-    // Send email notification (non-blocking)
+    // Send email notifications (non-blocking)
     sendInquiryNotification({
       fullName, email, dialCode, telephone,
       currentEmployment, professionalExperiences,
       inquirySubject, inquiryDescription, additionalComments,
-    }).catch((err: unknown) => {
-      console.error('[Mailer] Failed to send inquiry notification:', err)
-    })
+    }).catch(() => {})
+    sendSubmissionConfirmation(email, fullName, 'inquiry').catch(() => {})
 
     res.status(201).json({
       success: true,

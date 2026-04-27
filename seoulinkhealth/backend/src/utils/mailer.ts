@@ -175,6 +175,97 @@ async function logEmail(
 /** Public helper so other modules (e.g. OTP, password-reset) can log too */
 export { logEmail }
 
+/* ─── OTP Email ──────────────────────────────────────────────────────────── */
+export async function sendOTPEmail(to: string, otpCode: string): Promise<void> {
+  const subject = 'SEOULINKHEALTH — Your Verification Code'
+  const html = htmlWrapper(subject, `
+    <div style="padding:32px 28px;">
+      <h2 style="color:#0D1B2A;margin:0 0 16px;">Verification Code</h2>
+      <p style="color:#555;line-height:1.6;">Use the following code to complete your login:</p>
+      <div style="text-align:center;margin:24px 0;">
+        <span style="display:inline-block;font-size:36px;font-weight:bold;letter-spacing:8px;color:#0D1B2A;background:#f0f0f0;padding:16px 32px;border-radius:8px;">${otpCode}</span>
+      </div>
+      <p style="color:#888;font-size:13px;">This code expires in 10 minutes. If you did not request this, please ignore this email.</p>
+    </div>
+  `)
+  try {
+    const transport = createTransport()
+    await transport.sendMail({ from: process.env.SMTP_USER, to, subject, html })
+    await logEmail(to, subject, 'otp', 'sent')
+  } catch (err) {
+    await logEmail(to, subject, 'otp', 'failed', (err as Error).message)
+    console.error('[Mailer] OTP send failed:', (err as Error).message)
+  }
+}
+
+/* ─── Welcome Email ──────────────────────────────────────────────────────── */
+export async function sendWelcomeEmail(to: string, companyName: string): Promise<void> {
+  const subject = 'Welcome to SEOULINKHEALTH'
+  const html = htmlWrapper(subject, `
+    <div style="padding:32px 28px;">
+      <h2 style="color:#0D1B2A;margin:0 0 16px;">Welcome, ${esc(companyName)}!</h2>
+      <p style="color:#555;line-height:1.6;">Thank you for registering with SEOULINKHEALTH. Your account has been created successfully.</p>
+      <p style="color:#555;line-height:1.6;">You can now log in to access your company dashboard, submit inquiries, and communicate with our team.</p>
+      <div style="text-align:center;margin:24px 0;">
+        <a href="https://doublej.app/company/login" style="display:inline-block;background:#0D1B2A;color:#fff;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;">Go to Dashboard</a>
+      </div>
+    </div>
+  `)
+  try {
+    const transport = createTransport()
+    await transport.sendMail({ from: process.env.SMTP_USER, to, subject, html })
+    await logEmail(to, subject, 'welcome', 'sent')
+  } catch (err) {
+    await logEmail(to, subject, 'welcome', 'failed', (err as Error).message)
+  }
+}
+
+/* ─── Temp Password Email ────────────────────────────────────────────────── */
+export async function sendTempPasswordEmail(to: string, tempPassword: string): Promise<void> {
+  const subject = 'SEOULINKHEALTH — Your Temporary Password'
+  const html = htmlWrapper(subject, `
+    <div style="padding:32px 28px;">
+      <h2 style="color:#0D1B2A;margin:0 0 16px;">Password Reset</h2>
+      <p style="color:#555;line-height:1.6;">Your temporary password is:</p>
+      <div style="text-align:center;margin:24px 0;">
+        <span style="display:inline-block;font-size:24px;font-weight:bold;color:#0D1B2A;background:#f0f0f0;padding:12px 24px;border-radius:8px;letter-spacing:2px;">${esc(tempPassword)}</span>
+      </div>
+      <p style="color:#555;line-height:1.6;">Please log in and change your password immediately in Settings.</p>
+      <p style="color:#888;font-size:13px;">If you did not request this, please contact us immediately.</p>
+    </div>
+  `)
+  try {
+    const transport = createTransport()
+    await transport.sendMail({ from: process.env.SMTP_USER, to, subject, html })
+    await logEmail(to, subject, 'temp_password', 'sent')
+  } catch (err) {
+    await logEmail(to, subject, 'temp_password', 'failed', (err as Error).message)
+  }
+}
+
+/* ─── Form Submission Confirmation to Submitter ──────────────────────────── */
+export async function sendSubmissionConfirmation(to: string, name: string, type: 'application' | 'inquiry'): Promise<void> {
+  const typeLabel = type === 'application' ? 'Expert Network Application' : 'Service Inquiry'
+  const subject = `SEOULINKHEALTH — Your ${typeLabel} Has Been Received`
+  const html = htmlWrapper(subject, `
+    <div style="padding:32px 28px;">
+      <h2 style="color:#0D1B2A;margin:0 0 16px;">Thank You, ${esc(name)}!</h2>
+      <p style="color:#555;line-height:1.6;">We have received your ${typeLabel.toLowerCase()}. Our team will review it and respond as soon as possible.</p>
+      <p style="color:#555;line-height:1.6;">You can track the status of your submission by logging into your company dashboard.</p>
+      <div style="text-align:center;margin:24px 0;">
+        <a href="https://doublej.app/company/dashboard" style="display:inline-block;background:#B8965A;color:#0D1B2A;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;">View Dashboard</a>
+      </div>
+    </div>
+  `)
+  try {
+    const transport = createTransport()
+    await transport.sendMail({ from: process.env.SMTP_USER, to, subject, html })
+    await logEmail(to, subject, 'confirmation', 'sent')
+  } catch (err) {
+    await logEmail(to, subject, 'confirmation', 'failed', (err as Error).message)
+  }
+}
+
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
 function esc(str: string): string {
   return str

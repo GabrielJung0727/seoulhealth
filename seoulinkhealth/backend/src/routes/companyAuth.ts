@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import prisma from '../lib/prisma'
 import { createError } from '../middleware/errorHandler'
+import { sendOTPEmail, sendWelcomeEmail, sendTempPasswordEmail } from '../utils/mailer'
 
 /* ─── Company Auth Request ──────────────────────────────────────────────── */
 interface CompanyAuthRequest extends Request {
@@ -83,6 +84,9 @@ router.post(
         },
       })
 
+      // Send welcome email (non-blocking)
+      sendWelcomeEmail(email, companyName).catch(() => {})
+
       res.status(201).json({ success: true, message: 'Company registered successfully.' })
     } catch (err) {
       next(err)
@@ -129,7 +133,9 @@ router.post(
         data: { otpCode: otpHash, otpExpiresAt },
       })
 
-      // TODO: Send OTP via email — for now just store it
+      // Send OTP via email (non-blocking)
+      sendOTPEmail(email, otpCode).catch(() => {})
+
       res.json({ success: true, requiresOTP: true, message: 'OTP sent to your email.' })
     } catch (err) {
       next(err)
@@ -232,7 +238,8 @@ router.post(
         data: { password: hashedTemp, tempPassword: true },
       })
 
-      // TODO: Send temp password via email
+      // Send temp password via email (non-blocking)
+      sendTempPasswordEmail(email, tempPassword).catch(() => {})
 
       res.json({ success: true, message: 'If the email exists, a temporary password has been sent.' })
     } catch (err) {
