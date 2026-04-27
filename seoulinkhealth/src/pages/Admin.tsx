@@ -1191,6 +1191,25 @@ export default function AdminPage() {
         {/* ── Projects Tab ─────────────────────────────────────────────── */}
         {tab === 'projects' && (
           <div className="space-y-4">
+            {/* Add Project button */}
+            <div className="flex justify-end">
+              <button
+                onClick={() => {
+                  const title = prompt('프로젝트 제목:')
+                  if (!title) return
+                  const domain = prompt('도메인 (K-HEALTH CARE / K-HEALTH INDUSTRY / K-BIO / K-HEALTH FOOD):') || 'K-HEALTH CARE'
+                  const description = prompt('프로젝트 설명:') || ''
+                  import('@/utils/api').then(({ adminCreateProject }) => {
+                    adminCreateProject(token, { title, domain, description, status: 'Planning', progress: 0 } as never)
+                      .then(() => { addToast({ type: 'success', message: '프로젝트가 생성되었습니다.' }); fetchProjects() })
+                      .catch(() => addToast({ type: 'error', message: '생성에 실패했습니다.' }))
+                  })
+                }}
+                className="admin-btn bg-brand-navy dark:bg-brand-teal text-white rounded-full"
+              >
+                + 프로젝트 추가
+              </button>
+            </div>
             {projectsLoading && projects.length === 0 ? (
               Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={`proj-sk-${i}`} />)
             ) : projects.length === 0 ? (
@@ -1262,6 +1281,29 @@ export default function AdminPage() {
         {/* ── Experts Tab ──────────────────────────────────────────────── */}
         {tab === 'experts' && (
           <div className="space-y-4">
+            {/* Add Expert button */}
+            <div className="flex justify-end">
+              <button
+                onClick={() => {
+                  const name = prompt('전문가 이름:')
+                  if (!name) return
+                  const email = prompt('이메일:')
+                  const specialty = prompt('전공분야:')
+                  const domain = prompt('도메인 (K-HEALTH CARE / K-HEALTH INDUSTRY / K-BIO / K-HEALTH FOOD):') || 'K-HEALTH CARE'
+                  const country = prompt('국가:') || ''
+                  if (name && specialty) {
+                    import('@/utils/api').then(({ adminCreateExpert }) => {
+                      adminCreateExpert(token, { fullName: name, email: email || '', specialty, domain, country, status: 'Active' } as never)
+                        .then(() => { addToast({ type: 'success', message: '전문가가 등록되었습니다.' }); fetchExperts() })
+                        .catch(() => addToast({ type: 'error', message: '등록에 실패했습니다.' }))
+                    })
+                  }
+                }}
+                className="admin-btn bg-brand-navy dark:bg-brand-teal text-white rounded-full"
+              >
+                + 전문가 추가
+              </button>
+            </div>
             {/* Search + Domain filter */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
