@@ -85,6 +85,7 @@ router.post('/', applicationValidation, async (req: Request, res: Response, next
           telephone: telephone ?? '',
           dialCode: dialCode ?? '+82',
           country: countryOfOrigin ?? '',
+          industry: specialty ?? '',
           tempPassword: true,
         },
       })

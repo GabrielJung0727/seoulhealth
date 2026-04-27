@@ -88,6 +88,8 @@ router.post('/', inquiryValidation, async (req: Request, res: Response, next: Ne
           contactPerson: fullName,
           telephone: telephone ?? '',
           dialCode: dialCode ?? '+82',
+          country: '',
+          industry: '',
           tempPassword: true,
         },
       })
