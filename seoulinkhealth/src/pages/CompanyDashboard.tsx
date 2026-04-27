@@ -149,12 +149,12 @@ export default function CompanyDashboardPage() {
     if (!token) return
     setLoadingInquiries(true)
     try {
-      const res = await api.get<{ data: InquiryItem[]; pagination: { total: number } }>(
+      const res = await api.get<InquiryItem[]>(
         '/company/auth/inquiries',
         token
       )
-      const data = res.data as { data: InquiryItem[]; pagination: { total: number } }
-      const items = data?.data ?? []
+      const raw = res as unknown as { data: InquiryItem[]; pagination?: { total: number } }
+      const items = Array.isArray(raw.data) ? raw.data : []
       setInquiries(items)
       const answeredCount = items.filter((i) => i.status === 'Answered').length
       setStats({
