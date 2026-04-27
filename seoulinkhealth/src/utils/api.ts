@@ -660,7 +660,7 @@ export interface CompanyBasic {
 /* ─── Company: fetch own projects ───────────────────────────────────────── */
 export async function companyGetProjects(token: string): Promise<ProjectItem[]> {
   try {
-    const res = await api.get<ProjectItem[]>('/company/projects', token)
+    const res = await api.get<ProjectItem[]>('/company/auth/projects', token)
     return (res.data ?? []) as ProjectItem[]
   } catch {
     return []

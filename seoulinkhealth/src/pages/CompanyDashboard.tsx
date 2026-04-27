@@ -150,7 +150,7 @@ export default function CompanyDashboardPage() {
     setLoadingInquiries(true)
     try {
       const res = await api.get<{ data: InquiryItem[]; pagination: { total: number } }>(
-        '/company/inquiries',
+        '/company/auth/inquiries',
         token
       )
       const data = res.data as { data: InquiryItem[]; pagination: { total: number } }
