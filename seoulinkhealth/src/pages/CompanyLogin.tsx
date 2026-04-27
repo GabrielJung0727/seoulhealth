@@ -34,7 +34,7 @@ export default function CompanyLoginPage() {
   const [step, setStep] = useState<'credentials' | 'otp'>('credentials')
   const [otpValues, setOtpValues] = useState<string[]>(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
-  const [tempToken, setTempToken] = useState('')
+  const [loginEmail, setLoginEmail] = useState('')
   const otpRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const {
@@ -62,7 +62,7 @@ export default function CompanyLoginPage() {
         email: data.email,
         password: data.password,
       })
-      setTempToken((res as unknown as { tempToken: string }).tempToken || (res.data as { tempToken: string })?.tempToken || '')
+      setLoginEmail(data.email)
       setStep('otp')
       toast.success('Verification code sent to your email.')
     } catch (err: unknown) {
@@ -112,8 +112,8 @@ export default function CompanyLoginPage() {
     setLoading(true)
     try {
       const res = await api.post('/company/auth/verify-otp', {
-        tempToken,
-        otp: code,
+        email: loginEmail,
+        otpCode: code,
       })
       const data = res as unknown as Record<string, unknown>
       const token = (data.token || (data.data as Record<string, unknown>)?.token || '') as string
