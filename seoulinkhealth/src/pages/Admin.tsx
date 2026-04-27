@@ -203,6 +203,7 @@ export default function AdminPage() {
 
   /* Dark mode state */
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('sih_admin_dark') === 'true')
+  const [showHelp, setShowHelp] = useState(false)
 
   /* Debounce search */
   useEffect(() => {
@@ -517,6 +518,17 @@ export default function AdminPage() {
             <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">{L.loginSubtitle}</p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Help modal */}
+            <button
+              onClick={() => setShowHelp(true)}
+              className="admin-btn border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              title="도움말"
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+              <span className="hidden sm:inline">도움말</span>
+            </button>
             {/* FEATURE 4: Dark mode toggle */}
             <button
               onClick={() => setDarkMode((prev) => !prev)}
@@ -1419,6 +1431,144 @@ export default function AdminPage() {
             )}
           </div>
         )}
+
+      {/* ── Help Modal ──────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showHelp && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-start justify-center bg-black/50 p-4 overflow-y-auto"
+            onClick={() => setShowHelp(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-3xl my-8 overflow-hidden"
+            >
+              {/* Header */}
+              <div className="bg-brand-navy px-6 sm:px-8 py-6">
+                <h2 className="text-2xl font-bold text-white">📖 관리자 대시보드 도움말</h2>
+                <p className="text-white/50 text-sm mt-1">각 기능의 사용법을 안내합니다</p>
+              </div>
+
+              <div className="px-6 sm:px-8 py-6 space-y-8 text-base leading-relaxed text-gray-700 dark:text-gray-300 max-h-[70vh] overflow-y-auto">
+
+                {/* 기본 사용법 */}
+                <div>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">🏠 기본 사용법</h3>
+                  <ul className="space-y-2 ml-1">
+                    <li>• 상단의 <strong>숫자 카드 4개</strong>는 전체 지원서/문의 건수를 보여줍니다</li>
+                    <li>• 숫자가 <strong className="text-blue-600">파란색</strong>이면 새로 들어온 건이 있다는 뜻입니다</li>
+                    <li>• 화면은 <strong>30초마다 자동으로 새로고침</strong>됩니다</li>
+                    <li>• 즉시 업데이트하려면 <strong>"새로고침"</strong> 버튼을 누르세요</li>
+                  </ul>
+                </div>
+
+                {/* 지원서/문의 탭 */}
+                <div>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">📋 지원서 / 문의 탭</h3>
+                  <ul className="space-y-2 ml-1">
+                    <li>• <strong>카드를 클릭</strong>하면 상세 정보를 볼 수 있습니다</li>
+                    <li>• 상세 화면 아래에 <strong>큰 버튼 3개</strong>로 상태를 변경합니다:
+                      <br/><span className="ml-4">🔵 <strong>신규</strong> → 🟡 <strong>검토완료</strong> → 🟢 <strong>연락완료</strong></span>
+                    </li>
+                    <li>• <strong>"메모"</strong> 칸에 참고사항을 자유롭게 기록할 수 있습니다</li>
+                    <li>• 상단 <strong>검색창</strong>에 이름이나 이메일을 입력하면 해당 건만 보입니다</li>
+                    <li>• <strong>"CSV 내보내기"</strong> 버튼으로 엑셀 파일을 다운로드할 수 있습니다</li>
+                    <li>• <strong>"인쇄"</strong> 버튼으로 개별 건을 인쇄할 수 있습니다</li>
+                  </ul>
+                </div>
+
+                {/* Q&A */}
+                <div>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">💬 질문답변 (Q&A) 탭</h3>
+                  <ul className="space-y-2 ml-1">
+                    <li>• 회사 고객이 남긴 <strong>질문 목록</strong>이 표시됩니다</li>
+                    <li>• 질문을 클릭하면 <strong>대화 내용</strong>을 볼 수 있습니다</li>
+                    <li>• 하단 입력칸에 답변을 작성하고 <strong>"전송"</strong>을 누르세요</li>
+                    <li>• 답변하면 고객에게 <strong>이메일 알림</strong>이 자동으로 갑니다</li>
+                    <li>• 🌐 <strong>번역 버튼</strong>을 누르면 메시지를 한국어/영어 등으로 번역할 수 있습니다</li>
+                  </ul>
+                </div>
+
+                {/* 서류 */}
+                <div>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">📁 서류 탭</h3>
+                  <ul className="space-y-2 ml-1">
+                    <li>• 회사별로 <strong>업로드된 파일</strong>을 확인할 수 있습니다</li>
+                    <li>• <strong>회사 이름을 클릭</strong>하면 해당 회사의 파일 목록이 펼쳐집니다</li>
+                    <li>• <strong>"다운로드"</strong> 버튼으로 파일을 받을 수 있습니다</li>
+                  </ul>
+                </div>
+
+                {/* 이메일 로그 */}
+                <div>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">📧 이메일 로그 탭</h3>
+                  <ul className="space-y-2 ml-1">
+                    <li>• 시스템에서 발송된 <strong>모든 이메일 기록</strong>을 확인합니다</li>
+                    <li>• <strong className="text-green-600">발송완료</strong> = 정상 발송 / <strong className="text-red-600">실패</strong> = 발송 오류</li>
+                    <li>• 이메일이 제대로 가고 있는지 <strong>모니터링</strong>할 때 사용하세요</li>
+                  </ul>
+                </div>
+
+                {/* 프로젝트 */}
+                <div>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">📊 프로젝트 탭</h3>
+                  <ul className="space-y-2 ml-1">
+                    <li>• 문의가 실제 프로젝트로 전환되면 여기서 관리합니다</li>
+                    <li>• 상태: 🔵 기획중 → 🟡 진행중 → 🟣 검토중 → 🟢 완료</li>
+                    <li>• <strong>진행률 바</strong>로 프로젝트 진행 상황을 한눈에 봅니다</li>
+                  </ul>
+                </div>
+
+                {/* 전문가 */}
+                <div>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">👥 전문가 탭</h3>
+                  <ul className="space-y-2 ml-1">
+                    <li>• 등록된 <strong>전문가 프로필</strong>을 검색하고 관리합니다</li>
+                    <li>• 상단 <strong>도메인 버튼</strong>으로 분야별 필터링이 가능합니다</li>
+                    <li>• 지원서가 승인되면 전문가로 등록할 수 있습니다</li>
+                  </ul>
+                </div>
+
+                {/* 통계 */}
+                <div>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">📈 통계 탭</h3>
+                  <ul className="space-y-2 ml-1">
+                    <li>• <strong>월별 문의 건수 차트</strong>를 확인할 수 있습니다</li>
+                    <li>• <strong>분야별 비율</strong>과 <strong>국가별 순위</strong>를 봅니다</li>
+                    <li>• 전환율은 "연락완료 건수 / 전체 건수"를 의미합니다</li>
+                  </ul>
+                </div>
+
+                {/* 기타 */}
+                <div>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">⚙️ 기타 기능</h3>
+                  <ul className="space-y-2 ml-1">
+                    <li>• 🌙 <strong>다크모드</strong>: 어두운 화면으로 전환합니다 (눈 보호)</li>
+                    <li>• 브라우저 탭에 <strong>(3)</strong> 같은 숫자가 뜨면 미확인 건이 있다는 뜻입니다</li>
+                    <li>• 문제가 있으면 개발자에게 문의해 주세요</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Close button */}
+              <div className="px-6 sm:px-8 py-4 border-t border-gray-100 dark:border-gray-700">
+                <button
+                  onClick={() => setShowHelp(false)}
+                  className="w-full min-h-[48px] text-lg font-bold rounded-xl bg-brand-navy text-white hover:bg-brand-teal transition-colors"
+                >
+                  닫기
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Detail Modal ─────────────────────────────────────────────────── */}
       <DetailModal
