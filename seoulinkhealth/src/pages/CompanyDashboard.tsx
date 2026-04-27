@@ -22,9 +22,22 @@ type Tab = 'overview' | 'inquiries' | 'files' | 'projects' | 'settings'
 interface InquiryItem {
   id: string
   inquirySubject: string
+  inquiryDescription?: string
+  additionalComments?: string
+  fullName?: string
+  email?: string
+  dialCode?: string
+  telephone?: string
+  currentEmployment?: string
+  experiences?: string
+  specialty?: string
+  education?: string
+  countryOfOrigin?: string
+  type?: string
   status: string
   createdAt: string
   updatedAt: string
+  adminNotes?: string
 }
 
 interface ProfileForm {
@@ -106,6 +119,7 @@ export default function CompanyDashboardPage() {
   const [inquiries, setInquiries] = useState<InquiryItem[]>([])
   const [loadingInquiries, setLoadingInquiries] = useState(false)
   const [stats, setStats] = useState({ total: 0, open: 0, answered: 0, closed: 0 })
+  const [selectedInquiry, setSelectedInquiry] = useState<InquiryItem | null>(null)
 
   /* ── Projects state ───────────────────────────────────────────────────── */
   const [projects, setProjects] = useState<ProjectItem[]>([])
@@ -328,12 +342,12 @@ export default function CompanyDashboardPage() {
           <AnimatePresence mode="wait">
             {activeTab === 'overview' && (
               <motion.div key="overview" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}>
-                <OverviewTab stats={stats} inquiries={inquiries} loading={loadingInquiries} />
+                <OverviewTab stats={stats} inquiries={inquiries} loading={loadingInquiries} onSelect={setSelectedInquiry} />
               </motion.div>
             )}
             {activeTab === 'inquiries' && (
               <motion.div key="inquiries" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}>
-                <InquiriesTab inquiries={inquiries} loading={loadingInquiries} />
+                <InquiriesTab inquiries={inquiries} loading={loadingInquiries} onSelect={setSelectedInquiry} />
               </motion.div>
             )}
             {activeTab === 'files' && (
@@ -353,6 +367,127 @@ export default function CompanyDashboardPage() {
             )}
           </AnimatePresence>
         </div>
+
+        {/* ── Inquiry Detail Modal ────────────────────────────────────────── */}
+        <AnimatePresence>
+          {selectedInquiry && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] flex items-start justify-center bg-black/50 p-4 overflow-y-auto"
+              onClick={() => setSelectedInquiry(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-2xl my-8 overflow-hidden"
+              >
+                {/* Header */}
+                <div className="bg-brand-navy px-6 py-5 flex items-start justify-between">
+                  <div>
+                    <p className="text-xs text-brand-gold font-bold tracking-widest uppercase mb-1">
+                      {selectedInquiry.type === 'application' ? 'Expert Application' : 'Service Inquiry'}
+                    </p>
+                    <h2 className="text-xl font-bold text-white">{selectedInquiry.inquirySubject}</h2>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 ${
+                    selectedInquiry.status === 'New' ? 'bg-blue-100 text-blue-800'
+                    : selectedInquiry.status === 'Reviewed' ? 'bg-amber-100 text-amber-800'
+                    : selectedInquiry.status === 'Contacted' ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                  }`}>{selectedInquiry.status}</span>
+                </div>
+
+                {/* Content */}
+                <div className="p-6 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {selectedInquiry.fullName && (
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <p className="text-xs font-bold text-gray-400 uppercase mb-1">Name</p>
+                        <p className="text-sm text-gray-900 dark:text-white">{selectedInquiry.fullName}</p>
+                      </div>
+                    )}
+                    {selectedInquiry.email && (
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <p className="text-xs font-bold text-gray-400 uppercase mb-1">Email</p>
+                        <p className="text-sm text-gray-900 dark:text-white">{selectedInquiry.email}</p>
+                      </div>
+                    )}
+                    {selectedInquiry.telephone && (
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <p className="text-xs font-bold text-gray-400 uppercase mb-1">Phone</p>
+                        <p className="text-sm text-gray-900 dark:text-white">{selectedInquiry.dialCode} {selectedInquiry.telephone}</p>
+                      </div>
+                    )}
+                    {selectedInquiry.currentEmployment && (
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <p className="text-xs font-bold text-gray-400 uppercase mb-1">Company</p>
+                        <p className="text-sm text-gray-900 dark:text-white">{selectedInquiry.currentEmployment}</p>
+                      </div>
+                    )}
+                    {selectedInquiry.specialty && (
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <p className="text-xs font-bold text-gray-400 uppercase mb-1">Specialty</p>
+                        <p className="text-sm text-gray-900 dark:text-white">{selectedInquiry.specialty}</p>
+                      </div>
+                    )}
+                    {selectedInquiry.education && (
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <p className="text-xs font-bold text-gray-400 uppercase mb-1">Education</p>
+                        <p className="text-sm text-gray-900 dark:text-white">{selectedInquiry.education}</p>
+                      </div>
+                    )}
+                    {selectedInquiry.countryOfOrigin && (
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <p className="text-xs font-bold text-gray-400 uppercase mb-1">Country</p>
+                        <p className="text-sm text-gray-900 dark:text-white">{selectedInquiry.countryOfOrigin}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedInquiry.inquiryDescription && (
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                      <p className="text-xs font-bold text-gray-400 uppercase mb-1">Description</p>
+                      <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">{selectedInquiry.inquiryDescription}</p>
+                    </div>
+                  )}
+
+                  {selectedInquiry.experiences && (
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                      <p className="text-xs font-bold text-gray-400 uppercase mb-1">Professional Experiences</p>
+                      <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">{selectedInquiry.experiences}</p>
+                    </div>
+                  )}
+
+                  {selectedInquiry.additionalComments && (
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                      <p className="text-xs font-bold text-gray-400 uppercase mb-1">Additional Comments</p>
+                      <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">{selectedInquiry.additionalComments}</p>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-4 text-xs text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <span>Submitted: {new Date(selectedInquiry.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    <span>Updated: {new Date(selectedInquiry.updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  </div>
+                </div>
+
+                {/* Close */}
+                <div className="px-6 pb-5">
+                  <button
+                    onClick={() => setSelectedInquiry(null)}
+                    className="w-full min-h-[44px] text-sm font-bold rounded-xl bg-brand-navy text-white hover:bg-brand-teal transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ── Help Modal ──────────────────────────────────────────────────── */}
         <AnimatePresence>
@@ -474,10 +609,12 @@ function OverviewTab({
   stats,
   inquiries,
   loading,
+  onSelect,
 }: {
   stats: { total: number; open: number; answered: number; closed: number }
   inquiries: InquiryItem[]
   loading: boolean
+  onSelect?: (item: InquiryItem) => void
 }) {
   const statCards = [
     { label: 'Total Inquiries', value: stats.total, color: 'bg-brand-navy' },
@@ -511,7 +648,7 @@ function OverviewTab({
         ) : (
           <ul className="divide-y divide-brand-border dark:divide-gray-700">
             {inquiries.slice(0, 5).map((item) => (
-              <li key={item.id} className="p-4 hover:bg-brand-cream/30 dark:hover:bg-gray-700/40 transition-colors">
+              <li key={item.id} className="p-4 hover:bg-brand-cream/30 dark:hover:bg-gray-700/40 transition-colors cursor-pointer" onClick={() => onSelect?.(item)}>
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-brand-navy dark:text-white truncate">{item.inquirySubject}</p>
@@ -533,7 +670,7 @@ function OverviewTab({
 /* ═══════════════════════════════════════════════════════════════════════════
    INQUIRIES TAB
    ═══════════════════════════════════════════════════════════════════════════ */
-function InquiriesTab({ inquiries, loading }: { inquiries: InquiryItem[]; loading: boolean }) {
+function InquiriesTab({ inquiries, loading, onSelect }: { inquiries: InquiryItem[]; loading: boolean; onSelect?: (item: InquiryItem) => void }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-brand-border dark:border-gray-700 overflow-hidden">
       <div className="p-5 border-b border-brand-border dark:border-gray-700 flex items-center justify-between">
@@ -557,7 +694,7 @@ function InquiriesTab({ inquiries, loading }: { inquiries: InquiryItem[]; loadin
       ) : (
         <ul className="divide-y divide-brand-border dark:divide-gray-700">
           {inquiries.map((item) => (
-            <li key={item.id} className="p-4 hover:bg-brand-cream/30 dark:hover:bg-gray-700/40 transition-colors">
+            <li key={item.id} className="p-4 hover:bg-brand-cream/30 dark:hover:bg-gray-700/40 transition-colors cursor-pointer" onClick={() => onSelect?.(item)}>
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-brand-navy dark:text-white truncate">{item.inquirySubject}</p>
