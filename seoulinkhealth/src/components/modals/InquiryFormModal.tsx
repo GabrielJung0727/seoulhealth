@@ -6,6 +6,7 @@ import { z } from 'zod'
 import EmailInput from '@/components/ui/EmailInput'
 import PhoneInput from '@/components/ui/PhoneInput'
 import { submitInquiry, ApiError } from '@/utils/api'
+import { useCompanyAuthStore } from '@/store/companyAuthStore'
 
 /* ─── Zod Schema ─────────────────────────────────────────────────────────── */
 const inquirySchema = z.object({
@@ -60,6 +61,7 @@ type SubmitState = 'idle' | 'loading' | 'success' | 'error'
 export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalProps) {
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const companyAuth = useCompanyAuthStore()
 
   const {
     register,
@@ -72,6 +74,18 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
     resolver: zodResolver(inquirySchema),
     defaultValues: { dialCode: '+82' },
   })
+
+  // Auto-fill from company profile when modal opens
+  useEffect(() => {
+    if (isOpen && companyAuth.isAuthenticated() && companyAuth.company) {
+      const c = companyAuth.company
+      if (c.contactPerson) setValue('fullName', c.contactPerson)
+      if (c.email) setValue('email', c.email)
+      if (c.dialCode) setValue('dialCode', c.dialCode)
+      if (c.telephone) setValue('telephone', c.telephone)
+      if (c.companyName) setValue('currentEmployment', c.companyName)
+    }
+  }, [isOpen, companyAuth, setValue])
 
   // Escape key closes modal
   useEffect(() => {

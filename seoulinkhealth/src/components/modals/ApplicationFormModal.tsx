@@ -7,6 +7,7 @@ import { COUNTRIES, PRIORITY_COUNTRIES } from '@/data/countries'
 import EmailInput from '@/components/ui/EmailInput'
 import PhoneInput from '@/components/ui/PhoneInput'
 import { submitApplication, ApiError } from '@/utils/api'
+import { useCompanyAuthStore } from '@/store/companyAuthStore'
 
 /* ─── Zod Schema ─────────────────────────────────────────────────────────── */
 const applicationSchema = z.object({
@@ -54,6 +55,7 @@ type SubmitState = 'idle' | 'loading' | 'success' | 'error'
 export default function ApplicationFormModal({ isOpen, onClose }: ApplicationFormModalProps) {
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const companyAuth = useCompanyAuthStore()
 
   const {
     register,
@@ -66,6 +68,17 @@ export default function ApplicationFormModal({ isOpen, onClose }: ApplicationFor
     resolver: zodResolver(applicationSchema),
     defaultValues: { dialCode: '+82' },
   })
+
+  // Auto-fill from company profile when modal opens
+  useEffect(() => {
+    if (isOpen && companyAuth.isAuthenticated() && companyAuth.company) {
+      const c = companyAuth.company
+      if (c.contactPerson) setValue('fullName', c.contactPerson)
+      if (c.email) setValue('email', c.email)
+      if (c.dialCode) setValue('dialCode', c.dialCode)
+      if (c.telephone) setValue('telephone', c.telephone)
+    }
+  }, [isOpen, companyAuth, setValue])
 
   // Close on Escape key
   useEffect(() => {
