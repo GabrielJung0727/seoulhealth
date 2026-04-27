@@ -1112,7 +1112,6 @@ export default function AdminPage() {
             <p className="text-gray-500 dark:text-gray-400">통계 분석 대시보드가 준비되었습니다. 곧 활성화됩니다.</p>
           </div>
         )}
-      </div>
 
       {/* ── Detail Modal ─────────────────────────────────────────────────── */}
       <DetailModal
