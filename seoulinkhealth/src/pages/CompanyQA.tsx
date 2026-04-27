@@ -51,9 +51,10 @@ export default function CompanyQAPage() {
   const fetchThreads = async () => {
     setLoading(true)
     try {
-      const res = await api.get<{ data: QAThread[] }>('/company/qa/threads', token!)
-      const data = res.data as { data: QAThread[] }
-      setThreads(data?.data ?? [])
+      const res = await api.get<QAThread[]>('/company/qa/threads', token!)
+      const raw = res as unknown as Record<string, unknown>
+      const threads = raw.data ?? res.data
+      setThreads(Array.isArray(threads) ? threads as QAThread[] : [])
     } catch {
       // empty state
     } finally {
@@ -64,7 +65,8 @@ export default function CompanyQAPage() {
   const fetchThread = async (id: string) => {
     try {
       const res = await api.get<QAThread>(`/company/qa/threads/${id}`, token!)
-      const thread = (res.data as QAThread) ?? res
+      const raw = res as unknown as Record<string, unknown>
+      const thread = (raw.data ?? res.data) as QAThread
       setSelectedThread(thread)
       setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
     } catch {

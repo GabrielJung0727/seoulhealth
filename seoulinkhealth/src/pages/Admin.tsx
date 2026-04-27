@@ -459,7 +459,12 @@ export default function AdminPage() {
       await adminReplyQA(token, selectedThread.id, replyText.trim())
       setReplyText('')
       addToast({ type: 'success', message: '답변이 전송되었습니다.' })
-      await fetchQAThreads()
+      // Re-fetch threads and update the selected thread to show new message
+      const threads = await adminGetQAThreads(token)
+      const updatedThreads = Array.isArray(threads) ? threads : []
+      setQaThreads(updatedThreads)
+      const updatedThread = updatedThreads.find((t) => t.id === selectedThread.id)
+      if (updatedThread) setSelectedThread(updatedThread)
     } catch {
       addToast({ type: 'error', message: '답변 전송에 실패했습니다.' })
     } finally {
@@ -1025,7 +1030,7 @@ export default function AdminPage() {
 
                             {/* Language dropdown */}
                             {showLangDropdown === msg.id && (
-                              <div className="absolute bottom-full left-0 mb-1 bg-white rounded-xl border-2 border-gray-100 shadow-lg py-1 z-10 min-w-[140px]">
+                              <div className="absolute bottom-full right-0 mb-1 bg-white rounded-xl border-2 border-gray-100 shadow-lg py-1 z-50 min-w-[140px]">
                                 <p className="px-3 py-1 text-xs font-bold text-gray-400">{L.qaSelectLanguage}</p>
                                 {TRANSLATE_LANGUAGES.map((lang) => (
                                   <button
