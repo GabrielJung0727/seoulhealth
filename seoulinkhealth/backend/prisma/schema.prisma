@@ -126,3 +126,27 @@ model QAMessage {
 
   @@map("qa_messages")
 }
+
+// ─── Email Logs ──────────────────────────────────────────────────────────────
+model EmailLog {
+  id        String   @id @default(cuid())
+  to        String
+  subject   String
+  type      String   // 'otp' | 'welcome' | 'confirmation' | 'temp_password' | 'qa_notification' | 'admin_notification'
+  status    String   // 'sent' | 'failed'
+  error     String?
+  createdAt DateTime @default(now())
+
+  @@map("email_logs")
+}
+
+// ─── Admin Notes ─────────────────────────────────────────────────────────────
+model AdminNote {
+  id         String   @id @default(cuid())
+  targetType String   // 'application' | 'inquiry'
+  targetId   String
+  content    String
+  createdAt  DateTime @default(now())
+
+  @@map("admin_notes")
+}

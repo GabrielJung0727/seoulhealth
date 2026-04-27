@@ -462,6 +462,58 @@ export async function adminGetCompanyFiles(token: string, companyId: string): Pr
   return (res.data ?? []) as FileItem[]
 }
 
+/* ─── Admin Email Logs helpers ────────────────────────────────────────── */
+export interface EmailLogItem {
+  id: string
+  to: string
+  subject: string
+  type: string
+  status: string
+  error: string | null
+  createdAt: string
+}
+
+export async function adminGetEmailLogs(
+  token: string,
+  params?: { page?: number; limit?: number; search?: string }
+): Promise<PaginatedResponse<EmailLogItem>> {
+  const qs = new URLSearchParams()
+  if (params?.page) qs.set('page', String(params.page))
+  if (params?.limit) qs.set('limit', String(params.limit))
+  if (params?.search) qs.set('search', params.search)
+  const res = await api.get<PaginatedResponse<EmailLogItem>>(
+    `/admin/email-logs${qs.toString() ? `?${qs}` : ''}`,
+    token
+  )
+  return res.data as PaginatedResponse<EmailLogItem>
+}
+
+/* ─── Admin Notes helpers ────────────────────────────────────────────── */
+export interface AdminNoteItem {
+  id: string
+  targetType: string
+  targetId: string
+  content: string
+  createdAt: string
+}
+
+export async function adminAddNote(
+  token: string,
+  data: { targetType: string; targetId: string; content: string }
+): Promise<AdminNoteItem> {
+  const res = await api.post<AdminNoteItem>('/admin/notes', data, token)
+  return res.data as AdminNoteItem
+}
+
+export async function adminGetNotes(
+  token: string,
+  targetType: string,
+  targetId: string
+): Promise<AdminNoteItem[]> {
+  const res = await api.get<AdminNoteItem[]>(`/admin/notes/${targetType}/${targetId}`, token)
+  return (res.data ?? []) as AdminNoteItem[]
+}
+
 export async function adminDownloadFile(token: string, fileId: string): Promise<void> {
   const url = `${BASE_URL}/admin/files/${fileId}/download`
   const res = await fetch(url, {

@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import type { SubmissionItem } from '@/utils/api'
+import type { SubmissionItem, AdminNoteItem } from '@/utils/api'
+import { adminGetNotes, adminAddNote } from '@/utils/api'
 import { SITE_CONFIG } from '@/config/site'
+import { useAuthStore } from '@/store/authStore'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 
 type Status = 'New' | 'Reviewed' | 'Contacted'
@@ -45,7 +47,48 @@ function Field({ label, value }: { label: string; value: string | null | undefin
 export default function DetailModal({ isOpen, onClose, item, type, onStatusChange }: Props) {
   const [confirmStatus, setConfirmStatus] = useState<Status | null>(null)
   const [updating, setUpdating] = useState(false)
+  const [notes, setNotes] = useState<AdminNoteItem[]>([])
+  const [noteText, setNoteText] = useState('')
+  const [noteLoading, setNoteLoading] = useState(false)
+  const [noteSaving, setNoteSaving] = useState(false)
+  const token = useAuthStore((s) => s.token)!
   const L = SITE_CONFIG.admin.labels
+
+  const targetType = type === 'applications' ? 'application' : 'inquiry'
+
+  const fetchNotes = useCallback(async () => {
+    if (!item) return
+    try {
+      setNoteLoading(true)
+      const result = await adminGetNotes(token, targetType, item.id)
+      setNotes(result)
+    } catch (err) {
+      console.error('[DetailModal] fetchNotes error:', err)
+    } finally {
+      setNoteLoading(false)
+    }
+  }, [token, targetType, item?.id])
+
+  useEffect(() => {
+    if (isOpen && item) {
+      fetchNotes()
+      setNoteText('')
+    }
+  }, [isOpen, item, fetchNotes])
+
+  const handleAddNote = async () => {
+    if (!noteText.trim() || !item) return
+    try {
+      setNoteSaving(true)
+      const newNote = await adminAddNote(token, { targetType, targetId: item.id, content: noteText.trim() })
+      setNotes((prev) => [...prev, newNote])
+      setNoteText('')
+    } catch (err) {
+      console.error('[DetailModal] addNote error:', err)
+    } finally {
+      setNoteSaving(false)
+    }
+  }
 
   if (!item) return null
 
@@ -141,6 +184,60 @@ export default function DetailModal({ isOpen, onClose, item, type, onStatusChang
                       {s === item.status && ' ✓'}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Notes Section */}
+              <div className="px-4 sm:px-6 pb-4 no-print">
+                <p className="text-sm sm:text-base font-bold text-gray-700 mb-3">{L.notes}</p>
+
+                {/* Notes list */}
+                <div className="space-y-2 mb-3 max-h-48 overflow-y-auto">
+                  {noteLoading ? (
+                    <div className="text-sm text-gray-400 animate-pulse">...</div>
+                  ) : notes.length === 0 ? (
+                    <p className="text-sm text-gray-400">{L.noNotes}</p>
+                  ) : (
+                    notes.map((note) => (
+                      <div key={note.id} className="bg-gray-50 rounded-lg p-3">
+                        <p className="text-xs text-gray-400 mb-1">
+                          {new Date(note.createdAt).toLocaleDateString('ko-KR', {
+                            timeZone: 'Asia/Seoul',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                        <p className="text-sm text-gray-800 whitespace-pre-wrap">{note.content}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Add note input */}
+                <div className="flex gap-2">
+                  <textarea
+                    value={noteText}
+                    onChange={(e) => setNoteText(e.target.value)}
+                    placeholder={L.notePlaceholder}
+                    rows={2}
+                    className="flex-1 resize-none text-sm rounded-xl border-2 border-gray-200 p-3 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-colors"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                        e.preventDefault()
+                        handleAddNote()
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={handleAddNote}
+                    disabled={!noteText.trim() || noteSaving}
+                    className="self-end min-h-[40px] px-4 text-sm font-bold rounded-xl bg-brand-navy text-white hover:bg-brand-teal transition-colors disabled:opacity-40"
+                  >
+                    {noteSaving ? '...' : L.addNote}
+                  </button>
                 </div>
               </div>
 

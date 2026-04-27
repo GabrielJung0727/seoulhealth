@@ -158,6 +158,24 @@ export const SITE_CONFIG = {
       qaTranslating: '번역 중...',
       qaSelectLanguage: '언어 선택',
       qaBackToList: '목록으로',
+      // Email logs tab
+      emailLogs: '이메일 로그',
+      emailLogRecipient: '수신자',
+      emailLogSubject: '제목',
+      emailLogType: '유형',
+      emailLogStatus: '상태',
+      emailLogDate: '날짜',
+      emailLogSent: '발송완료',
+      emailLogFailed: '실패',
+      emailLogNoLogs: '이메일 로그가 없습니다.',
+      emailLogSearchPlaceholder: '수신자 이메일 검색',
+      // Admin notes
+      notes: '메모',
+      addNote: '메모 추가',
+      notePlaceholder: '메모를 입력하세요...',
+      noNotes: '메모가 없습니다.',
+      // Dark mode
+      darkMode: '다크모드',
     },
   },
 } as const

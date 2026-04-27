@@ -262,4 +262,51 @@ router.get(
   }
 )
 
+/* ─── POST /api/admin/notes ─────────────────────────────────────────────── */
+router.post(
+  '/notes',
+  requireAuth,
+  [
+    body('targetType').isIn(['application', 'inquiry']).withMessage('targetType must be application or inquiry'),
+    body('targetId').notEmpty().withMessage('targetId is required'),
+    body('content').notEmpty().trim().isLength({ max: 2000 }).withMessage('content is required (max 2000 chars)'),
+  ],
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const errors = validationResult(req)
+      if (!errors.isEmpty()) return next(createError('Validation failed.', 400, errors.array()))
+
+      const { targetType, targetId, content } = req.body
+
+      const note = await prisma.adminNote.create({
+        data: { targetType, targetId, content },
+      })
+
+      res.status(201).json({ success: true, data: note })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/* ─── GET /api/admin/notes/:targetType/:targetId ───────────────────────── */
+router.get(
+  '/notes/:targetType/:targetId',
+  requireAuth,
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const { targetType, targetId } = req.params
+
+      const notes = await prisma.adminNote.findMany({
+        where: { targetType, targetId },
+        orderBy: { createdAt: 'asc' },
+      })
+
+      res.json({ success: true, data: notes })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
 export default router

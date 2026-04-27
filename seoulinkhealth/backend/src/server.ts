@@ -11,6 +11,7 @@ import adminRouter from './routes/admin'
 import authRouter from './routes/auth'
 import { qaCompanyRouter, qaAdminRouter } from './routes/qa'
 import { fileCompanyRouter, fileAdminRouter } from './routes/files'
+import emailLogRouter from './routes/emailLog'
 import { errorHandler } from './middleware/errorHandler'
 
 /* ─── App ────────────────────────────────────────────────────────────────── */
@@ -73,8 +74,9 @@ app.use('/api/inquiry', submissionLimiter, inquiryRouter)
 app.use('/api/company/qa',    adminLimiter,  qaCompanyRouter)
 app.use('/api/company/files', adminLimiter,  fileCompanyRouter)
 app.use('/api/admin/qa',     adminLimiter,  qaAdminRouter)
-app.use('/api/admin/files',  adminLimiter,  fileAdminRouter)
-app.use('/api/admin',        adminLimiter,  adminRouter)
+app.use('/api/admin/files',       adminLimiter,  fileAdminRouter)
+app.use('/api/admin/email-logs',  adminLimiter,  emailLogRouter)
+app.use('/api/admin',             adminLimiter,  adminRouter)
 
 /* ─── Health check ───────────────────────────────────────────────────────── */
 app.get('/api/health', (_req, res) => {

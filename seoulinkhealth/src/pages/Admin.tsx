@@ -17,15 +17,17 @@ import {
   adminTranslateText,
   adminGetAllFiles,
   adminDownloadFile,
+  adminGetEmailLogs,
   type SubmissionItem,
   type PaginatedResponse,
   type AdminQAThread,
   type FileItem,
   type FileGrouped,
+  type EmailLogItem,
 } from '@/utils/api'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
-type Tab = 'applications' | 'inquiries' | 'qa' | 'documents'
+type Tab = 'applications' | 'inquiries' | 'qa' | 'documents' | 'emailLogs'
 type Status = 'New' | 'Reviewed' | 'Contacted'
 
 const L = SITE_CONFIG.admin.labels
@@ -111,17 +113,26 @@ function getAdminFileIconColor(mimeType: string): string {
   return colors[getAdminFileIcon(mimeType)] ?? 'bg-gray-100 text-gray-600'
 }
 
+const EMAIL_TYPE_BADGE: Record<string, string> = {
+  otp: 'bg-purple-100 text-purple-800',
+  welcome: 'bg-blue-100 text-blue-800',
+  confirmation: 'bg-teal-100 text-teal-800',
+  temp_password: 'bg-amber-100 text-amber-800',
+  qa_notification: 'bg-indigo-100 text-indigo-800',
+  admin_notification: 'bg-gray-100 text-gray-800',
+}
+
 /* ─── Skeleton Card ──────────────────────────────────────────────────────── */
 function SkeletonCard() {
   return (
-    <div className="bg-white rounded-2xl border-2 border-gray-100 p-5 lg:p-6 animate-pulse">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 p-5 lg:p-6 animate-pulse">
       <div className="flex justify-between items-start">
         <div className="space-y-3 flex-1">
-          <div className="h-6 w-40 bg-gray-100 rounded-full" />
-          <div className="h-4 w-56 bg-gray-100 rounded-full" />
-          <div className="h-4 w-32 bg-gray-100 rounded-full" />
+          <div className="h-6 w-40 bg-gray-100 dark:bg-gray-700 rounded-full" />
+          <div className="h-4 w-56 bg-gray-100 dark:bg-gray-700 rounded-full" />
+          <div className="h-4 w-32 bg-gray-100 dark:bg-gray-700 rounded-full" />
         </div>
-        <div className="h-8 w-20 bg-gray-100 rounded-full" />
+        <div className="h-8 w-20 bg-gray-100 dark:bg-gray-700 rounded-full" />
       </div>
     </div>
   )
@@ -163,6 +174,16 @@ export default function AdminPage() {
   const [showLangDropdown, setShowLangDropdown] = useState<string | null>(null)
   const langDropdownRef = useRef<HTMLDivElement>(null)
 
+  /* Email logs state */
+  const [emailLogs, setEmailLogs] = useState<PaginatedResponse<EmailLogItem> | null>(null)
+  const [emailLogsLoading, setEmailLogsLoading] = useState(false)
+  const [emailSearchInput, setEmailSearchInput] = useState('')
+  const [emailDebouncedSearch, setEmailDebouncedSearch] = useState('')
+  const [emailPage, setEmailPage] = useState(1)
+
+  /* Dark mode state */
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('sih_admin_dark') === 'true')
+
   /* Debounce search */
   useEffect(() => {
     const t = setTimeout(() => {
@@ -171,6 +192,20 @@ export default function AdminPage() {
     }, 300)
     return () => clearTimeout(t)
   }, [searchInput])
+
+  /* Debounce email log search */
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setEmailDebouncedSearch(emailSearchInput)
+      setEmailPage(1)
+    }, 300)
+    return () => clearTimeout(t)
+  }, [emailSearchInput])
+
+  /* Dark mode persistence */
+  useEffect(() => {
+    localStorage.setItem('sih_admin_dark', String(darkMode))
+  }, [darkMode])
 
   /* Fetch Q&A threads */
   const fetchQAThreads = useCallback(async () => {
@@ -200,9 +235,27 @@ export default function AdminPage() {
     }
   }, [token])
 
+  /* Fetch email logs */
+  const fetchEmailLogs = useCallback(async () => {
+    try {
+      setEmailLogsLoading(true)
+      const result = await adminGetEmailLogs(token, {
+        page: emailPage,
+        limit: 20,
+        search: emailDebouncedSearch || undefined,
+      })
+      setEmailLogs(result)
+    } catch (err) {
+      console.error('[Admin] fetchEmailLogs error:', err)
+      setEmailLogs(null)
+    } finally {
+      setEmailLogsLoading(false)
+    }
+  }, [token, emailPage, emailDebouncedSearch])
+
   /* Fetch data */
   const fetchData = useCallback(async () => {
-    if (tab === 'qa' || tab === 'documents') return // These tabs have own fetch
+    if (tab === 'qa' || tab === 'documents' || tab === 'emailLogs') return // These tabs have own fetch
     try {
       setLoading(true)
       const params = {
@@ -240,15 +293,26 @@ export default function AdminPage() {
       fetchData()
       if (tab === 'qa') fetchQAThreads()
       if (tab === 'documents') fetchFiles()
+      if (tab === 'emailLogs') fetchEmailLogs()
     }, 30_000)
     return () => clearInterval(refreshRef.current)
-  }, [fetchData, fetchQAThreads, fetchFiles, tab])
+  }, [fetchData, fetchQAThreads, fetchFiles, fetchEmailLogs, tab])
 
   /* Fetch Q&A threads when Q&A tab is selected */
   useEffect(() => {
     if (tab === 'qa') fetchQAThreads()
     if (tab === 'documents') fetchFiles()
-  }, [tab, fetchQAThreads, fetchFiles])
+    if (tab === 'emailLogs') fetchEmailLogs()
+  }, [tab, fetchQAThreads, fetchFiles, fetchEmailLogs])
+
+  /* FEATURE 3: Alert badge — update browser tab title with new item count */
+  useEffect(() => {
+    if (!stats) return
+    const count = stats.applications.new + stats.inquiries.new
+    document.title = count > 0
+      ? `(${count}) Admin Dashboard | SEOULINKHEALTH`
+      : 'Admin Dashboard | SEOULINKHEALTH'
+  }, [stats])
 
   /* Close lang dropdown on outside click */
   useEffect(() => {
@@ -360,6 +424,8 @@ export default function AdminPage() {
     setReplyText('')
     setTranslatedMessages({})
     setExpandedCompanies(new Set())
+    setEmailSearchInput('')
+    setEmailPage(1)
   }
 
   /* CSV export */
@@ -374,18 +440,35 @@ export default function AdminPage() {
   const totalPages = data?.pagination?.totalPages ?? 1
 
   return (
-    <div className="admin-layout min-h-screen bg-gray-50 no-print">
+    <div className={`admin-layout min-h-screen bg-gray-50 dark:bg-gray-900 no-print ${darkMode ? 'dark' : ''}`}>
       {/* ── Header ───────────────────────────────────────────────────────── */}
-      <header className="bg-white border-b-2 border-gray-100 sticky top-0 z-30">
+      <header className="bg-white dark:bg-gray-800 border-b-2 border-gray-100 dark:border-gray-700 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-brand-navy">SEOULINKHEALTH</h1>
-            <p className="text-sm sm:text-base text-gray-500">{L.loginSubtitle}</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-brand-navy dark:text-white">SEOULINKHEALTH</h1>
+            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">{L.loginSubtitle}</p>
           </div>
           <div className="flex items-center gap-3">
+            {/* FEATURE 4: Dark mode toggle */}
+            <button
+              onClick={() => setDarkMode((prev) => !prev)}
+              className="admin-btn border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              title={L.darkMode}
+            >
+              {darkMode ? (
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                  <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
+              )}
+              <span className="hidden sm:inline">{L.darkMode}</span>
+            </button>
             <button
               onClick={fetchData}
-              className="admin-btn border-2 border-gray-200 text-gray-700 hover:bg-gray-100"
+              className="admin-btn border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                 <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
@@ -394,7 +477,7 @@ export default function AdminPage() {
             </button>
             <button
               onClick={handleSignOut}
-              className="admin-btn bg-gray-100 text-gray-700 hover:bg-gray-200"
+              className="admin-btn bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
             >
               {L.signOut}
             </button>
@@ -427,19 +510,37 @@ export default function AdminPage() {
 
         {/* ── Tabs ───────────────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center gap-3">
-          {(['applications', 'inquiries', 'qa', 'documents'] as Tab[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => handleTabChange(t)}
-              className={`admin-btn rounded-full text-sm sm:text-lg ${
-                tab === t
-                  ? 'bg-brand-navy text-white shadow-md'
-                  : 'bg-white border-2 border-gray-200 text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {t === 'applications' ? L.applications : t === 'inquiries' ? L.inquiries : t === 'qa' ? L.qa : L.documents}
-            </button>
-          ))}
+          {(['applications', 'inquiries', 'qa', 'documents', 'emailLogs'] as Tab[]).map((t) => {
+            const label = t === 'applications' ? L.applications
+              : t === 'inquiries' ? L.inquiries
+              : t === 'qa' ? L.qa
+              : t === 'documents' ? L.documents
+              : L.emailLogs
+
+            /* FEATURE 3: red badge for new items */
+            const badgeCount = t === 'applications' ? (stats?.applications.new ?? 0)
+              : t === 'inquiries' ? (stats?.inquiries.new ?? 0)
+              : 0
+
+            return (
+              <button
+                key={t}
+                onClick={() => handleTabChange(t)}
+                className={`admin-btn rounded-full text-sm sm:text-lg relative ${
+                  tab === t
+                    ? 'bg-brand-navy text-white shadow-md'
+                    : 'bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                {label}
+                {badgeCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold px-1">
+                    {badgeCount}
+                  </span>
+                )}
+              </button>
+            )
+          })}
 
           <div className="flex-1" />
 
@@ -456,7 +557,7 @@ export default function AdminPage() {
         </div>
 
         {/* ── Applications / Inquiries content ─────────────────────────── */}
-        {tab !== 'qa' && tab !== 'documents' && (
+        {tab !== 'qa' && tab !== 'documents' && tab !== 'emailLogs' && (
           <>
             {/* ── Search + Filter ──────────────────────────────────────────── */}
             <div className="flex flex-col sm:flex-row gap-3">
@@ -469,7 +570,7 @@ export default function AdminPage() {
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   placeholder={L.search}
-                  className="w-full h-14 pl-12 pr-4 text-lg rounded-xl border-2 border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-colors"
+                  className="w-full h-14 pl-12 pr-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-colors"
                 />
               </div>
 
@@ -515,14 +616,14 @@ export default function AdminPage() {
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ delay: i * 0.03 }}
                       onClick={() => setSelectedItem(item)}
-                      className="w-full text-left bg-white rounded-2xl border-2 border-gray-100 hover:border-brand-teal/40 hover:shadow-md p-4 sm:p-5 lg:p-6 transition-all group"
+                      className="w-full text-left bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-brand-teal/40 hover:shadow-md p-4 sm:p-5 lg:p-6 transition-all group"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-base sm:text-xl font-bold text-gray-900 group-hover:text-brand-teal transition-colors truncate">
+                          <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white group-hover:text-brand-teal transition-colors truncate">
                             {item.fullName}
                           </h3>
-                          <p className="text-sm sm:text-base text-gray-500 truncate">{item.email}</p>
+                          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 truncate">{item.email}</p>
                           {tab === 'inquiries' && item.inquirySubject && (
                             <p className="text-base text-gray-600 mt-1 truncate">{item.inquirySubject}</p>
                           )}
@@ -865,6 +966,106 @@ export default function AdminPage() {
                   </button>
                 </div>
               </motion.div>
+            )}
+          </div>
+        )}
+
+        {/* ── Email Logs Tab Content ────────────────────────────────────── */}
+        {tab === 'emailLogs' && (
+          <div className="space-y-4">
+            {/* Search */}
+            <div className="relative">
+              <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2">
+                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+              </svg>
+              <input
+                type="text"
+                value={emailSearchInput}
+                onChange={(e) => setEmailSearchInput(e.target.value)}
+                placeholder={L.emailLogSearchPlaceholder}
+                className="w-full h-14 pl-12 pr-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-colors"
+              />
+            </div>
+
+            {/* Email log list */}
+            {emailLogsLoading && !emailLogs ? (
+              Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={`el-sk-${i}`} />)
+            ) : !emailLogs?.data?.length ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-16"
+              >
+                <p className="text-xl text-gray-400 dark:text-gray-500">{L.emailLogNoLogs}</p>
+              </motion.div>
+            ) : (
+              <div className="space-y-3">
+                <AnimatePresence mode="popLayout">
+                  {emailLogs.data.map((log, i) => (
+                    <motion.div
+                      key={log.id}
+                      layout
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 p-4 sm:p-5 lg:p-6"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
+                            {log.to}
+                          </p>
+                          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 truncate">
+                            {log.subject}
+                          </p>
+                          {log.error && (
+                            <p className="text-sm text-red-500 mt-1 truncate">{log.error}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0 flex-wrap">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${EMAIL_TYPE_BADGE[log.type] ?? 'bg-gray-100 text-gray-800'}`}>
+                            {log.type}
+                          </span>
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            log.status === 'sent'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {log.status === 'sent' ? L.emailLogSent : L.emailLogFailed}
+                          </span>
+                          <span className="text-sm text-gray-400">
+                            {toKoreanDate(log.createdAt)}
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+
+            {/* Email log pagination */}
+            {emailLogs && emailLogs.pagination.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-4 pt-4">
+                <button
+                  disabled={emailPage <= 1}
+                  onClick={() => setEmailPage((p) => Math.max(1, p - 1))}
+                  className="admin-btn bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40"
+                >
+                  {L.prevPage}
+                </button>
+                <span className="text-sm sm:text-lg font-bold text-gray-600 dark:text-gray-300">
+                  {emailPage} / {emailLogs.pagination.totalPages} {L.pageOf}
+                </span>
+                <button
+                  disabled={emailPage >= emailLogs.pagination.totalPages}
+                  onClick={() => setEmailPage((p) => Math.min(emailLogs!.pagination.totalPages, p + 1))}
+                  className="admin-btn bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40"
+                >
+                  {L.nextPage}
+                </button>
+              </div>
             )}
           </div>
         )}

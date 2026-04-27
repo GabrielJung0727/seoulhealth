@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import prisma from '../lib/prisma'
 
 /* ─── Transport ──────────────────────────────────────────────────────────── */
 function createTransport() {
@@ -67,6 +68,7 @@ export interface ApplicationData {
 
 export async function sendApplicationNotification(data: ApplicationData): Promise<void> {
   const transport = createTransport()
+  const subject = `[New Application] Expert Network — ${data.fullName}`
 
   const body = `
     <p>A new Expert Network application has been submitted.</p>
@@ -87,12 +89,18 @@ export async function sendApplicationNotification(data: ApplicationData): Promis
     <p>Please log in to the admin dashboard to review this application and update its status.</p>
   `
 
-  await transport.sendMail({
-    from: `"SEOULINKHEALTH System" <${COMPANY_EMAIL}>`,
-    to: COMPANY_EMAIL,
-    subject: `[New Application] Expert Network — ${data.fullName}`,
-    html: htmlWrapper('New Expert Network Application', body),
-  })
+  try {
+    await transport.sendMail({
+      from: `"SEOULINKHEALTH System" <${COMPANY_EMAIL}>`,
+      to: COMPANY_EMAIL,
+      subject,
+      html: htmlWrapper('New Expert Network Application', body),
+    })
+    await logEmail(COMPANY_EMAIL, subject, 'admin_notification', 'sent')
+  } catch (err) {
+    await logEmail(COMPANY_EMAIL, subject, 'admin_notification', 'failed', err instanceof Error ? err.message : String(err))
+    throw err
+  }
 }
 
 /* ─── Inquiry notification ───────────────────────────────────────────────── */
@@ -110,6 +118,7 @@ export interface InquiryData {
 
 export async function sendInquiryNotification(data: InquiryData): Promise<void> {
   const transport = createTransport()
+  const subject = `[New Inquiry] ${data.inquirySubject} — ${data.fullName}`
 
   const body = `
     <p>A new inquiry has been submitted via the SEOULINKHEALTH website.</p>
@@ -131,14 +140,40 @@ export async function sendInquiryNotification(data: InquiryData): Promise<void> 
     <p>Please log in to the admin dashboard to review this inquiry. Response is expected within two business days.</p>
   `
 
-  await transport.sendMail({
-    from: `"SEOULINKHEALTH System" <${COMPANY_EMAIL}>`,
-    to: COMPANY_EMAIL,
-    replyTo: data.email,
-    subject: `[New Inquiry] ${data.inquirySubject} — ${data.fullName}`,
-    html: htmlWrapper('New Advisory Inquiry', body),
-  })
+  try {
+    await transport.sendMail({
+      from: `"SEOULINKHEALTH System" <${COMPANY_EMAIL}>`,
+      to: COMPANY_EMAIL,
+      replyTo: data.email,
+      subject,
+      html: htmlWrapper('New Advisory Inquiry', body),
+    })
+    await logEmail(COMPANY_EMAIL, subject, 'admin_notification', 'sent')
+  } catch (err) {
+    await logEmail(COMPANY_EMAIL, subject, 'admin_notification', 'failed', err instanceof Error ? err.message : String(err))
+    throw err
+  }
 }
+
+/* ─── Email Logging ─────────────────────────────────────────────────────── */
+async function logEmail(
+  to: string,
+  subject: string,
+  type: string,
+  status: 'sent' | 'failed',
+  error?: string
+): Promise<void> {
+  try {
+    await prisma.emailLog.create({
+      data: { to, subject, type, status, error: error ?? null },
+    })
+  } catch (logErr) {
+    console.error('[EmailLog] Failed to write log:', logErr)
+  }
+}
+
+/** Public helper so other modules (e.g. OTP, password-reset) can log too */
+export { logEmail }
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
 function esc(str: string): string {
