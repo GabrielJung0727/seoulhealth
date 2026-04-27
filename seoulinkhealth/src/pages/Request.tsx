@@ -85,7 +85,7 @@ export default function RequestPage() {
                   </p>
                   <p>
                     If you require our advisory services, please complete the inquiry form
-                    and submit it via the email address provided below.
+                    and submit.
                   </p>
                   <p>
                     We will contact you as soon as possible.

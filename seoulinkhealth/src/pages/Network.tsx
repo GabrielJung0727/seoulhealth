@@ -75,8 +75,7 @@ export default function NetworkPage() {
                     interested in sharing their expertise to the global K-Health ecosystem.
                     If you are interested in sharing your expertise in our network as a
                     professional expert in K-HEALTH CARE, K-HEALTH INDUSTRY, K-BIO, or K-HEALTH FOOD,
-                    please complete the application form and submit it
-                    via the email address provided below.
+                    please complete the application form and submit.
                   </p>
                   <p>
                     Upon receipt of your application, our team will promptly contact you with
