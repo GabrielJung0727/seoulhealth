@@ -167,6 +167,10 @@ export const SITE_CONFIG = {
       emailLogDate: '날짜',
       emailLogSent: '발송완료',
       emailLogFailed: '실패',
+      // Projects/Experts/Analytics tabs
+      projects: '프로젝트',
+      experts: '전문가',
+      analytics: '통계',
       emailLogNoLogs: '이메일 로그가 없습니다.',
       emailLogSearchPlaceholder: '수신자 이메일 검색',
       // Admin notes
