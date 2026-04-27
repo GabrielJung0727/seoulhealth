@@ -368,16 +368,28 @@ router.get(
         return next(createError('Company not found.', 404))
       }
 
-      // Match inquiries by company email
-      const inquiries = await prisma.inquirySubmission.findMany({
-        where: { email: company.email },
-        orderBy: { createdAt: 'desc' },
-      })
+      // Match both inquiries AND applications by company email
+      const [inquiries, applications] = await Promise.all([
+        prisma.inquirySubmission.findMany({
+          where: { email: company.email },
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.applicationSubmission.findMany({
+          where: { email: company.email },
+          orderBy: { createdAt: 'desc' },
+        }),
+      ])
+
+      // Combine and sort by date
+      const combined = [
+        ...inquiries.map((i: Record<string, unknown>) => ({ ...i, type: 'inquiry' })),
+        ...applications.map((a: Record<string, unknown>) => ({ ...a, type: 'application', inquirySubject: a.specialty ? `Expert Application — ${a.specialty}` : 'Expert Network Application' })),
+      ].sort((a, b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime())
 
       res.json({
         success: true,
-        data: inquiries,
-        pagination: { total: inquiries.length },
+        data: combined,
+        pagination: { total: combined.length },
       })
     } catch (err) {
       next(err)
