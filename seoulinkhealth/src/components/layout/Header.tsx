@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SITE_CONFIG } from '@/config/site'
+import { useCompanyAuthStore } from '@/store/companyAuthStore'
 
 /**
  * SEOULINKHEALTH — Main Header / Navigation Bar
@@ -16,6 +17,8 @@ import { SITE_CONFIG } from '@/config/site'
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
+  const companyAuth = useCompanyAuthStore()
+  const isLoggedIn = companyAuth.isAuthenticated()
 
   const closeMobile = () => setMobileOpen(false)
 
@@ -70,19 +73,36 @@ export default function Header() {
           ))}
 
           <li>
-              <NavLink
-                to="/company/login"
-                className={({ isActive: a }) =>
-                  [
-                    'px-5 py-2 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-300 rounded-sm',
-                    a
-                      ? 'bg-brand-gold text-brand-navy border-brand-gold'
-                      : 'border-white/60 text-white hover:bg-brand-gold hover:text-brand-navy hover:border-brand-gold',
-                  ].join(' ')
-                }
-              >
-                LOGIN
-              </NavLink>
+              {isLoggedIn ? (
+                <NavLink
+                  to="/company/dashboard"
+                  className={({ isActive: a }) =>
+                    [
+                      'flex items-center gap-2 px-4 py-2 text-xs font-bold tracking-[0.08em] border transition-all duration-300 rounded-sm',
+                      a
+                        ? 'bg-brand-gold text-brand-navy border-brand-gold'
+                        : 'border-brand-gold/50 text-brand-gold hover:bg-brand-gold hover:text-brand-navy',
+                    ].join(' ')
+                  }
+                >
+                  <span>{companyAuth.company?.companyName}</span>
+                  <span className="opacity-60 font-normal">({companyAuth.company?.contactPerson})</span>
+                </NavLink>
+              ) : (
+                <NavLink
+                  to="/company/login"
+                  className={({ isActive: a }) =>
+                    [
+                      'px-5 py-2 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-300 rounded-sm',
+                      a
+                        ? 'bg-brand-gold text-brand-navy border-brand-gold'
+                        : 'border-white/60 text-white hover:bg-brand-gold hover:text-brand-navy hover:border-brand-gold',
+                    ].join(' ')
+                  }
+                >
+                  LOGIN
+                </NavLink>
+              )}
             </li>
         </ul>
 
@@ -157,20 +177,30 @@ export default function Header() {
                   }}
                   className="pt-3"
                 >
-                  <NavLink
-                    to="/company/login"
-                    onClick={closeMobile}
-                    className={({ isActive: a }) =>
-                      [
-                        'inline-block w-full text-center py-2.5 px-5 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-200 rounded-sm',
-                        a
-                          ? 'bg-brand-navy text-white border-brand-navy'
-                          : 'border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white',
-                      ].join(' ')
-                    }
-                  >
-                    LOGIN
-                  </NavLink>
+                  {isLoggedIn ? (
+                    <NavLink
+                      to="/company/dashboard"
+                      onClick={closeMobile}
+                      className="inline-block w-full text-center py-2.5 px-5 text-xs font-bold tracking-[0.08em] border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-navy transition-all rounded-sm"
+                    >
+                      {companyAuth.company?.companyName} ({companyAuth.company?.contactPerson})
+                    </NavLink>
+                  ) : (
+                    <NavLink
+                      to="/company/login"
+                      onClick={closeMobile}
+                      className={({ isActive: a }) =>
+                        [
+                          'inline-block w-full text-center py-2.5 px-5 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-200 rounded-sm',
+                          a
+                            ? 'bg-brand-navy text-white border-brand-navy'
+                            : 'border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white',
+                        ].join(' ')
+                      }
+                    >
+                      LOGIN
+                    </NavLink>
+                  )}
                 </motion.li>
             </ul>
           </motion.div>
