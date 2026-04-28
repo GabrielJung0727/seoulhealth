@@ -348,7 +348,7 @@ function GreetingsContent() {
         <div className="mt-8 pt-6 border-t border-brand-border">
           <p className="text-brand-muted text-sm mb-2">Sincerely,</p>
           <p className="text-brand-navy font-bold text-lg tracking-wide">
-            Youn Tae Lee, Ph.D.
+            Youn-Tae Lee, Ph.D.
           </p>
           <p className="text-brand-gold text-[0.7rem] font-bold tracking-[0.18em] uppercase mt-1">
             Chief Operating Officer
@@ -515,6 +515,32 @@ const ENDORSEMENT_CATEGORIES: EndorsementCategory[] = [
       signerName: 'CHIN YOUB CHUNG',
       signerCredentials: 'MD, PhD.',
       signerRole: 'Former Minister of Health and Welfare, Republic of Korea',
+    },
+  },
+  {
+    id: 'assembly',
+    title: 'Former Member of the National Assembly',
+    subtitle: 'Former President, Korea Health Industry Development Institute',
+    icon: (
+      <svg viewBox="0 0 32 32" fill="none" className="w-7 h-7" aria-hidden="true">
+        <path d="M16 4l3 9h9l-7.5 5.5 3 9L16 22l-7.5 5.5 3-9L4 13h9L16 4z"
+          stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      </svg>
+    ),
+    letter: {
+      greeting: 'Hello,',
+      paragraphs: [
+        'My name is Kyung-Hwa Ko, and I had the honor of serving as a Member of the National Assembly of the Republic of Korea, where I was actively engaged in the Health and Welfare Committee. Following the completion of my parliamentary tenure, I served as President of the Korea Health Industry Development Institute.',
+        "Today, Korea’s healthcare sector has grown to a level that commands significant international attention and recognition.",
+        "In this context, I am particularly delighted that Dr. Jinsoo Kim and Dr. Youn-Tae Lee — both distinguished professionals with extensive expertise in Korea’s healthcare sector — have established a platform dedicated to delivering valuable insights and knowledge to a global audience.",
+        "I am confident that this initiative will serve as a highly valuable resource for stakeholders with a strong interest in Korea’s healthcare industry, and I stand ready to extend my full support whenever it may be required.",
+        'Thank you.',
+      ],
+      closing: 'Sincerely,',
+      signerInitials: 'KHK',
+      signerName: 'Kyung-Hwa Ko',
+      signerCredentials: 'Ph.D.',
+      signerRole: 'Former Member of the National Assembly / Former President, Korea Health Industry Development Institute, Republic of Korea',
     },
   },
   {
