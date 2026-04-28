@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="SEOULINKHEALTH monogram">
+  <title>SEOULINKHEALTH Monogram (LK)</title>
+  <defs>
+    <style>
+      .mark { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-weight: 800; }
+    </style>
+    <linearGradient id="navyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A3A5C" />
+      <stop offset="100%" stop-color="#0D1B2A" />
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded square background (navy) -->
+  <rect x="0" y="0" width="240" height="240" rx="40" fill="url(#navyGrad)" />
+
+  <!-- Gold accent corner -->
+  <path d="M 0 40 Q 0 0 40 0 L 80 0 L 0 80 Z" fill="#B8965A" opacity="0.18" />
+
+  <!-- L K monogram -->
+  <text x="120" y="160" text-anchor="middle" class="mark" font-size="120" letter-spacing="6">
+    <tspan fill="#C45C4A">L</tspan><tspan fill="#C45C4A">K</tspan>
+  </text>
+
+  <!-- Gold underline accent -->
+  <line x1="80" y1="190" x2="160" y2="190" stroke="#B8965A" stroke-width="2" />
+
+  <!-- Bottom small text -->
+  <text x="120" y="215" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="3" fill="#B8965A">
+    SEOULINK
+  </text>
+</svg>

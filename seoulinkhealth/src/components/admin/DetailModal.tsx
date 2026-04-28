@@ -223,7 +223,7 @@ export default function DetailModal({ isOpen, onClose, item, type, onStatusChang
                     onChange={(e) => setNoteText(e.target.value)}
                     placeholder={L.notePlaceholder}
                     rows={2}
-                    className="flex-1 resize-none text-sm rounded-xl border-2 border-gray-200 p-3 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-colors"
+                    className="flex-1 resize-y min-h-[56px] text-sm rounded-xl border-2 border-gray-200 p-3 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-colors"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                         e.preventDefault()

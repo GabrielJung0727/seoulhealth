@@ -249,7 +249,7 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
                     <FormField label="Professional Experiences" required error={errors.professionalExperiences?.message}>
                       <textarea
                         {...register('professionalExperiences')}
-                        className="form-input resize-none"
+                        className="form-input resize-y min-h-[80px]"
                         rows={3}
                         placeholder="Please describe your professional background, roles, and areas of expertise..."
                       />
@@ -280,7 +280,7 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
                     <FormField label="Description" required error={errors.inquiryDescription?.message}>
                       <textarea
                         {...register('inquiryDescription')}
-                        className="form-input resize-none"
+                        className="form-input resize-y min-h-[120px]"
                         rows={5}
                         placeholder="Please provide a detailed description of your inquiry, including any specific objectives, challenges, or questions you have..."
                       />
@@ -290,7 +290,7 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
                     <FormField label="Additional Comments" error={errors.additionalComments?.message}>
                       <textarea
                         {...register('additionalComments')}
-                        className="form-input resize-none"
+                        className="form-input resize-y min-h-[80px]"
                         rows={3}
                         placeholder="Any other information or context you would like to share with us..."
                       />

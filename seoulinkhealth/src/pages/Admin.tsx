@@ -1057,7 +1057,7 @@ export default function AdminPage() {
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder={L.qaReplyPlaceholder}
                     rows={3}
-                    className="flex-1 resize-none text-base rounded-xl border-2 border-gray-200 p-3 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-colors"
+                    className="flex-1 resize-y min-h-[72px] text-base rounded-xl border-2 border-gray-200 p-3 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-colors"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                         e.preventDefault()

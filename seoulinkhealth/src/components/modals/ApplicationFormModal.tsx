@@ -229,7 +229,7 @@ export default function ApplicationFormModal({ isOpen, onClose }: ApplicationFor
                     <FormField label="Professional Experiences" required error={errors.professionalExperiences?.message}>
                       <textarea
                         {...register('professionalExperiences')}
-                        className="form-input resize-none"
+                        className="form-input resize-y min-h-[100px]"
                         rows={4}
                         placeholder="Please describe your professional background, roles, and expertise..."
                       />
@@ -239,7 +239,7 @@ export default function ApplicationFormModal({ isOpen, onClose }: ApplicationFor
                     <FormField label="Education" required error={errors.education?.message}>
                       <textarea
                         {...register('education')}
-                        className="form-input resize-none"
+                        className="form-input resize-y min-h-[80px]"
                         rows={3}
                         placeholder="e.g. Ph.D. in Public Health, Seoul National University"
                       />

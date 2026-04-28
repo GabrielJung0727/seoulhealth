@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 180" width="720" height="180" role="img" aria-label="SEOULINKHEALTH — K-HEALTH BUSINESS PLATFORM">
+  <title>SEOULINKHEALTH (light/white version for dark backgrounds)</title>
+  <defs>
+    <style>
+      .wm { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-weight: 800; letter-spacing: 8px; }
+      .tg { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-weight: 700; letter-spacing: 14px; }
+    </style>
+  </defs>
+
+  <!-- Wordmark (white SEOU/HEALTH for navy backgrounds) -->
+  <text x="360" y="92" text-anchor="middle" class="wm" font-size="64">
+    <tspan fill="#FFFFFF">SEOU</tspan><tspan fill="#C45C4A">L</tspan><tspan fill="#B8965A">IN</tspan><tspan fill="#C45C4A">K</tspan><tspan fill="#FFFFFF">HEALTH</tspan>
+  </text>
+
+  <!-- Gold divider line -->
+  <line x1="280" y1="115" x2="440" y2="115" stroke="#B8965A" stroke-width="1.5" />
+
+  <!-- Tagline -->
+  <text x="360" y="142" text-anchor="middle" class="tg" font-size="13" fill="#B8965A">
+    K-HEALTH BUSINESS PLATFORM
+  </text>
+</svg>

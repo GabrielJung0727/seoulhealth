@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 160" width="900" height="160" role="img" aria-label="SEOULINKHEALTH horizontal logo">
+  <title>SEOULINKHEALTH — Horizontal Layout</title>
+  <defs>
+    <style>
+      .wm { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-weight: 800; letter-spacing: 6px; }
+      .tg { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-weight: 700; letter-spacing: 10px; }
+    </style>
+    <linearGradient id="navyGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A3A5C" />
+      <stop offset="100%" stop-color="#0D1B2A" />
+    </linearGradient>
+  </defs>
+
+  <!-- Square LK Mark on the left -->
+  <rect x="20" y="30" width="100" height="100" rx="16" fill="url(#navyGrad2)" />
+  <path d="M 20 50 Q 20 30 40 30 L 60 30 L 20 70 Z" fill="#B8965A" opacity="0.18" />
+  <text x="70" y="100" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="50" letter-spacing="2">
+    <tspan fill="#C45C4A">L</tspan><tspan fill="#C45C4A">K</tspan>
+  </text>
+
+  <!-- Vertical gold divider -->
+  <line x1="148" y1="40" x2="148" y2="120" stroke="#B8965A" stroke-width="1.5" opacity="0.5" />
+
+  <!-- Wordmark on the right -->
+  <text x="170" y="78" class="wm" font-size="42">
+    <tspan fill="#0D1B2A">SEOU</tspan><tspan fill="#C45C4A">L</tspan><tspan fill="#B8965A">IN</tspan><tspan fill="#C45C4A">K</tspan><tspan fill="#0D1B2A">HEALTH</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="170" y="108" class="tg" font-size="11" fill="#B8965A">
+    K-HEALTH BUSINESS PLATFORM
+  </text>
+</svg>

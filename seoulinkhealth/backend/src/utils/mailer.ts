@@ -16,6 +16,7 @@ function createTransport() {
 
 const COMPANY_EMAIL = process.env.COMPANY_EMAIL!
 const DIRECTOR_NAME = process.env.DIRECTOR_NAME ?? 'Byung-Joo Kim'
+const SITE_URL = process.env.SITE_URL ?? 'https://doublej.app'
 
 /* ─── Shared HTML wrapper (SAS-style premium design) ─────────────────────── */
 function htmlWrapper(title: string, body: string): string {
@@ -242,7 +243,7 @@ export async function sendWelcomeEmail(to: string, companyName: string): Promise
       <p style="color:#555;line-height:1.6;">Thank you for registering with SEOULINKHEALTH. Your account has been created successfully.</p>
       <p style="color:#555;line-height:1.6;">You can now log in to access your company dashboard, submit inquiries, and communicate with our team.</p>
       <div style="text-align:center;margin:24px 0;">
-        <a href="https://doublej.app/company/login" style="display:inline-block;background:#0D1B2A;color:#fff;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;">Go to Dashboard</a>
+        <a href="${SITE_URL}/company/login" style="display:inline-block;background:#0D1B2A;color:#fff;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;">Go to Dashboard</a>
       </div>
     </div>
   `)
@@ -288,7 +289,7 @@ export async function sendSubmissionConfirmation(to: string, name: string, type:
       <p style="color:#555;line-height:1.6;">We have received your ${typeLabel.toLowerCase()}. Our team will review it and respond as soon as possible.</p>
       <p style="color:#555;line-height:1.6;">You can track the status of your submission by logging into your company dashboard.</p>
       <div style="text-align:center;margin:24px 0;">
-        <a href="https://doublej.app/company/dashboard" style="display:inline-block;background:#B8965A;color:#0D1B2A;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;">View Dashboard</a>
+        <a href="${SITE_URL}/company/dashboard" style="display:inline-block;background:#B8965A;color:#0D1B2A;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;">View Dashboard</a>
       </div>
     </div>
   `)
