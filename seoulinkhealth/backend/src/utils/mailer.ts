@@ -70,7 +70,7 @@ function htmlWrapper(title: string, body: string): string {
     <tr>
       <td style="font-size:11px;color:#9CA3AF;line-height:1.5;">
         SEOULINKHEALTH · K-HEALTH BUSINESS PLATFORM<br/>
-        <a href="https://www.seoulinkhealth.com" style="color:#B8965A;text-decoration:none;">www.seoulinkhealth.com</a>
+        <a href="${SITE_URL}" style="color:#B8965A;text-decoration:none;">www.seoulinkhealth.com</a>
       </td>
     </tr>
     </table>
