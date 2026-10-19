@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import PortalNote from './PortalNote'
 import './ApplicationFormModal.css'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -48,6 +49,7 @@ type SubmitState = 'idle' | 'loading' | 'success' | 'error'
 export default function ApplicationFormModal({ isOpen, onClose }: ApplicationFormModalProps) {
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [accountCreated, setAccountCreated] = useState(false)
   const companyAuth = useCompanyAuthStore()
   const panelRef = useRef<HTMLDivElement>(null)
   const reduceMotion = useReducedMotion()
@@ -145,6 +147,7 @@ export default function ApplicationFormModal({ isOpen, onClose }: ApplicationFor
       reset()
       setSubmitState('idle')
       setErrorMessage('')
+      setAccountCreated(false)
     }, 300)
   }
 
@@ -156,7 +159,7 @@ export default function ApplicationFormModal({ isOpen, onClose }: ApplicationFor
     setErrorMessage('')
 
     try {
-      await submitApplication({
+      const result = await submitApplication({
         fullName: data.fullName,
         email: data.email,
         dialCode: data.dialCode,
@@ -166,6 +169,7 @@ export default function ApplicationFormModal({ isOpen, onClose }: ApplicationFor
         specialty: data.specialty,
         countryOfOrigin: data.countryOfOrigin,
       })
+      setAccountCreated(result.accountCreated)
       setSubmitState('success')
     } catch (err) {
       setSubmitState('error')
@@ -240,7 +244,11 @@ export default function ApplicationFormModal({ isOpen, onClose }: ApplicationFor
               <div className="overflow-y-auto flex-1 px-5 sm:px-8 py-5 sm:py-6">
                 {/* SUCCESS STATE */}
                 {submitState === 'success' ? (
-                  <SuccessMessage onClose={handleClose} />
+                  <SuccessMessage
+                    onClose={handleClose}
+                    accountCreated={accountCreated}
+                    loggedIn={companyAuth.isAuthenticated()}
+                  />
                 ) : (
                   <form
                     id="expert-application-form"
@@ -487,7 +495,15 @@ function LengthHint({field, value = ''}: {field: LengthField; value?: string}) {
   </div>
 }
 
-function SuccessMessage({ onClose }: { onClose: () => void }) {
+function SuccessMessage({
+  onClose,
+  accountCreated,
+  loggedIn,
+}: {
+  onClose: () => void
+  accountCreated: boolean
+  loggedIn: boolean
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -512,10 +528,11 @@ function SuccessMessage({ onClose }: { onClose: () => void }) {
       </div>
 
       <h3 className="text-xl font-bold text-brand-navy mb-3">Application Submitted</h3>
-      <p className="text-brand-muted text-sm leading-relaxed max-w-sm mx-auto mb-8">
+      <p className="text-brand-muted text-sm leading-relaxed max-w-sm mx-auto mb-6">
         Your application has been submitted successfully. Our team will review your profile and
         contact you with further details regarding the next steps.
       </p>
+      <PortalNote accountCreated={accountCreated} loggedIn={loggedIn} onNavigate={onClose} />
       <button onClick={onClose} className="btn-primary">
         Close
       </button>

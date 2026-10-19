@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import prisma from '../lib/prisma'
 import { createError } from '../middleware/errorHandler'
-import { sendOTPEmail, sendWelcomeEmail, sendTempPasswordEmail } from '../utils/mailer'
+import { sendOTPEmail, sendWelcomeEmail, sendPasswordResetEmail } from '../utils/mailer'
 
 /* ─── Company Auth Request ──────────────────────────────────────────────── */
 interface CompanyAuthRequest extends Request {
@@ -65,7 +65,10 @@ router.post(
       // Check email uniqueness
       const existing = await prisma.company.findUnique({ where: { email } })
       if (existing) {
-        return next(createError('Email is already registered.', 409))
+        return next(createError(
+          'An account with this email already exists. If you have submitted a form before, an account was created for you — use "Forgot password?" on the login page to set a new password.',
+          409
+        ))
       }
 
       // Hash password
@@ -222,26 +225,69 @@ router.post(
       const { email } = req.body
 
       const company = await prisma.company.findUnique({ where: { email } })
-      if (!company) {
-        // Return success even if email not found (prevent enumeration)
-        res.json({ success: true, message: 'If the email exists, a temporary password has been sent.' })
-        return
+      // Same response whether or not the email exists (prevents enumeration).
+      // The password is NOT changed here — only the emailed link can change it.
+      if (company) {
+        sendPasswordResetEmail(email, createResetToken(company.id, company.password)).catch(() => {})
+      }
+      res.json({ success: true, message: 'If the email exists, a password reset link has been sent.' })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/* ─── Reset tokens ─────────────────────────────────────────────────────────
+ * Stateless JWT bound to a fingerprint of the current password hash, so the
+ * token stops working as soon as the password changes (single use).        */
+const passwordFingerprint = (hash: string) =>
+  crypto.createHash('sha256').update(hash).digest('hex').slice(0, 16)
+
+function createResetToken(companyId: string, passwordHash: string): string {
+  return jwt.sign(
+    { sub: companyId, purpose: 'password-reset', pf: passwordFingerprint(passwordHash) },
+    process.env.JWT_SECRET!,
+    { expiresIn: '30m' }
+  )
+}
+
+/* ─── POST /reset-password ─────────────────────────────────────────────── */
+router.post(
+  '/reset-password',
+  [
+    body('token').notEmpty().withMessage('Reset token is required.'),
+    body('newPassword').isLength({ min: 8 }).withMessage('Password must be at least 8 characters.'),
+  ],
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const errors = validationResult(req)
+      if (!errors.isEmpty()) {
+        return next(createError('Validation failed.', 400, errors.array()))
       }
 
-      // Generate random 8-character temp password
-      const tempPassword = crypto.randomBytes(4).toString('hex') // 8 hex chars
+      const invalid = () => next(createError('This reset link is invalid or has expired. Please request a new one.', 400))
+      let payload: { sub: string; purpose: string; pf: string }
+      try {
+        payload = jwt.verify(req.body.token, process.env.JWT_SECRET!) as typeof payload
+      } catch {
+        return invalid()
+      }
+      if (payload.purpose !== 'password-reset') return invalid()
 
-      // Hash and save
-      const hashedTemp = await bcrypt.hash(tempPassword, 12)
+      const company = await prisma.company.findUnique({ where: { id: payload.sub } })
+      if (!company || passwordFingerprint(company.password) !== payload.pf) return invalid()
+
       await prisma.company.update({
         where: { id: company.id },
-        data: { password: hashedTemp, tempPassword: true },
+        data: {
+          password: await bcrypt.hash(req.body.newPassword, 12),
+          tempPassword: false,
+          otpCode: null,
+          otpExpiresAt: null,
+        },
       })
 
-      // Send temp password via email (non-blocking)
-      sendTempPasswordEmail(email, tempPassword).catch(() => {})
-
-      res.json({ success: true, message: 'If the email exists, a temporary password has been sent.' })
+      res.json({ success: true, message: 'Your password has been reset. You can now sign in.' })
     } catch (err) {
       next(err)
     }

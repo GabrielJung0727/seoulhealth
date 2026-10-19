@@ -278,6 +278,29 @@ export async function sendTempPasswordEmail(to: string, tempPassword: string): P
   }
 }
 
+/* ─── Password Reset Link ────────────────────────────────────────────────── */
+export async function sendPasswordResetEmail(to: string, token: string): Promise<void> {
+  const subject = 'SEOULINKHEALTH — Reset Your Password'
+  const link = `${SITE_URL}/company/reset-password?token=${encodeURIComponent(token)}`
+  const html = htmlWrapper(subject, `
+    <div style="padding:32px 28px;">
+      <h2 style="color:#0D1B2A;margin:0 0 16px;">Password Reset Request</h2>
+      <p style="color:#555;line-height:1.6;">We received a request to reset the password for your SEOULINKHEALTH account. This link is valid for 30 minutes and can be used once.</p>
+      <div style="text-align:center;margin:24px 0;">
+        <a href="${link}" style="display:inline-block;background:#0D1B2A;color:#fff;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;">Reset Password</a>
+      </div>
+      <p style="color:#888;font-size:13px;">If you did not request this, you can ignore this email. Your password will not change.</p>
+    </div>
+  `)
+  try {
+    const transport = createTransport()
+    await transport.sendMail({ from: process.env.SMTP_USER, to, subject, html })
+    await logEmail(to, subject, 'password_reset', 'sent')
+  } catch (err) {
+    await logEmail(to, subject, 'password_reset', 'failed', (err as Error).message)
+  }
+}
+
 /* ─── Form Submission Confirmation to Submitter ──────────────────────────── */
 export async function sendSubmissionConfirmation(to: string, name: string, type: 'application' | 'inquiry'): Promise<void> {
   const typeLabel = type === 'application' ? 'Expert Network Application' : 'Service Inquiry'

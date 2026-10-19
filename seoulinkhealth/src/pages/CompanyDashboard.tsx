@@ -310,7 +310,7 @@ export default function CompanyDashboardPage() {
 
               <button
                 onClick={handleSignOut}
-                className="px-4 py-2 text-xs font-bold tracking-widest uppercase border border-white/30 text-white
+                className="px-3 sm:px-4 py-2 text-xs font-bold tracking-widest uppercase whitespace-nowrap border border-white/30 text-white
                            hover:bg-white hover:text-brand-navy rounded-sm transition-all duration-200"
               >
                 Sign Out
@@ -320,6 +320,25 @@ export default function CompanyDashboardPage() {
         </header>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Temporary password notice — accounts auto-created from a form submission */}
+          {company?.tempPassword && activeTab !== 'settings' && (
+            <div
+              role="status"
+              className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between rounded-xl border border-brand-gold/50 bg-brand-gold/10 px-5 py-4"
+            >
+              <p className="text-sm text-brand-navy dark:text-white">
+                You are signed in with a temporary password. Please set a new password to secure your account.
+              </p>
+              <button
+                type="button"
+                onClick={() => setActiveTab('settings')}
+                className="shrink-0 px-4 py-2 text-xs font-bold tracking-widest uppercase rounded-sm bg-brand-navy text-white hover:bg-brand-gold hover:text-brand-navy transition-colors duration-200"
+              >
+                Set New Password
+              </button>
+            </div>
+          )}
+
           {/* Tab Navigation */}
           <div className="flex gap-1 bg-white dark:bg-gray-800 rounded-xl p-1 shadow-sm border border-brand-border dark:border-gray-700 mb-8 overflow-x-auto">
             {tabs.map((tab) => (
@@ -327,7 +346,7 @@ export default function CompanyDashboardPage() {
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 className={[
-                  'flex-1 min-w-[100px] py-2.5 px-4 text-xs font-bold tracking-widest uppercase rounded-lg transition-all duration-200',
+                  'flex-1 min-w-[100px] py-2.5 px-4 text-xs font-bold tracking-widest uppercase whitespace-nowrap rounded-lg transition-all duration-200',
                   activeTab === tab.key
                     ? 'bg-brand-navy dark:bg-brand-teal text-white shadow-sm'
                     : 'text-brand-muted dark:text-gray-400 hover:text-brand-navy dark:hover:text-white hover:bg-brand-cream/50 dark:hover:bg-gray-700/50',
@@ -843,8 +862,8 @@ function SettingsTab({
     if (!token || !company) return
     setSavingProfile(true)
     try {
-      const res = await api.patch('/company/profile', data, token)
-      const updated = (res.data as CompanyInfo) ?? { ...company, ...data }
+      const res = await api.patch('/company/auth/me', data, token)
+      const updated = { ...company, ...((res.data as Partial<CompanyInfo>) ?? data) }
       setAuth(token, updated)
       toast.success('Profile updated successfully.')
     } catch (err: unknown) {
@@ -862,10 +881,11 @@ function SettingsTab({
     }
     setSavingPassword(true)
     try {
-      await api.post('/company/profile/password', {
+      await api.patch('/company/auth/me', {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       }, token)
+      if (company) setAuth(token, { ...company, tempPassword: false })
       toast.success('Password changed successfully.')
       passwordForm.reset()
     } catch (err: unknown) {
@@ -915,6 +935,11 @@ function SettingsTab({
               className="form-input dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               autoComplete="current-password"
             />
+            {company?.tempPassword && (
+              <p className="mt-1.5 text-xs text-brand-muted dark:text-gray-400">
+                Enter the temporary password sent to your email.
+              </p>
+            )}
           </div>
           <div>
             <label className="form-label dark:text-gray-300">New Password</label>

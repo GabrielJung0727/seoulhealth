@@ -54,7 +54,19 @@ async function request<T = unknown>(
     body: body !== undefined ? JSON.stringify(body) : undefined,
   })
 
-  const json = (await res.json()) as ApiResponse<T>
+  // Non-JSON bodies (e.g. a proxy error page or an unknown route) must not surface
+  // as a raw "Unexpected token '<'" parse error
+  let json: ApiResponse<T>
+  try {
+    json = (await res.json()) as ApiResponse<T>
+  } catch {
+    throw new ApiError(
+      res.status,
+      res.ok
+        ? 'Unexpected response from server. Please try again.'
+        : `Request failed (${res.status}). Please try again later.`
+    )
+  }
 
   if (!res.ok) {
     throw new ApiError(
@@ -108,14 +120,22 @@ export interface InquiryFormData {
   website_url?: string
 }
 
-export async function submitApplication(data: ApplicationFormData): Promise<string> {
-  const res = await api.post<{ id: string }>('/apply', data)
-  return res.id ?? ''
+export interface SubmissionResult {
+  id: string
+  /** true when a client-portal account was auto-created and a temporary password emailed */
+  accountCreated: boolean
 }
 
-export async function submitInquiry(data: InquiryFormData): Promise<string> {
+export async function submitApplication(data: ApplicationFormData): Promise<SubmissionResult> {
+  const res = await api.post<{ id: string }>('/apply', data)
+  const raw = res as unknown as { id?: string; accountCreated?: boolean }
+  return { id: raw.id ?? '', accountCreated: !!raw.accountCreated }
+}
+
+export async function submitInquiry(data: InquiryFormData): Promise<SubmissionResult> {
   const res = await api.post<{ id: string }>('/inquiry', data)
-  return res.id ?? ''
+  const raw = res as unknown as { id?: string; accountCreated?: boolean }
+  return { id: raw.id ?? '', accountCreated: !!raw.accountCreated }
 }
 
 /* ─── Admin helpers (auth token required) ───────────────────────────────── */
@@ -288,14 +308,20 @@ export async function companyForgotPassword(email: string) {
 
 /* ─── Company Profile helpers ──────────────────────────────────────────── */
 export async function getCompanyProfile(token: string) {
-  return api.get('/company/profile', token)
+  return api.get('/company/auth/me', token)
 }
 
 export async function updateCompanyProfile(
   token: string,
-  data: Partial<{ companyName: string; contactPerson: string; telephone: string }>
+  data: Partial<{
+    companyName: string
+    contactPerson: string
+    telephone: string
+    currentPassword: string
+    newPassword: string
+  }>
 ) {
-  return api.patch('/company/profile', data, token)
+  return api.patch('/company/auth/me', data, token)
 }
 
 /* ─── Company Q&A helpers ──────────────────────────────────────────────── */

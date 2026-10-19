@@ -71,32 +71,40 @@ router.post('/', applicationValidation, async (req: Request, res: Response, next
     }).catch(() => {})
     sendSubmissionConfirmation(email, fullName, 'application').catch(() => {})
 
-    // Auto-create company account if not exists
-    const existingCompany = await prisma.company.findUnique({ where: { email } })
-    if (!existingCompany) {
-      const tempPw = crypto.randomBytes(4).toString('hex')
-      const hashedPw = await bcrypt.hash(tempPw, 12)
-      await prisma.company.create({
-        data: {
-          email,
-          password: hashedPw,
-          companyName: fullName,
-          contactPerson: fullName,
-          telephone: telephone ?? '',
-          dialCode: dialCode ?? '+82',
-          country: countryOfOrigin ?? '',
-          industry: specialty ?? '',
-          tempPassword: true,
-        },
-      })
-      sendTempPasswordEmail(email, tempPw).catch(() => {})
-      sendWelcomeEmail(email, fullName).catch(() => {})
+    // Auto-create company account if not exists. A failure here must not fail the
+    // submission itself — it is already saved, and a retry would create a duplicate.
+    let accountCreated = false
+    try {
+      const existingCompany = await prisma.company.findUnique({ where: { email } })
+      if (!existingCompany) {
+        const tempPw = crypto.randomBytes(4).toString('hex')
+        const hashedPw = await bcrypt.hash(tempPw, 12)
+        await prisma.company.create({
+          data: {
+            email,
+            password: hashedPw,
+            companyName: fullName,
+            contactPerson: fullName,
+            telephone: telephone ?? '',
+            dialCode: dialCode ?? '+82',
+            country: countryOfOrigin ?? '',
+            industry: specialty ?? '',
+            tempPassword: true,
+          },
+        })
+        sendTempPasswordEmail(email, tempPw).catch(() => {})
+        sendWelcomeEmail(email, fullName).catch(() => {})
+        accountCreated = true
+      }
+    } catch (accountErr) {
+      console.error('Auto account creation failed:', accountErr)
     }
 
     res.status(201).json({
       success: true,
       message: 'Application submitted successfully.',
       id: submission.id,
+      accountCreated,
     })
   } catch (err) {
     next(err)

@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { motion } from 'framer-motion'
+import { useForm, type UseFormRegisterReturn } from 'react-hook-form'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { useToast } from '@/store/toastStore'
 import EmailInput from '@/components/ui/EmailInput'
 import PhoneInput from '@/components/ui/PhoneInput'
 import CountrySelect from '@/components/ui/CountrySelect'
 import { api } from '@/utils/api'
+import AuthBackground from '@/components/auth/AuthBackground'
+import './Auth.css'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 interface RegisterForm {
@@ -20,16 +21,6 @@ interface RegisterForm {
   dialCode: string
   countryOfOrigin: string
   industry: string
-}
-
-/* ─── Animation ──────────────────────────────────────────────────────────── */
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (delay = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, delay, ease: [0.4, 0, 0.2, 1] },
-  }),
 }
 
 const INDUSTRY_OPTIONS = [
@@ -65,12 +56,19 @@ export default function CompanyRegisterPage() {
     },
   })
 
-  const onSubmit = async (data: RegisterForm) => {
-    if (data.password !== data.confirmPassword) {
-      toast.error('Passwords do not match.')
-      return
-    }
+  // EmailInput / PhoneInput / CountrySelect register their field without rules;
+  // registering here first attaches the rules (react-hook-form keeps them on re-register)
+  register('email', {
+    required: 'Email address is required',
+    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please enter a valid email address' },
+  })
+  register('telephone', {
+    required: 'Telephone is required',
+    pattern: { value: /^[\d\s\-().]{5,20}$/, message: 'Please enter a valid phone number' },
+  })
+  register('countryOfOrigin', { required: 'Please select a country' })
 
+  const onSubmit = async (data: RegisterForm) => {
     setLoading(true)
     try {
       await api.post('/company/auth/register', {
@@ -94,71 +92,51 @@ export default function CompanyRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-navy via-[#0F2238] to-[#0A1520] flex items-center justify-center px-4 py-12">
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        custom={0}
-        variants={fadeUp}
-        className="w-full max-w-lg"
-      >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-block">
-            <h1 className="text-2xl font-bold text-white tracking-[0.1em]">
-              SEOU<span className="text-[#C45C4A]">L</span><span className="text-brand-gold">IN</span><span className="text-[#C45C4A]">K</span>HEALTH
-            </h1>
-            <p className="text-[0.55rem] tracking-[0.25em] text-brand-gold font-bold uppercase mt-1">
-              K-HEALTH BUSINESS PLATFORM
-            </p>
+    <div className="auth-page auth-page--company">
+      <AuthBackground />
+
+      <div className="auth-shell auth-shell--wide">
+        {/* Brand Logo */}
+        <div className="auth-brand">
+          <Link to="/" aria-label="SEOULINKHEALTH Home">
+            <img
+              src="/seoulinkhealth-logo-transparent.png"
+              alt="SEOULINKHEALTH — K-Health Business Platform"
+              className="auth-brand-logo"
+            />
           </Link>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-premium p-8 sm:p-10">
-          <h2 className="text-xl font-bold text-brand-navy mb-1 text-center">
-            Company Registration
-          </h2>
-          <p className="text-sm text-brand-muted text-center mb-8">
-            Create your company account to get started
-          </p>
+        <div className="auth-card">
+          <div className="auth-card__header">
+            <span className="auth-eyebrow">Client Portal</span>
+            <h1 className="auth-card__title">Company Registration</h1>
+            <p className="auth-card__desc">
+              Create your company account to submit inquiries and follow their progress.
+            </p>
+          </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Company Name */}
-            <div>
-              <label className="form-label">
-                Company Name
-                <span className="text-red-500 ml-0.5" aria-hidden="true">*</span>
-              </label>
-              <input
-                {...register('companyName', { required: 'Company name is required' })}
-                type="text"
-                className={`form-input${errors.companyName ? ' border-red-400' : ''}`}
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="auth-form">
+            <div className="auth-row">
+              <TextField
+                id="register-company-name"
+                label="Company Name"
                 placeholder="Enter company name"
+                autoComplete="organization"
+                error={errors.companyName?.message}
+                registration={register('companyName', { required: 'Company name is required' })}
               />
-              {errors.companyName && (
-                <p className="mt-1.5 text-xs text-red-600" role="alert">{errors.companyName.message}</p>
-              )}
-            </div>
-
-            {/* Contact Person */}
-            <div>
-              <label className="form-label">
-                Contact Person
-                <span className="text-red-500 ml-0.5" aria-hidden="true">*</span>
-              </label>
-              <input
-                {...register('contactPerson', { required: 'Contact person name is required' })}
-                type="text"
-                className={`form-input${errors.contactPerson ? ' border-red-400' : ''}`}
+              <TextField
+                id="register-contact-person"
+                label="Contact Person"
                 placeholder="Full name"
+                autoComplete="name"
+                error={errors.contactPerson?.message}
+                registration={register('contactPerson', { required: 'Contact person name is required' })}
               />
-              {errors.contactPerson && (
-                <p className="mt-1.5 text-xs text-red-600" role="alert">{errors.contactPerson.message}</p>
-              )}
             </div>
 
-            {/* Email */}
             <EmailInput
               register={register}
               name="email"
@@ -169,46 +147,33 @@ export default function CompanyRegisterPage() {
               required
             />
 
-            {/* Password */}
-            <div>
-              <label className="form-label">
-                Password
-                <span className="text-red-500 ml-0.5" aria-hidden="true">*</span>
-              </label>
-              <input
-                {...register('password', {
+            <div className="auth-row">
+              <TextField
+                id="register-password"
+                label="Password"
+                type="password"
+                placeholder="Minimum 8 characters"
+                autoComplete="new-password"
+                error={errors.password?.message}
+                registration={register('password', {
                   required: 'Password is required',
                   minLength: { value: 8, message: 'Minimum 8 characters' },
                 })}
-                type="password"
-                className={`form-input${errors.password ? ' border-red-400' : ''}`}
-                placeholder="Minimum 8 characters"
-                autoComplete="new-password"
               />
-              {errors.password && (
-                <p className="mt-1.5 text-xs text-red-600" role="alert">{errors.password.message}</p>
-              )}
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label className="form-label">
-                Confirm Password
-                <span className="text-red-500 ml-0.5" aria-hidden="true">*</span>
-              </label>
-              <input
-                {...register('confirmPassword', { required: 'Please confirm your password' })}
+              <TextField
+                id="register-confirm-password"
+                label="Confirm Password"
                 type="password"
-                className={`form-input${errors.confirmPassword ? ' border-red-400' : ''}`}
                 placeholder="Re-enter password"
                 autoComplete="new-password"
+                error={errors.confirmPassword?.message}
+                registration={register('confirmPassword', {
+                  required: 'Please confirm your password',
+                  validate: (v) => v === watch('password') || 'Passwords do not match',
+                })}
               />
-              {errors.confirmPassword && (
-                <p className="mt-1.5 text-xs text-red-600" role="alert">{errors.confirmPassword.message}</p>
-              )}
             </div>
 
-            {/* Phone */}
             <PhoneInput
               register={register}
               phoneName="telephone"
@@ -220,55 +185,115 @@ export default function CompanyRegisterPage() {
               required
             />
 
-            {/* Country */}
-            <CountrySelect
-              register={register}
-              name="countryOfOrigin"
-              watch={watch}
-              setValue={setValue}
-              error={errors.countryOfOrigin?.message}
-              label="Country"
-              required
-            />
+            <div className="auth-row">
+              <CountrySelect
+                register={register}
+                name="countryOfOrigin"
+                watch={watch}
+                setValue={setValue}
+                error={errors.countryOfOrigin?.message}
+                label="Country"
+                required
+              />
 
-            {/* Industry */}
-            <div>
-              <label className="form-label">
-                Industry
-                <span className="text-red-500 ml-0.5" aria-hidden="true">*</span>
-              </label>
-              <select
-                {...register('industry', { required: 'Please select an industry' })}
-                className={`form-input${errors.industry ? ' border-red-400' : ''}`}
-              >
-                <option value="">Select industry...</option>
-                {INDUSTRY_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-              {errors.industry && (
-                <p className="mt-1.5 text-xs text-red-600" role="alert">{errors.industry.message}</p>
-              )}
+              <div className="auth-field">
+                <label htmlFor="register-industry" className="auth-label">
+                  Industry <span className="text-red-500" aria-hidden="true">*</span>
+                </label>
+                <select
+                  {...register('industry', { required: 'Please select an industry' })}
+                  id="register-industry"
+                  className={`auth-input auth-input--plain auth-select${errors.industry ? ' has-error' : ''}`}
+                  aria-invalid={!!errors.industry}
+                >
+                  <option value="">Select industry...</option>
+                  {INDUSTRY_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+                {errors.industry && <FieldError message={errors.industry.message} />}
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`auth-submit-btn${loading ? ' auth-submit-btn--loading' : ''}`}
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? (
+                <>
+                  <svg className="animate-spin w-4 h-4 text-[#e3bb68]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  <span>Creating Account...</span>
+                </>
+              ) : (
+                <>
+                  <span>Create Account</span>
+                  <span className="auth-submit-btn__arrow" aria-hidden="true">→</span>
+                </>
+              )}
             </button>
           </form>
         </div>
 
-        {/* Login link */}
-        <p className="text-center mt-6 text-sm text-white/60">
-          Already have an account?{' '}
-          <Link to="/company/login" className="text-brand-gold hover:underline font-medium">
-            Sign in
-          </Link>
-        </p>
-      </motion.div>
+        {/* ── Footer Supporting Links ── */}
+        <div className="auth-footer-links">
+          <p className="auth-register-text">
+            Already have an account? <Link to="/company/login">Sign in →</Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─── Sub-components ─────────────────────────────────────────────────────── */
+
+function FieldError({ message }: { message?: string }) {
+  return (
+    <p className="auth-error" role="alert">
+      <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.75 4a.75.75 0 00-1.5 0v3a.75.75 0 001.5 0V5zm-.75 6.5a.75.75 0 100-1.5.75.75 0 000 1.5z" />
+      </svg>
+      {message}
+    </p>
+  )
+}
+
+function TextField({
+  id,
+  label,
+  type = 'text',
+  placeholder,
+  autoComplete,
+  error,
+  registration,
+}: {
+  id: string
+  label: string
+  type?: string
+  placeholder: string
+  autoComplete: string
+  error?: string
+  registration: UseFormRegisterReturn
+}) {
+  return (
+    <div className="auth-field">
+      <label htmlFor={id} className="auth-label">
+        {label} <span className="text-red-500" aria-hidden="true">*</span>
+      </label>
+      <input
+        {...registration}
+        id={id}
+        type={type}
+        className={`auth-input auth-input--plain${error ? ' has-error' : ''}`}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        aria-invalid={!!error}
+      />
+      {error && <FieldError message={error} />}
     </div>
   )
 }

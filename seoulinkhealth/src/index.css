@@ -30,7 +30,7 @@
 
   /* Layout */
   --header-h-mobile:  4rem;    /* h-16 */
-  --header-h-desktop: 5rem;    /* h-20 */
+  --header-h-desktop: 6rem;    /* lg:h-24 */
   --container-max:    80rem;   /* max-w-7xl */
   --container-px:     1.5rem;  /* px-6 */
   --container-px-lg:  3rem;    /* lg:px-12 */
@@ -315,6 +315,16 @@
   body {
     @apply bg-white text-brand-navy font-sans leading-relaxed;
     min-height: 100dvh;
+  }
+
+  /* In-page anchors (/network#join, #industries) must not land under the fixed header */
+  main [id] {
+    scroll-margin-top: var(--header-h-mobile);
+  }
+  @media (min-width: 1024px) {
+    main [id] {
+      scroll-margin-top: var(--header-h-desktop);
+    }
   }
 
   /* Headings */

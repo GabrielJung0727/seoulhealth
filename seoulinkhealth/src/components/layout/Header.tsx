@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SITE_CONFIG } from '@/config/site'
@@ -22,185 +22,211 @@ export default function Header() {
 
   const closeMobile = () => setMobileOpen(false)
 
+  // Close the mobile drawer with Escape
+  useEffect(() => {
+    if (!mobileOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMobileOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [mobileOpen])
+
   const isActive = (href: string) => location.pathname === href
 
   return (
-    <header
-      role="banner"
-      className="fixed top-0 left-0 right-0 z-50 bg-[#061829]/95 backdrop-blur-md border-b border-white/15"
-    >
-      {/* Skip-to-content for keyboard accessibility */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-brand-navy focus:text-white focus:rounded-lg focus:text-sm focus:font-bold"
-      >
-        Skip to content
-      </a>
-
-      <nav aria-label="Main navigation" className="container-site flex items-center justify-between h-16 lg:h-24">
-        {/* ── Logo ─────────────────────────────────────────────────────────── */}
-        <Link
-          to="/"
-          className="block shrink-0"
-          aria-label="SEOULINKHEALTH — Home"
-          onClick={closeMobile}
-        >
-          <motion.img
-            src="/seoulinkhealth-logo-transparent.png"
-            alt="SeoulLinkHealth"
-            className="h-[52px] lg:h-[78px] w-auto"
-            whileHover={{ scale: 1.01 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-          />
-        </Link>
-
-        {/* ── Desktop Navigation ───────────────────────────────────────────── */}
-        <ul className="hidden lg:flex items-center gap-8" role="navigation">
-          {SITE_CONFIG.navLinks.map((link) => (
-            <li key={link.href}>
-              <DesktopNavLink
-                to={link.href}
-                label={link.label}
-                active={isActive(link.href)}
-              />
-            </li>
-          ))}
-
-          <li>
-              {isLoggedIn ? (
-                <NavLink
-                  to="/company/dashboard"
-                  className={({ isActive: a }) =>
-                    [
-                      'flex items-center gap-2 px-4 py-2 text-xs font-bold tracking-[0.08em] border transition-all duration-300 rounded-sm',
-                      a
-                        ? 'bg-brand-gold text-brand-navy border-brand-gold'
-                        : 'border-brand-gold/50 text-brand-gold hover:bg-brand-gold hover:text-brand-navy',
-                    ].join(' ')
-                  }
-                >
-                  <span>{companyAuth.company?.companyName}</span>
-                  <span className="opacity-60 font-normal">({companyAuth.company?.contactPerson})</span>
-                </NavLink>
-              ) : (
-                <NavLink
-                  to="/company/login"
-                  className={({ isActive: a }) =>
-                    [
-                      'px-5 py-2 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-300 rounded-sm',
-                      a
-                        ? 'bg-brand-gold text-brand-navy border-brand-gold'
-                        : 'border-white/60 text-white hover:bg-brand-gold hover:text-brand-navy hover:border-brand-gold',
-                    ].join(' ')
-                  }
-                >
-                  COMPANY LOGIN
-                </NavLink>
-              )}
-            </li>
-        </ul>
-
-        {/* ── Mobile Hamburger ─────────────────────────────────────────────── */}
-        <button
-          className="lg:hidden flex flex-col justify-center gap-[5px] p-2 w-10 h-10"
-          onClick={() => setMobileOpen((o) => !o)}
-          aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-expanded={mobileOpen}
-          aria-controls="mobile-menu"
-        >
-          <motion.span
-            className="block w-6 h-0.5 bg-white origin-center rounded-full"
-            animate={mobileOpen ? { rotate: 45, y: 5.5 } : { rotate: 0, y: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-          />
-          <motion.span
-            className="block w-6 h-0.5 bg-white rounded-full"
-            animate={mobileOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
-            transition={{ duration: 0.2 }}
-          />
-          <motion.span
-            className="block w-6 h-0.5 bg-white origin-center rounded-full"
-            animate={mobileOpen ? { rotate: -45, y: -5.5 } : { rotate: 0, y: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-          />
-        </button>
-      </nav>
-
-      {/* ── Mobile Drawer ────────────────────────────────────────────────────── */}
+    <>
+      {/* Mobile drawer backdrop — outside <header>, whose backdrop-blur would clip a fixed child */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            id="mobile-menu"
-            key="mobile-menu"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="lg:hidden overflow-hidden bg-white border-t border-brand-border shadow-premium"
+            key="mobile-backdrop"
+            className="lg:hidden fixed inset-0 z-40 bg-brand-navy/50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            onClick={closeMobile}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+
+      <header
+        role="banner"
+        className="fixed top-0 left-0 right-0 z-50 bg-[#061829]/95 backdrop-blur-md border-b border-white/15"
+      >
+        {/* Skip-to-content for keyboard accessibility */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-brand-navy focus:text-white focus:rounded-lg focus:text-sm focus:font-bold"
+        >
+          Skip to content
+        </a>
+
+        <nav aria-label="Main navigation" className="container-site flex items-center justify-between h-16 lg:h-24">
+          {/* ── Logo ─────────────────────────────────────────────────────────── */}
+          <Link
+            to="/"
+            className="block shrink-0"
+            aria-label="SEOULINKHEALTH — Home"
+            onClick={closeMobile}
           >
-            <ul className="container-site py-5 flex flex-col gap-1">
-              {SITE_CONFIG.navLinks.map((link, i) => (
-                <motion.li
-                  key={link.href}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.06, duration: 0.25 }}
-                >
+            <motion.img
+              src="/seoulinkhealth-logo-transparent.png"
+              alt="SeoulLinkHealth"
+              className="h-[52px] lg:h-[78px] w-auto"
+              whileHover={{ scale: 1.01 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            />
+          </Link>
+
+          {/* ── Desktop Navigation ───────────────────────────────────────────── */}
+          <ul className="hidden lg:flex items-center gap-8" role="navigation">
+            {SITE_CONFIG.navLinks.map((link) => (
+              <li key={link.href}>
+                <DesktopNavLink
+                  to={link.href}
+                  label={link.label}
+                  active={isActive(link.href)}
+                />
+              </li>
+            ))}
+
+            <li>
+                {isLoggedIn ? (
                   <NavLink
-                    to={link.href}
-                    onClick={closeMobile}
+                    to="/company/dashboard"
                     className={({ isActive: a }) =>
                       [
-                        'block py-3 px-2 text-sm font-bold tracking-[0.15em] uppercase border-b border-brand-border/50',
-                        'transition-colors duration-200',
-                        a ? 'text-brand-gold' : 'text-brand-navy hover:text-brand-gold',
+                        'flex items-center gap-2 px-4 py-2 text-xs font-bold tracking-[0.08em] border transition-all duration-300 rounded-sm',
+                        a
+                          ? 'bg-brand-gold text-brand-navy border-brand-gold'
+                          : 'border-brand-gold/50 text-brand-gold hover:bg-brand-gold hover:text-brand-navy',
                       ].join(' ')
                     }
                   >
-                    {link.label}
+                    <span>{companyAuth.company?.companyName}</span>
+                    <span className="opacity-60 font-normal">({companyAuth.company?.contactPerson})</span>
                   </NavLink>
-                </motion.li>
-              ))}
+                ) : (
+                  <NavLink
+                    to="/company/login"
+                    className={({ isActive: a }) =>
+                      [
+                        'px-5 py-2 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-300 rounded-sm',
+                        a
+                          ? 'bg-brand-gold text-brand-navy border-brand-gold'
+                          : 'border-white/60 text-white hover:bg-brand-gold hover:text-brand-navy hover:border-brand-gold',
+                      ].join(' ')
+                    }
+                  >
+                    COMPANY LOGIN
+                  </NavLink>
+                )}
+              </li>
+          </ul>
 
-              <motion.li
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{
-                    delay: SITE_CONFIG.navLinks.length * 0.06,
-                    duration: 0.25,
-                  }}
-                  className="pt-3"
-                >
-                  {isLoggedIn ? (
+          {/* ── Mobile Hamburger ─────────────────────────────────────────────── */}
+          <button
+            className="lg:hidden flex flex-col justify-center gap-[5px] p-2 w-10 h-10"
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
+          >
+            <motion.span
+              className="block w-6 h-0.5 bg-white origin-center rounded-full"
+              animate={mobileOpen ? { rotate: 45, y: 5.5 } : { rotate: 0, y: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+            />
+            <motion.span
+              className="block w-6 h-0.5 bg-white rounded-full"
+              animate={mobileOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
+              transition={{ duration: 0.2 }}
+            />
+            <motion.span
+              className="block w-6 h-0.5 bg-white origin-center rounded-full"
+              animate={mobileOpen ? { rotate: -45, y: -5.5 } : { rotate: 0, y: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+            />
+          </button>
+        </nav>
+
+        {/* ── Mobile Drawer ────────────────────────────────────────────────────── */}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              id="mobile-menu"
+              key="mobile-menu"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              className="lg:hidden overflow-hidden bg-white border-t border-brand-border shadow-premium"
+            >
+              <ul className="container-site py-5 flex flex-col gap-1">
+                {SITE_CONFIG.navLinks.map((link, i) => (
+                  <motion.li
+                    key={link.href}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.06, duration: 0.25 }}
+                  >
                     <NavLink
-                      to="/company/dashboard"
-                      onClick={closeMobile}
-                      className="inline-block w-full text-center py-2.5 px-5 text-xs font-bold tracking-[0.08em] border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-navy transition-all rounded-sm"
-                    >
-                      {companyAuth.company?.companyName} ({companyAuth.company?.contactPerson})
-                    </NavLink>
-                  ) : (
-                    <NavLink
-                      to="/company/login"
+                      to={link.href}
                       onClick={closeMobile}
                       className={({ isActive: a }) =>
                         [
-                          'inline-block w-full text-center py-2.5 px-5 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-200 rounded-sm',
-                          a
-                            ? 'bg-brand-navy text-white border-brand-navy'
-                            : 'border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white',
+                          'block py-3 px-2 text-sm font-bold tracking-[0.15em] uppercase border-b border-brand-border/50',
+                          'transition-colors duration-200',
+                          a ? 'text-brand-gold' : 'text-brand-navy hover:text-brand-gold',
                         ].join(' ')
                       }
                     >
-                      COMPANY LOGIN
+                      {link.label}
                     </NavLink>
-                  )}
-                </motion.li>
-            </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+                  </motion.li>
+                ))}
+
+                <motion.li
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{
+                      delay: SITE_CONFIG.navLinks.length * 0.06,
+                      duration: 0.25,
+                    }}
+                    className="pt-3"
+                  >
+                    {isLoggedIn ? (
+                      <NavLink
+                        to="/company/dashboard"
+                        onClick={closeMobile}
+                        className="inline-block w-full text-center py-2.5 px-5 text-xs font-bold tracking-[0.08em] border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-navy transition-all rounded-sm"
+                      >
+                        {companyAuth.company?.companyName} ({companyAuth.company?.contactPerson})
+                      </NavLink>
+                    ) : (
+                      <NavLink
+                        to="/company/login"
+                        onClick={closeMobile}
+                        className={({ isActive: a }) =>
+                          [
+                            'inline-block w-full text-center py-2.5 px-5 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-200 rounded-sm',
+                            a
+                              ? 'bg-brand-navy text-white border-brand-navy'
+                              : 'border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white',
+                          ].join(' ')
+                        }
+                      >
+                        COMPANY LOGIN
+                      </NavLink>
+                    )}
+                  </motion.li>
+              </ul>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+    </>
   )
 }
 

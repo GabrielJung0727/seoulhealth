@@ -9,7 +9,7 @@ import ScrollToTop from '@/components/ui/ScrollToTop'
  *
  * Structure:
  *   <Header /> (fixed, z-50)
- *   <main>    (pt-16 lg:pt-20 to compensate for fixed header height)
+ *   <main>    (pt-16 lg:pt-24 to compensate for fixed header height)
  *     <Outlet />
  *   </main>
  *   <Footer />
@@ -17,23 +17,34 @@ import ScrollToTop from '@/components/ui/ScrollToTop'
  * Scroll to top on route change.
  */
 export default function Layout() {
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
 
-  // Scroll to top whenever the route changes
+  // On route change: scroll to the #hash target if present (e.g. /network#join),
+  // otherwise scroll to top. The target renders with the page, so wait a frame.
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' })
-  }, [pathname])
+    if (!hash) {
+      window.scrollTo({ top: 0, behavior: 'instant' })
+      return
+    }
+    const frame = requestAnimationFrame(() => {
+      const target = document.getElementById(decodeURIComponent(hash.slice(1)))
+      if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' })
+      else window.scrollTo({ top: 0, behavior: 'instant' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [pathname, hash])
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
 
       {/*
-        pt-16 / pt-20 compensates for the fixed header height:
+        pt-16 / pt-24 compensates for the fixed header height
+        (must match the h-16 / lg:h-24 nav in Header.tsx):
         - Mobile:  h-16 = 4rem
-        - Desktop: h-20 = 5rem
+        - Desktop: h-24 = 6rem
       */}
-      <main id="main-content" className="flex-1 pt-16 lg:pt-20">
+      <main id="main-content" className="flex-1 pt-16 lg:pt-24">
         <Outlet />
       </main>
 

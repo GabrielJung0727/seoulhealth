@@ -98,7 +98,12 @@ const adminLimiter = rateLimit({
 app.use('/api/auth',    adminLimiter,      authRouter)    // POST /api/auth/login
 app.use('/api/apply',   submissionLimiter, applyRouter)
 app.use('/api/inquiry', submissionLimiter, inquiryRouter)
-app.use('/api/company/auth',  authLimiter,   companyAuthRouter)
+// Strict limit only on credential endpoints — /me and /inquiries are polled by the dashboard
+app.use(
+  ['/api/company/auth/login', '/api/company/auth/verify-otp', '/api/company/auth/forgot-password', '/api/company/auth/reset-password', '/api/company/auth/register'],
+  authLimiter
+)
+app.use('/api/company/auth',  adminLimiter,  companyAuthRouter)
 app.use('/api/company/qa',    adminLimiter,  qaCompanyRouter)
 app.use('/api/company/files', adminLimiter,  fileCompanyRouter)
 app.use('/api/admin/qa',     adminLimiter,  qaAdminRouter)

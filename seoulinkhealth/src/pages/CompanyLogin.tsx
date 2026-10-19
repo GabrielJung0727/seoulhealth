@@ -5,6 +5,7 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 import { useCompanyAuthStore, type CompanyInfo } from '@/store/companyAuthStore'
 import { useToast } from '@/store/toastStore'
 import { api } from '@/utils/api'
+import AuthBackground from '@/components/auth/AuthBackground'
 import './Auth.css'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
@@ -53,6 +54,7 @@ export default function CompanyLoginPage() {
         password: data.password,
       })
       setLoginEmail(data.email)
+      setOtpValues(['', '', '', '', '', ''])
       setStep('otp')
       toast.success('Verification code sent to your email.')
     } catch (err: unknown) {
@@ -66,8 +68,20 @@ export default function CompanyLoginPage() {
   /* ── Step 2: OTP Verification ── */
   const handleOtpChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return
+
+    // Mobile one-time-code autofill drops the whole code into a single box
+    if (value.length > 1) {
+      const digits = value.slice(0, 6 - index).split('')
+      const newValues = [...otpValues]
+      digits.forEach((d, i) => { newValues[index + i] = d })
+      setOtpValues(newValues)
+      otpRefs.current[Math.min(index + digits.length, 5)]?.focus()
+      if (newValues.every((v) => v !== '')) submitOtp(newValues.join(''))
+      return
+    }
+
     const newValues = [...otpValues]
-    newValues[index] = value.slice(-1)
+    newValues[index] = value
     setOtpValues(newValues)
 
     // Auto-advance
@@ -125,31 +139,7 @@ export default function CompanyLoginPage() {
 
   return (
     <div className="auth-page auth-page--company">
-      {/* ── Background: Seoul skyline, gradient overlay, architectural grid ── */}
-      <img
-        className="auth-bg-image"
-        src="/images/seoulinkhealth-hero.png"
-        alt=""
-        aria-hidden="true"
-      />
-      <div className="auth-bg-overlay" aria-hidden="true" />
-      <div className="auth-bg-grid" aria-hidden="true" />
-
-      {/* Decorative orbital arcs & botanical corner */}
-      <svg
-        className="auth-bg-arcs"
-        viewBox="0 0 1440 900"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <circle cx="180" cy="450" r="380" fill="none" stroke="#C99A3D" strokeWidth="0.8" strokeDasharray="3 9" />
-        <circle cx="1260" cy="450" r="460" fill="none" stroke="#C99A3D" strokeWidth="0.8" />
-        <path d="M0 640Q440 380 920 620T1440 460" fill="none" stroke="#af853d" strokeWidth="1.2" />
-      </svg>
-      <svg className="auth-bg-leaf" viewBox="0 0 170 260" aria-hidden="true">
-        <path d="M160 260Q96 170 112 18M126 214Q44 220 16 168Q84 158 126 214ZM110 170Q150 140 160 92Q110 104 110 170ZM108 126Q52 122 34 70Q92 80 108 126ZM110 84Q140 44 124 6Q94 40 110 84Z" />
-        <path d="M16 168L126 214M34 70L108 126M160 92L110 170M124 6L110 84M40 172L104 204M58 84L100 118" />
-      </svg>
+      <AuthBackground />
 
       {/* ── Main Form Shell ── */}
       <div className="auth-shell">
@@ -240,7 +230,7 @@ export default function CompanyLoginPage() {
                       }
                       try {
                         await api.post('/company/auth/forgot-password', { email })
-                        toast.success('A temporary password has been sent to your email.')
+                        toast.success('If an account exists for this email, a password reset link has been sent.')
                       } catch {
                         toast.error('Failed to send reset email. Please try again.')
                       }
@@ -334,7 +324,7 @@ export default function CompanyLoginPage() {
                     }}
                     type="text"
                     inputMode="numeric"
-                    maxLength={1}
+                    maxLength={i === 0 ? 6 : 1}
                     value={val}
                     onChange={(e) => handleOtpChange(i, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(i, e)}
@@ -355,6 +345,15 @@ export default function CompanyLoginPage() {
                   <span>Verifying code...</span>
                 </div>
               )}
+
+              <button
+                type="button"
+                disabled={loading}
+                onClick={handleSubmit(onSubmitCredentials)}
+                className="auth-otp-back-btn"
+              >
+                Didn&apos;t receive the code? Resend
+              </button>
 
               <button
                 type="button"

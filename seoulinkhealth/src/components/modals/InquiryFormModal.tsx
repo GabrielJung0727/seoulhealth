@@ -7,6 +7,7 @@ import EmailInput from '@/components/ui/EmailInput'
 import PhoneInput from '@/components/ui/PhoneInput'
 import { submitInquiry, ApiError } from '@/utils/api'
 import { useCompanyAuthStore } from '@/store/companyAuthStore'
+import PortalNote from './PortalNote'
 import './ApplicationFormModal.css'
 
 /* ─── Zod Schema ─────────────────────────────────────────────────────────── */
@@ -62,6 +63,7 @@ type SubmitState = 'idle' | 'loading' | 'success' | 'error'
 export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalProps) {
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [accountCreated, setAccountCreated] = useState(false)
   const companyAuth = useCompanyAuthStore()
   const panelRef = useRef<HTMLDivElement>(null)
   const reduceMotion = useReducedMotion()
@@ -160,6 +162,7 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
       reset()
       setSubmitState('idle')
       setErrorMessage('')
+      setAccountCreated(false)
     }, 300)
   }
 
@@ -171,7 +174,7 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
     setErrorMessage('')
 
     try {
-      await submitInquiry({
+      const result = await submitInquiry({
         fullName: data.fullName,
         email: data.email,
         dialCode: data.dialCode,
@@ -182,6 +185,7 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
         inquiryDescription: data.inquiryDescription,
         additionalComments: data.additionalComments,
       })
+      setAccountCreated(result.accountCreated)
       setSubmitState('success')
     } catch (err) {
       setSubmitState('error')
@@ -252,7 +256,11 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
               <div className="overflow-y-auto flex-1 px-5 sm:px-8 py-5 sm:py-6">
 
                 {submitState === 'success' ? (
-                  <SuccessMessage onClose={handleClose} />
+                  <SuccessMessage
+                    onClose={handleClose}
+                    accountCreated={accountCreated}
+                    loggedIn={companyAuth.isAuthenticated()}
+                  />
                 ) : (
                   <form id="inquiry-form" onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
 
@@ -452,7 +460,15 @@ function FormField({
   )
 }
 
-function SuccessMessage({ onClose }: { onClose: () => void }) {
+function SuccessMessage({
+  onClose,
+  accountCreated,
+  loggedIn,
+}: {
+  onClose: () => void
+  accountCreated: boolean
+  loggedIn: boolean
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -466,10 +482,11 @@ function SuccessMessage({ onClose }: { onClose: () => void }) {
         </svg>
       </div>
       <h3 className="text-xl font-bold text-brand-navy mb-3">Inquiry Submitted</h3>
-      <p className="text-brand-muted text-sm leading-relaxed max-w-sm mx-auto mb-8">
+      <p className="text-brand-muted text-sm leading-relaxed max-w-sm mx-auto mb-6">
         Your inquiry has been submitted successfully. Our team will review your request and
         contact you as soon as possible.
       </p>
+      <PortalNote accountCreated={accountCreated} loggedIn={loggedIn} onNavigate={onClose} />
       <button onClick={onClose} className="btn-primary">
         Close
       </button>

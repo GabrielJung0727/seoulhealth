@@ -17,6 +17,7 @@ import TermsOfServicePage from '@/pages/TermsOfService'
 import FAQPage from '@/pages/FAQ'
 import CompanyLoginPage from '@/pages/CompanyLogin'
 import CompanyRegisterPage from '@/pages/CompanyRegister'
+import CompanyResetPasswordPage from '@/pages/CompanyResetPassword'
 import CompanyDashboardPage from '@/pages/CompanyDashboard'
 import CompanyQAPage from '@/pages/CompanyQA'
 
@@ -72,6 +73,7 @@ function App() {
           {/* ── Company pages — separate layout (no public nav) ── */}
           <Route path="/company/login"    element={<CompanyLoginPage />} />
           <Route path="/company/register" element={<CompanyRegisterPage />} />
+          <Route path="/company/reset-password" element={<CompanyResetPasswordPage />} />
           <Route
             path="/company/dashboard"
             element={
