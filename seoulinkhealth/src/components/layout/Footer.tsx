@@ -45,12 +45,12 @@ export default function Footer() {
               <div className="text-base font-bold tracking-[0.12em] text-white group-hover:text-brand-gold transition-colors duration-300">
                 SEOU<span className="text-[#C45C4A]">L</span><span className="text-brand-gold">IN</span><span className="text-[#C45C4A]">K</span>HEALTH
               </div>
-              <div className="text-[0.55rem] tracking-[0.28em] text-brand-gold font-bold uppercase mt-1">
+              <div className="text-[0.7rem] tracking-[0.22em] text-brand-gold font-bold uppercase mt-1">
                 K-HEALTH BUSINESS PLATFORM
               </div>
             </Link>
 
-            <p className="text-sm text-white/55 leading-relaxed max-w-[260px]">
+            <p className="text-sm text-white/75 leading-relaxed max-w-[260px]">
               {SITE_CONFIG.description}
             </p>
 
@@ -59,7 +59,7 @@ export default function Footer() {
               {SITE_CONFIG.domains.map((d) => (
                 <span
                   key={d}
-                  className="text-[0.6rem] font-bold tracking-wider px-2.5 py-1 border border-brand-gold/25 text-brand-gold/70 rounded-sm uppercase"
+                  className="text-[0.7rem] font-bold tracking-wider px-2.5 py-1 border border-brand-gold/25 text-brand-gold/70 rounded-sm uppercase"
                 >
                   {d}
                 </span>
@@ -75,7 +75,7 @@ export default function Footer() {
             viewport={{ once: true, margin: '-60px' }}
             variants={columnVariants}
           >
-            <h3 className="text-[0.6rem] tracking-[0.22em] uppercase font-bold text-brand-gold mb-6">
+            <h3 className="text-[0.78rem] tracking-[0.16em] uppercase font-bold text-brand-gold-pale mb-6">
               Navigation
             </h3>
             <ul className="space-y-3.5">
@@ -83,7 +83,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     to={link.href}
-                    className="text-sm text-white/60 hover:text-white transition-colors duration-200 hover-underline"
+                    className="text-sm font-medium text-white/90 hover:text-brand-gold-pale transition-colors duration-200 hover-underline"
                   >
                     {link.label}
                   </Link>
@@ -92,15 +92,15 @@ export default function Footer() {
               <li>
                   <Link
                     to="/company/login"
-                    className="text-sm text-white/60 hover:text-white transition-colors duration-200 hover-underline"
+                    className="text-sm font-medium text-white/90 hover:text-brand-gold-pale transition-colors duration-200 hover-underline"
                   >
-                    LOGIN
+                    COMPANY LOGIN
                   </Link>
                 </li>
             </ul>
 
             {/* Quick Links */}
-            <h3 className="text-[0.6rem] tracking-[0.22em] uppercase font-bold text-brand-gold mb-4 mt-8">
+            <h3 className="text-[0.78rem] tracking-[0.16em] uppercase font-bold text-brand-gold-pale mb-4 mt-8">
               Legal
             </h3>
             <ul className="space-y-2.5">
@@ -108,7 +108,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-sm text-white/60 hover:text-white transition-colors duration-200 hover-underline"
+                    className="text-sm font-medium text-white/90 hover:text-brand-gold-pale transition-colors duration-200 hover-underline"
                   >
                     {link.label}
                   </Link>
@@ -125,17 +125,17 @@ export default function Footer() {
             viewport={{ once: true, margin: '-60px' }}
             variants={columnVariants}
           >
-            <h3 className="text-[0.6rem] tracking-[0.22em] uppercase font-bold text-brand-gold mb-6">
+            <h3 className="text-[0.78rem] tracking-[0.16em] uppercase font-bold text-brand-gold-pale mb-6">
               Contact
             </h3>
 
             <address className="not-italic space-y-4">
               {/* Address */}
               <div>
-                <p className="text-[0.6rem] tracking-widest uppercase text-white/35 mb-1.5 font-semibold">
+                <p className="text-[0.72rem] tracking-wider uppercase text-white/80 mb-1.5 font-semibold">
                   Address
                 </p>
-                <div className="text-sm text-white/60 leading-relaxed">
+                <div className="text-sm text-white/90 leading-relaxed">
                   <p>{address.postalCode}</p>
                   <p>{address.line1}</p>
                   <p>{address.line2}</p>
@@ -145,12 +145,12 @@ export default function Footer() {
 
               {/* Email */}
               <div>
-                <p className="text-[0.6rem] tracking-widest uppercase text-white/35 mb-1.5 font-semibold">
+                <p className="text-[0.72rem] tracking-wider uppercase text-white/80 mb-1.5 font-semibold">
                   Email
                 </p>
                 <a
                   href={`mailto:${SITE_CONFIG.companyEmail}`}
-                  className="text-sm text-brand-gold hover:text-brand-gold-light transition-colors duration-200"
+                  className="text-sm font-medium text-brand-gold-pale hover:text-white transition-colors duration-200"
                 >
                   {SITE_CONFIG.companyEmail}
                 </a>
@@ -158,14 +158,14 @@ export default function Footer() {
 
               {/* Website */}
               <div>
-                <p className="text-[0.6rem] tracking-widest uppercase text-white/35 mb-1.5 font-semibold">
+                <p className="text-[0.72rem] tracking-wider uppercase text-white/80 mb-1.5 font-semibold">
                   Website
                 </p>
                 <a
                   href={SITE_CONFIG.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-white/60 hover:text-white transition-colors duration-200"
+                  className="text-sm font-medium text-white/90 hover:text-brand-gold-pale transition-colors duration-200"
                 >
                   www.seoulinkhealth.com
                 </a>
@@ -175,7 +175,7 @@ export default function Footer() {
         </div>
 
         {/* ── Bottom Bar ───────────────────────────────────────────────────── */}
-        <div className="border-t border-white/8 mt-14 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/30">
+        <div className="border-t border-white/15 mt-14 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/60">
           <p>© {new Date().getFullYear()} SEOULINKHEALTH. All rights reserved.</p>
           <p className="tracking-wider">GYEONGGI-DO, REPUBLIC OF KOREA</p>
         </div>

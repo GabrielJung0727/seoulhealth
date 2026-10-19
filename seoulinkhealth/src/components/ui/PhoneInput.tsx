@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useId } from 'react'
 import type { UseFormRegister, UseFormSetValue, UseFormWatch, FieldValues, Path } from 'react-hook-form'
 import { COUNTRIES, PRIORITY_COUNTRIES } from '@/data/countries'
 
@@ -43,6 +43,7 @@ export default function PhoneInput<T extends FieldValues>({
   className = '',
 }: PhoneInputProps<T>) {
   const [open, setOpen] = useState(false)
+  const inputId = useId()
   const [search, setSearch] = useState('')
   const wrapperRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
@@ -95,7 +96,7 @@ export default function PhoneInput<T extends FieldValues>({
   return (
     <div className={className}>
       {/* Label */}
-      <label className="form-label">
+      <label htmlFor={inputId} className="form-label">
         {label}
         {required && <span className="text-red-500 ml-0.5" aria-hidden="true">*</span>}
       </label>
@@ -190,8 +191,11 @@ export default function PhoneInput<T extends FieldValues>({
         {/* ── Phone number input ── */}
         <input
           {...register(phoneName)}
+          id={inputId}
+          aria-invalid={!!errorMsg}
+          aria-required={required}
           type="tel"
-          className={`form-input flex-1${errorMsg ? ' border-red-400 focus:border-red-500' : ''}`}
+          className={`form-input flex-1 min-w-0${errorMsg ? ' border-red-400 focus:border-red-500' : ''}`}
           placeholder={placeholder}
           autoComplete="tel-national"
         />

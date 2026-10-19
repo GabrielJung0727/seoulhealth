@@ -131,10 +131,12 @@ app.use(errorHandler)
 const PORT = Number(process.env.PORT ?? 3001)
 
 app.listen(PORT, () => {
+  /* eslint-disable no-console */
   console.log(`\n🏥 SEOULINKHEALTH API Server`)
   console.log(`   ➜ Running on http://localhost:${PORT}`)
   console.log(`   ➜ ENV: ${process.env.NODE_ENV ?? 'development'}`)
   console.log(`   ➜ CORS origins: ${allowedOrigins.join(', ')}\n`)
+  /* eslint-enable no-console */
 })
 
 export default app

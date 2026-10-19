@@ -43,19 +43,6 @@ export default function PrivacyPolicyPage() {
       {/* Content */}
       <section className="bg-white py-16 lg:py-24">
         <div className="container-site max-w-3xl">
-          {/* Draft Disclaimer */}
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            custom={0.2}
-            variants={fadeUp}
-            className="mb-10 p-4 bg-amber-50 border border-amber-300 rounded-lg text-center"
-          >
-            <p className="text-amber-800 font-bold text-sm tracking-wide uppercase">
-              DRAFT — This document is a preliminary draft and is subject to revision.
-            </p>
-          </motion.div>
-
           <motion.div
             initial="hidden"
             animate="visible"
@@ -108,11 +95,6 @@ export default function PrivacyPolicyPage() {
               </p>
             </div>
 
-            <div className="pt-4 border-t border-brand-border">
-              <p className="text-brand-muted text-xs">
-                Last updated: April 2026
-              </p>
-            </div>
           </motion.div>
         </div>
       </section>

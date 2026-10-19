@@ -20,7 +20,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     question: 'What is SEOULINKHEALTH?',
     answer:
-      'SEOULINKHEALTH is a K-Health business platform that connects global partners with Korea\'s world-class healthcare ecosystem. We provide expert consultation and advisory services across four key domains: K-Health Care, K-Health Industry, K-Bio, and K-Health Food.',
+      'SEOULINKHEALTH is a K-Health business platform that connects global partners with Korea\'s world-class healthcare ecosystem. We provide expert consultation and advisory services across five key domains: K-Health Care, K-Health Industry, K-Bio, K-Health Food, and K-Beauty.',
   },
   {
     question: 'How do I submit an inquiry?',
@@ -45,7 +45,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     question: 'What domains do you cover?',
     answer:
-      'We cover four primary domains: K-Health Care (medical services, hospital systems, patient care), K-Health Industry (medical devices, supply chains, health ecosystem), K-Bio (biopharmaceuticals, R&D, clinical trials, regulatory pathways), and K-Health Food (functional food, nutraceuticals, health food standards).',
+      'We cover five primary domains: K-Health Care (medical services, hospital systems, and patient care), K-Health Industry (medical devices, supply chains, and the health ecosystem), K-Bio (biopharmaceuticals, R&D, clinical trials, and regulatory pathways), K-Health Food (functional food, nutraceuticals, and health food standards), and K-Beauty (production, distribution, commerce, and innovation).',
   },
 ]
 
@@ -140,19 +140,6 @@ export default function FAQPage() {
       {/* Content */}
       <section className="bg-white py-16 lg:py-24">
         <div className="container-site max-w-3xl">
-          {/* Draft Disclaimer */}
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            custom={0.2}
-            variants={fadeUp}
-            className="mb-10 p-4 bg-amber-50 border border-amber-300 rounded-lg text-center"
-          >
-            <p className="text-amber-800 font-bold text-sm tracking-wide uppercase">
-              DRAFT — This document is a preliminary draft and is subject to revision.
-            </p>
-          </motion.div>
-
           <div className="space-y-3">
             {FAQ_ITEMS.map((item, index) => (
               <AccordionItem key={index} item={item} index={index} />

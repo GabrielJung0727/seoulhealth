@@ -27,10 +27,7 @@ export default function Header() {
   return (
     <header
       role="banner"
-      className={[
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-        'bg-brand-navy shadow-lg border-b border-brand-navy',
-      ].join(' ')}
+      className="fixed top-0 left-0 right-0 z-50 bg-[#061829]/95 backdrop-blur-md border-b border-white/15"
     >
       {/* Skip-to-content for keyboard accessibility */}
       <a
@@ -40,24 +37,21 @@ export default function Header() {
         Skip to content
       </a>
 
-      <nav aria-label="Main navigation" className="container-site flex items-center justify-between h-16 lg:h-20">
+      <nav aria-label="Main navigation" className="container-site flex items-center justify-between h-16 lg:h-24">
         {/* ── Logo ─────────────────────────────────────────────────────────── */}
         <Link
           to="/"
-          className="flex flex-col leading-none group shrink-0"
+          className="block shrink-0"
           aria-label="SEOULINKHEALTH — Home"
           onClick={closeMobile}
         >
-          <motion.span
-            className="text-sm sm:text-base lg:text-lg font-bold tracking-[0.06em] sm:tracking-[0.1em] transition-colors duration-300 text-white"
+          <motion.img
+            src="/seoulinkhealth-logo-transparent.png"
+            alt="SeoulLinkHealth"
+            className="h-[52px] lg:h-[78px] w-auto"
             whileHover={{ scale: 1.01 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-          >
-            SEOU<span className="text-[#C45C4A]">L</span><span className="text-brand-gold">IN</span><span className="text-[#C45C4A]">K</span>HEALTH
-          </motion.span>
-          <span className="text-[0.5rem] sm:text-[0.55rem] lg:text-[0.6rem] tracking-[0.18em] sm:tracking-[0.25em] text-brand-gold font-bold uppercase mt-0.5">
-            K-HEALTH BUSINESS PLATFORM
-          </span>
+          />
         </Link>
 
         {/* ── Desktop Navigation ───────────────────────────────────────────── */}
@@ -100,7 +94,7 @@ export default function Header() {
                     ].join(' ')
                   }
                 >
-                  LOGIN
+                  COMPANY LOGIN
                 </NavLink>
               )}
             </li>
@@ -198,7 +192,7 @@ export default function Header() {
                         ].join(' ')
                       }
                     >
-                      LOGIN
+                      COMPANY LOGIN
                     </NavLink>
                   )}
                 </motion.li>
@@ -223,15 +217,15 @@ function DesktopNavLink({ to, label, active }: DesktopNavLinkProps) {
   return (
     <NavLink
       to={to}
-      className="relative inline-flex flex-col items-center group"
+      className="relative inline-flex flex-col items-center group rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-brand-gold"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       aria-current={active ? 'page' : undefined}
     >
       <span
         className={[
-          'text-[0.7rem] font-bold tracking-[0.15em] uppercase transition-colors duration-200',
-          active ? 'text-brand-gold' : 'text-white/80 group-hover:text-brand-gold',
+          'text-[0.78rem] font-bold tracking-[0.12em] uppercase transition-colors duration-200',
+          active ? 'text-brand-gold' : 'text-white group-hover:text-brand-gold',
         ].join(' ')}
       >
         {label}

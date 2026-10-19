@@ -1,447 +1,369 @@
-import { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import './Process.css'
 
-/* ─── Step Data ──────────────────────────────────────────────────────────── */
-interface Step {
-  step: number
-  title: string
-  subtitle: string
-  description: string
-  detail: string
-}
-
-const STEPS: Step[] = [
-  {
-    step: 1,
-    title: 'REQUEST INTAKE',
-    subtitle: 'Confirmation and initial review of the client\'s submitted inquiry',
-    description:
-      'Confirmation and initial review of the client\'s submitted inquiry.',
-    detail:
-      'Upon receipt of the client\'s inquiry, we conduct a preliminary review. The submitted information is thoroughly examined for accuracy and relevance.',
-  },
-  {
-    step: 2,
-    title: 'IN-DEPTH CONSULTATION',
-    subtitle: 'Detailed discussions to clarify scope, objectives, and expectations',
-    description:
-      'Detailed discussions to clarify scope, objectives, and expectations.',
-    detail:
-      'We conduct in-depth discussions to establish a clear understanding of the project scope. These interactive conversations facilitate alignment on core objectives and desired outcomes.',
-  },
-  {
-    step: 3,
-    title: 'PRIMARY EXPERT REVIEW',
-    subtitle: 'Preliminary analysis conducted by relevant subject-matter experts',
-    description:
-      'Preliminary analysis conducted by relevant subject-matter experts.',
-    detail:
-      'Relevant subject-matter experts perform a preliminary analysis based on their specialized knowledge and experience. This process ensures an informed and accurate assessment of the matter at hand.',
-  },
-  {
-    step: 4,
-    title: 'SECONDARY EXPERT CONSULTATION',
-    subtitle: 'In-depth evaluation and assessment by domain specialists',
-    description:
-      'In-depth evaluation and assessment by domain specialists.',
-    detail:
-      'With domain specialists, the matter extensively undergoes a secondary consultation. These experts conduct an in-depth evaluation based on their practically advanced expertise. Their assessment provides deeper insights and supports a comprehensive understanding of the issue on a practical basis.',
-  },
-  {
-    step: 5,
-    title: 'CLIENT STRATEGY DISCUSSION',
-    subtitle: 'Collaborative discussion to validate and refine proposed solutions',
-    description:
-      'Collaborative discussion to validate and refine proposed solutions.',
-    detail:
-      'The client participates in a strategy discussion to review the proposed solutions. This collaborative exchange ensures to validate the direction and underlying assumptions. It also enables refinement of the solutions to better align with the client\'s needs and objectives.',
-  },
-  {
-    step: 6,
-    title: 'REVIEW & REFINEMENT',
-    subtitle: 'Further enhancement and optimization of the solution',
-    description:
-      'Further enhancement and optimization of the solution.',
-    detail:
-      'Based on the outcomes of the collaborative discussions, additional enhancements are identified and implemented. This stage focuses on refining and optimizing the solution to achieve the best possible outcome.',
-  },
-  {
-    step: 7,
-    title: 'FINAL REPORT DELIVERY',
-    subtitle: 'Submission of a comprehensive report',
-    description:
-      'Submission of a comprehensive report.',
-    detail:
-      'Finally, the completed report is delivered to the client. This completed advisory report encompasses all findings involving strategic recommendations and implementation guidance for the client\'s needs.',
-  },
+const COPY = [
+  [
+    'REQUEST INTAKE',
+    "Confirmation and initial review of the client's submitted inquiry.",
+    "Upon receipt of the client's inquiry, we conduct a preliminary review. The submitted information is thoroughly examined for accuracy and relevance.",
+  ],
+  [
+    'IN-DEPTH CONSULTATION',
+    'Detailed discussions to clarify scope, objectives, and expectations.',
+    'We conduct in-depth discussions to establish a clear understanding of the project scope and align core objectives and desired outcomes.',
+  ],
+  [
+    'PRIMARY EXPERT REVIEW',
+    'Preliminary analysis conducted by relevant subject-matter experts.',
+    'Relevant subject-matter experts perform a preliminary analysis based on their specialized knowledge and experience, ensuring an informed and accurate assessment.',
+  ],
+  [
+    'SECONDARY EXPERT CONSULTATION',
+    'In-depth evaluation and assessment by domain specialists.',
+    'Domain specialists conduct a secondary consultation and practical evaluation, adding deeper insight and supporting a comprehensive understanding of the issue.',
+  ],
+  [
+    'CLIENT STRATEGY DISCUSSION',
+    'Collaborative discussion to validate and refine proposed solutions.',
+    "We review the proposed solutions with the client, validate the direction and assumptions, and refine the strategy around the client's needs and objectives.",
+  ],
+  [
+    'REVIEW & REFINEMENT',
+    'Further enhancement and optimization of the solution.',
+    'Based on the collaborative review, additional enhancements are identified and implemented to optimize the solution and achieve the best possible outcome.',
+  ],
+  [
+    'FINAL REPORT DELIVERY',
+    'Submission of a comprehensive advisory report.',
+    "The completed report is delivered with findings, strategic recommendations, and practical implementation guidance tailored to the client's needs.",
+  ],
 ]
+const LABELS = [
+  'REQUEST|INTAKE',
+  'IN-DEPTH|CONSULTATION',
+  'PRIMARY|EXPERT',
+  'SECONDARY|EXPERT',
+  'CLIENT|STRATEGY',
+  'REVIEW &|REFINE',
+  'FINAL|REPORT',
+]
+const IMAGE_DESCRIPTIONS = [
+  'Inquiry documents and a navy portfolio on a professional desk',
+  'Adviser and client discussing the scope of an engagement',
+  'Specialist reviewing research and supporting documents',
+  'Multidisciplinary experts evaluating a project together',
+  'Client and adviser working through a strategic plan',
+  'Hands reviewing and refining an advisory report',
+  'A finished navy report folder being presented to a client',
+]
+const STEPS = COPY.map(([title, description, detail], index) => ({
+  step: index + 1,
+  title,
+  description,
+  detail,
+  image: `/images/process/step-0${index + 1}.png`,
+  imageAlt: IMAGE_DESCRIPTIONS[index],
+}))
+const initialStep = () => Number(location.hash.match(/^#step-([1-7])$/)?.[1] || 1)
 
-const TOTAL = STEPS.length
-
-/* ─── Page Component ─────────────────────────────────────────────────────── */
 export default function ProcessPage() {
   usePageTitle('Our Process')
-  const [current, setCurrent] = useState(1)  // 1-indexed
-  const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
-
-  const goTo = useCallback((next: number) => {
-    if (next < 1 || next > TOTAL) return
-    setDirection(next > current ? 'forward' : 'backward')
-    setCurrent(next)
-  }, [current])
-
-  const prev = () => goTo(current - 1)
-  const next = () => goTo(current + 1)
-
-  // Keyboard navigation
+  const [current, setCurrent] = useState(initialStep)
+  const goTo = useCallback((value: number) => {
+    if (value < 1 || value > 7) return
+    setCurrent(value)
+    history.replaceState(history.state, '', `#step-${value}`)
+  }, [])
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); next() }
-      if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); prev() }
+    const onHash = () => setCurrent(initialStep())
+    const onKey = (e: KeyboardEvent) => {
+      if (
+        (e.target as HTMLElement)?.closest('input,textarea,select,[contenteditable="true"]') ||
+        e.altKey ||
+        e.ctrlKey ||
+        e.metaKey
+      )
+        return
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault()
+        goTo(current + (e.key === 'ArrowRight' ? 1 : -1))
+      }
     }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [current])
-
-  const activeStep = STEPS[current - 1]
-  const progress = ((current - 1) / (TOTAL - 1)) * 100
-
-  /* ── Slide variants ── */
-  const slideVariants = {
-    enter: (dir: string) => ({
-      opacity: 0,
-      x: dir === 'forward' ? 48 : -48,
-    }),
-    center: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
-    },
-    exit: (dir: string) => ({
-      opacity: 0,
-      x: dir === 'forward' ? -48 : 48,
-      transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] },
-    }),
-  }
-
+    addEventListener('hashchange', onHash)
+    addEventListener('popstate', onHash)
+    addEventListener('keydown', onKey)
+    return () => {
+      removeEventListener('hashchange', onHash)
+      removeEventListener('popstate', onHash)
+      removeEventListener('keydown', onKey)
+    }
+  }, [current, goTo])
+  const active = STEPS[current - 1]
   return (
-    <div className="overflow-x-hidden">
-
-      {/* ═══ BANNER ════════════════════════════════════════════════════════ */}
-      <section className="bg-brand-navy relative overflow-hidden py-16 sm:py-20 lg:py-24">
-        <div
-          className="absolute inset-0 opacity-[0.03] pointer-events-none"
-          style={{
-            backgroundImage:
-              'linear-gradient(to right,#B8965A 1px,transparent 1px),linear-gradient(to bottom,#B8965A 1px,transparent 1px)',
-            backgroundSize: '80px 80px',
-          }}
-        />
-        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-brand-teal/10 blur-3xl pointer-events-none" />
-
-        <div className="container-site relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <span className="section-label text-brand-gold/80 mb-4 block">Our Process</span>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4">
-              How We Work
-            </h1>
-            <div className="w-14 h-px bg-brand-gold mb-6" />
-            <p className="text-white/60 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl mb-3">
-              Our solutions platform directs you to top-tier experts in the fields of{' '}
-              {['K-HEALTH CARE', 'K-HEALTH INDUSTRY', 'K-BIO', 'K-HEALTH FOOD'].join(', ')}.
-            </p>
-            <p className="text-white/45 text-sm">
-              Through a structured systematic advisory framework, our experts deliver practical
-              and globally competitive solutions tailored to your specific needs.
-            </p>
-          </motion.div>
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 48" fill="none" className="w-full">
-            <path d="M0 48L0 24Q360 0 720 24Q1080 48 1440 16L1440 48Z" fill="white" />
-          </svg>
+    <div className="process-page">
+      <ProcessIntro />
+      <WorkflowBand />
+      <section className="process-workflow">
+        <ProcessStepper current={current} goTo={goTo} />
+        <ProcessDecoration />
+        <div className="process-stage">
+          <div aria-live="polite" aria-atomic="true" className="sr-only">
+            Step {current} of 7: {active.title}
+          </div>
+          <ProcessDetailCard active={active} goTo={goTo} />
+          <ProcessControls current={current} goTo={goTo} />
         </div>
       </section>
+    </div>
+  )
+}
 
-      {/* ═══ SMART SUPPORT SYSTEM LABEL ════════════════════════════════════ */}
-      <section className="bg-brand-cream/70 border-b border-brand-border">
-        <div className="container-site py-6">
-          <p className="text-center text-[0.6rem] font-bold tracking-[0.22em] uppercase text-brand-muted">
-            SMART SUPPORT SYSTEM FOR INNOVATIVE PROBLEM SOLVING — PROCESS WORKFLOW
+function ProcessHeroVisual() {
+  return (
+    <div className="process-hero-visual" aria-hidden="true">
+      <img src="/images/seoulinkhealth-hero.png" alt="" />
+      <svg viewBox="0 0 500 400" preserveAspectRatio="none">
+        <path d="M170 420 Q230 5 500 5" />
+      </svg>
+    </div>
+  )
+}
+
+function ProcessIntro() {
+  return (
+    <section className="process-intro">
+      <ProcessHeroVisual />
+      <div className="container-site process-intro__inner">
+        <div>
+          <span className="process-eyebrow">OUR PROCESS</span>
+          <h1>How We Work</h1>
+          <i />
+          <p>
+            Our solutions platform directs you to top-tier experts in the fields of K-HEALTH CARE,
+            K-HEALTH INDUSTRY, K-BIO, K-HEALTH FOOD, and K-BEAUTY.
+          </p>
+          <p>
+            Through a structured systematic advisory framework, our experts deliver practical and
+            globally competitive solutions tailored to your specific needs.
           </p>
         </div>
-      </section>
+        <aside className="process-intro__aside">
+          <p>
+            GLOBAL
+            <br />
+            EXPERTISE
+            <br />
+            FOR A<br />
+            HEALTHIER
+            <br />
+            TOMORROW
+          </p>
+          <i />
+          <div className="process-intro__mark">
+            <span>7</span>
+            <small>
+              CONNECTED
+              <br />
+              STAGES
+            </small>
+          </div>
+        </aside>
+      </div>
+      <svg
+        className="process-divider"
+        viewBox="0 0 1440 65"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path fill="#d4b576" opacity=".7" d="M0 12 Q220 90 510 41 T980 37 Q1190 85 1440 12V65H0Z" />
+        <path fill="#faf9f6" d="M0 36 Q170 75 350 48 T780 48 Q1100 85 1440 28V65H0Z" />
+      </svg>
+    </section>
+  )
+}
 
-      {/* ═══ STEPPER NAVIGATOR ═════════════════════════════════════════════ */}
-      <section className="section-outer bg-white">
-        <div className="container-site">
+function WorkflowBand() {
+  return (
+    <div className="process-bridge">
+      <span>SMART SUPPORT SYSTEM FOR INNOVATIVE PROBLEM SOLVING</span>
+      <b>PROCESS WORKFLOW</b>
+    </div>
+  )
+}
 
-          {/* ── Step dot indicators ── */}
-          <div className="relative mb-12" role="tablist" aria-label="Process steps">
-            {/* Progress bar track */}
-            <div className="absolute top-4 left-0 right-0 h-px bg-brand-border" aria-hidden="true" />
-            {/* Filled progress */}
-            <motion.div
-              className="absolute top-4 left-0 h-px bg-brand-gold origin-left"
-              style={{ right: 0 }}
-              animate={{ scaleX: progress / 100 }}
-              initial={{ scaleX: 0 }}
-              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-              aria-hidden="true"
+type NavigationProps = { current: number; goTo: (step: number) => void }
+function ProcessStepper({ current, goTo }: NavigationProps) {
+  const navRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const nav = navRef.current
+    const button = nav?.querySelector<HTMLElement>('[aria-current="step"]')
+    if (!nav || !button || nav.scrollWidth <= nav.clientWidth) return
+    const navRect = nav.getBoundingClientRect()
+    const buttonRect = button.getBoundingClientRect()
+    // Only move the horizontal rail; keep the user's vertical reading position.
+    nav.scrollLeft += buttonRect.left - navRect.left - (nav.clientWidth - buttonRect.width) / 2
+  }, [current])
+  return (
+    <nav ref={navRef} className="process-stepper" aria-label="Process steps">
+      <div className="process-stepper__line" aria-hidden="true" />
+      {STEPS.map((step, index) => (
+        <button
+          key={step.step}
+          onClick={() => goTo(step.step)}
+          aria-label={`Step ${step.step}: ${step.title}`}
+          aria-current={current === step.step ? 'step' : undefined}
+          className={current === step.step ? 'active' : ''}
+        >
+          <span className="process-stepper__number">{step.step}</span>
+          <span className="process-stepper__label">
+            {LABELS[index].split('|').map((x) => (
+              <span key={x}>{x}</span>
+            ))}
+          </span>
+        </button>
+      ))}
+    </nav>
+  )
+}
+
+function ProcessDetailCard({
+  active,
+  goTo,
+}: {
+  active: (typeof STEPS)[number]
+  goTo: (step: number) => void
+}) {
+  const current = active.step
+  const touchStart = useRef<{ x: number; y: number; time: number } | null>(null)
+  return (
+    <article
+      className="process-card"
+      aria-labelledby={`process-title-${current}`}
+      onTouchStart={(event) => {
+        const touch = event.touches[0]
+        touchStart.current = event.touches.length === 1 && window.matchMedia('(max-width: 767px)').matches
+          ? { x: touch.clientX, y: touch.clientY, time: Date.now() }
+          : null
+      }}
+      onTouchMove={(event) => {
+        const start = touchStart.current
+        if (!start) return
+        const touch = event.touches[0]
+        // A vertical scroll or pinch must never turn a page.
+        if (event.touches.length !== 1 || Math.abs(touch.clientY - start.y) > 40) {
+          touchStart.current = null
+        }
+      }}
+      onTouchCancel={() => { touchStart.current = null }}
+      onTouchEnd={(event) => {
+        const start = touchStart.current
+        touchStart.current = null
+        if (!start || event.touches.length || !event.changedTouches[0]) return
+        const touch = event.changedTouches[0]
+        const dx = touch.clientX - start.x
+        const dy = touch.clientY - start.y
+        if (Date.now() - start.time < 900 && Math.abs(dx) >= 55 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+          goTo(current + (dx < 0 ? 1 : -1))
+        }
+      }}
+    >
+      <aside className="process-card__identity">
+        <div>{String(current).padStart(2, '0')}</div>
+        <i />
+        <span>
+          {LABELS[current - 1].split('|').map((x) => (
+            <small key={x}>{x}</small>
+          ))}
+        </span>
+      </aside>
+      <div className="process-card__content-stack">
+      {STEPS.map((step) => <div key={step.step} className="process-card__copy" aria-hidden={step.step !== current} style={{ visibility: step.step === current ? 'visible' : 'hidden' }}>
+        <span>STEP {step.step} OF 7</span>
+        <h2 id={`process-title-${step.step}`}>{step.title}</h2>
+        <i aria-hidden="true" />
+        <h3>{step.description}</h3>
+        <p>{step.detail}</p>
+      </div>)}
+      </div>
+      <figure className="process-card__visual">
+        {STEPS.map((step) => <img key={step.step} src={step.image} alt={step.step === current ? step.imageAlt : ''} aria-hidden={step.step !== current} draggable={false} style={{ visibility: step.step === current ? 'visible' : 'hidden' }} />)}
+      </figure>
+    </article>
+  )
+}
+
+function ProcessControls({ current, goTo }: NavigationProps) {
+  return (
+    <>
+      <p className="process-swipehint">Swipe left or right, or use the buttons below</p>
+      <div className="process-controls">
+        <button
+          onClick={() => goTo(current - 1)}
+          disabled={current === 1}
+          aria-label="Previous step"
+        >
+          <span className="process-arrow" aria-hidden="true">
+            ‹
+          </span>
+          <span>Previous</span>
+        </button>
+        <div className="process-controls__segments">
+          {STEPS.map((s) => (
+            <button
+              key={s.step}
+              onClick={() => goTo(s.step)}
+              className={s.step === current ? 'active' : s.step < current ? 'done' : ''}
+              aria-current={s.step === current ? 'step' : undefined}
+              aria-label={`Go to step ${s.step}`}
             />
-
-            {/* Dot grid */}
-            <div className="relative flex justify-between px-0">
-              {STEPS.map((s) => {
-                const done    = s.step < current
-                const active  = s.step === current
-                return (
-                  <button
-                    key={s.step}
-                    role="tab"
-                    aria-selected={active}
-                    aria-label={`Step ${s.step}: ${s.title}`}
-                    onClick={() => goTo(s.step)}
-                    className="flex flex-col items-center gap-2 group focus-visible:outline-none"
-                  >
-                    {/* Dot */}
-                    <div
-                      className={[
-                        'w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 relative z-10',
-                        active
-                          ? 'bg-brand-navy border-brand-navy shadow-premium'
-                          : done
-                          ? 'bg-brand-gold border-brand-gold'
-                          : 'bg-white border-brand-border group-hover:border-brand-teal group-hover:scale-105',
-                      ].join(' ')}
-                    >
-                      {done ? (
-                        <svg className="w-4 h-4 text-white" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                          <path d="M12.78 5.22a.75.75 0 010 1.06L7.25 11.81a.75.75 0 01-1.06 0L3.22 8.84a.75.75 0 011.06-1.06L6.72 10.25l5-5.03a.75.75 0 011.06 0z" />
-                        </svg>
-                      ) : (
-                        <span className={[
-                          'text-xs font-bold',
-                          active ? 'text-white' : 'text-brand-muted group-hover:text-brand-teal',
-                        ].join(' ')}>
-                          {s.step}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Label — hidden on mobile, shown on lg */}
-                    <span className={[
-                      'hidden lg:block text-[0.55rem] font-bold tracking-wider uppercase max-w-[72px] text-center leading-tight transition-colors duration-200',
-                      active ? 'text-brand-navy' : done ? 'text-brand-gold' : 'text-brand-muted group-hover:text-brand-teal',
-                    ].join(' ')}>
-                      {s.title.split(' ').slice(0, 2).join(' ')}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* ── Step Content Card ── */}
-          <div className="max-w-4xl mx-auto">
-            <div
-              className="relative overflow-hidden bg-white rounded-2xl border border-brand-border shadow-premium min-h-[380px] flex flex-col"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              <AnimatePresence mode="wait" custom={direction}>
-                <motion.div
-                  key={current}
-                  custom={direction}
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  className="flex-1 p-5 sm:p-8 lg:p-12"
-                >
-                  {/* Step number + counter */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-brand-navy flex items-center justify-center shrink-0">
-                        <span className="text-white font-bold text-sm">{String(current).padStart(2, '0')}</span>
-                      </div>
-                      <div>
-                        <p className="text-[0.6rem] font-bold tracking-[0.2em] uppercase text-brand-gold">
-                          Step {current} of {TOTAL}
-                        </p>
-                        <p className="text-xs text-brand-muted mt-0.5">{activeStep.subtitle}</p>
-                      </div>
-                    </div>
-                    {/* Mobile progress indicator */}
-                    <span className="lg:hidden text-[0.6rem] font-bold tracking-widest uppercase
-                                     text-brand-muted border border-brand-border px-2.5 py-1 rounded-full">
-                      {current}/{TOTAL}
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <h2 className="text-2xl lg:text-3xl font-bold text-brand-navy mb-3 leading-tight">
-                    {activeStep.title}
-                  </h2>
-
-                  {/* Gold divider */}
-                  <div className="w-12 h-px bg-brand-gold mb-5" />
-
-                  {/* Short description */}
-                  <p className="text-brand-navy/80 font-medium text-base mb-4 leading-snug">
-                    {activeStep.description}
-                  </p>
-
-                  {/* Extended detail */}
-                  <p className="text-brand-muted text-sm leading-relaxed">
-                    {activeStep.detail}
-                  </p>
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Gold bottom accent */}
-              <div className="h-1 bg-gradient-to-r from-brand-gold/0 via-brand-gold to-brand-gold/0 shrink-0" />
-            </div>
-
-            {/* ── Navigation Buttons ── */}
-            <div className="flex items-center justify-between mt-6 gap-4">
-
-              {/* Prev */}
-              <button
-                onClick={prev}
-                disabled={current === 1}
-                className={[
-                  'flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg border text-xs sm:text-sm font-semibold transition-all duration-200',
-                  current === 1
-                    ? 'border-brand-border text-brand-muted/40 cursor-not-allowed'
-                    : 'border-brand-border text-brand-navy hover:bg-brand-cream hover:border-brand-navy',
-                ].join(' ')}
-                aria-label="Previous step"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                  <path d="M10.78 4.22a.75.75 0 010 1.06L7.06 9l3.72 3.72a.75.75 0 11-1.06 1.06L5.47 9.53a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 0z" />
-                </svg>
-                Previous
-              </button>
-
-              {/* Progress bar strip */}
-              <div className="flex-1 hidden sm:flex items-center gap-1">
-                {STEPS.map((s) => (
-                  <button
-                    key={s.step}
-                    onClick={() => goTo(s.step)}
-                    className={[
-                      'h-1 flex-1 rounded-full transition-all duration-300',
-                      s.step < current
-                        ? 'bg-brand-gold'
-                        : s.step === current
-                        ? 'bg-brand-navy'
-                        : 'bg-brand-border hover:bg-brand-muted/30',
-                    ].join(' ')}
-                    aria-label={`Go to step ${s.step}`}
-                  />
-                ))}
-              </div>
-
-              {/* Next */}
-              <button
-                onClick={next}
-                disabled={current === TOTAL}
-                className={[
-                  'flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200',
-                  current === TOTAL
-                    ? 'bg-brand-border/60 text-brand-muted/40 cursor-not-allowed'
-                    : 'bg-brand-navy text-white hover:bg-brand-teal shadow-card hover:shadow-premium',
-                ].join(' ')}
-                aria-label="Next step"
-              >
-                {current === TOTAL ? 'Completed' : 'Next'}
-                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                  <path d="M5.22 11.78a.75.75 0 010-1.06L8.94 7 5.22 3.28a.75.75 0 011.06-1.06l4.25 4.25a.75.75 0 010 1.06L6.28 11.78a.75.75 0 01-1.06 0z" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Keyboard hint */}
-            <p className="text-center text-xs text-brand-muted/50 mt-4 flex items-center justify-center gap-1.5">
-              <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                <path d="M1 4.5A2.5 2.5 0 013.5 2h9A2.5 2.5 0 0115 4.5v7A2.5 2.5 0 0112.5 14h-9A2.5 2.5 0 011 11.5v-7zm2.5-1A1 1 0 002.5 4.5v7a1 1 0 001 1h9a1 1 0 001-1v-7a1 1 0 00-1-1h-9z" />
-                <path d="M5.5 8a.5.5 0 01.5-.5h4a.5.5 0 010 1H6a.5.5 0 01-.5-.5z" />
-              </svg>
-              Use keyboard arrow keys to navigate steps
-            </p>
-          </div>
-
-          {/* ── Step Overview Grid ── */}
-          <div className="mt-20">
-            <h3 className="text-center section-label mb-8">All Steps at a Glance</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {STEPS.map((s) => {
-                const done   = s.step < current
-                const active = s.step === current
-                return (
-                  <button
-                    key={s.step}
-                    onClick={() => goTo(s.step)}
-                    className={[
-                      'text-left p-5 rounded-xl border transition-all duration-250 group',
-                      active
-                        ? 'border-brand-navy bg-brand-navy text-white shadow-premium'
-                        : done
-                        ? 'border-brand-gold/30 bg-brand-gold/5 hover:bg-brand-gold/10'
-                        : 'border-brand-border bg-white hover:border-brand-teal/40 hover:bg-brand-cream/50',
-                    ].join(' ')}
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={[
-                        'text-[0.6rem] font-bold tracking-widest',
-                        active ? 'text-brand-gold' : done ? 'text-brand-gold' : 'text-brand-muted',
-                      ].join(' ')}>
-                        {String(s.step).padStart(2, '0')}
-                      </span>
-                      {done && !active && (
-                        <svg className="w-3.5 h-3.5 text-brand-gold shrink-0" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                          <path d="M12.78 5.22a.75.75 0 010 1.06L7.25 11.81a.75.75 0 01-1.06 0L3.22 8.84a.75.75 0 011.06-1.06L6.72 10.25l5-5.03a.75.75 0 011.06 0z" />
-                        </svg>
-                      )}
-                    </div>
-                    <p className={[
-                      'text-[0.65rem] font-bold tracking-wider uppercase leading-tight',
-                      active ? 'text-white' : 'text-brand-navy',
-                    ].join(' ')}>
-                      {s.title}
-                    </p>
-                    <p className={[
-                      'text-[0.7rem] mt-1.5 leading-snug',
-                      active ? 'text-white/60' : 'text-brand-muted',
-                    ].join(' ')}>
-                      {s.description}
-                    </p>
-                  </button>
-                )
-              })}
-
-              {/* Last cell — CTA */}
-              <div className="p-5 rounded-xl border border-dashed border-brand-border bg-brand-cream/40 flex flex-col items-center justify-center text-center gap-3">
-                <p className="text-xs text-brand-muted leading-relaxed">
-                  Ready to begin your advisory journey?
-                </p>
-                <Link to="/request" className="btn-primary py-2 px-5 text-[0.65rem]">
-                  Request Now
-                </Link>
-              </div>
-            </div>
-          </div>
-
+          ))}
         </div>
-      </section>
+        <button
+          onClick={() => goTo(current + 1)}
+          disabled={current === 7}
+          aria-label={current === 7 ? 'Process completed' : 'Next step'}
+        >
+          <span>{current === 7 ? 'Completed' : 'Next'}</span>
+          <span className="process-arrow" aria-hidden="true">
+            ›
+          </span>
+        </button>
+      </div>
+      <p className="process-keyhint">
+        <svg
+          width="19"
+          height="14"
+          viewBox="0 0 24 18"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          aria-hidden="true"
+        >
+          <rect x="1" y="1" width="22" height="16" rx="3" />
+          <path d="M5 5h2m2 0h2m2 0h2m2 0h2M5 8h2m2 0h2m2 0h2m2 0h2M6 12h12" />
+        </svg>
+        Use keyboard arrow keys to navigate steps
+      </p>
+    </>
+  )
+}
+
+function ProcessDecoration() {
+  return (
+    <div className="process-decoration" aria-hidden="true">
+      <svg className="process-contours" viewBox="0 0 1440 240" preserveAspectRatio="none">
+        {Array.from({ length: 12 }, (_, i) => (
+          <path
+            key={i}
+            d={`M-50 ${170 + i * 7} Q190 ${10 + i * 8} 440 ${155 + i * 5} T950 ${155 + i * 5} T1500 ${90 + i * 9}`}
+          />
+        ))}
+      </svg>
+      <svg className="process-leaf" viewBox="0 0 180 300">
+        <path d="M174 300Q119 216 124 35M143 247Q40 251 18 190Q92 176 143 247ZM128 205Q164 170 172 119Q117 135 128 205ZM125 155Q61 150 43 89Q104 100 125 155ZM126 107Q157 53 138 10Q106 55 126 107Z" />
+        <path d="M18 190L143 247M43 89L125 155M172 119L128 205M138 10L126 107M42 194L117 235M57 201L121 237M65 109L118 148M153 151L131 191" />
+      </svg>
     </div>
   )
 }

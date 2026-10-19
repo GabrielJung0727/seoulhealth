@@ -1,0 +1,127 @@
+.application-overlay {
+  background: rgba(4, 17, 30, 0.78);
+  backdrop-filter: blur(6px);
+}
+.application-length-hint {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #3f4d5e;
+}
+.application-length-hint strong {
+  font-weight: 700;
+  color: #10263d;
+}
+.application-length-hint em {
+  font-style: normal;
+  font-weight: 600;
+}
+.application-length-hint > span:last-child {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.application-length-hint__invalid { color: #a53535; }
+.application-field-help { font-size: 14px; line-height: 1.6; color: #3f4d5e; }
+.application-panel {
+  background: #faf9f6;
+  border: 1px solid #c99a3d66;
+  border-radius: 20px;
+  max-width: 680px;
+  max-height: 86svh;
+  box-shadow: 0 24px 70px #04111e40;
+}
+.application-panel .section-label {
+  color: #916927;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+.application-panel :is(#app-modal-title, .application-title) {
+  font:
+    600 32px/1.2 'Cormorant Garamond',
+    Georgia,
+    serif;
+  max-width: 520px;
+}
+.application-panel .form-label {
+  color: #10263d;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+.application-panel .form-input {
+  min-height: 50px;
+  border-color: #d9d6d0;
+  border-radius: 5px;
+  background: #fff;
+  font-size: 16px;
+  color: #10263d;
+}
+.application-panel .form-input::placeholder {
+  color: #7c8795;
+}
+.application-panel .form-input:focus {
+  border-color: #c99a3d;
+  outline: none;
+  box-shadow: 0 0 0 3px #c99a3d1f;
+}
+.application-panel .form-input[aria-invalid='true'] {
+  border-color: #b74747;
+}
+.application-panel textarea.form-input {
+  min-height: 100px;
+}
+.application-panel :is(button, select):focus-visible {
+  outline: 2px solid #c99a3d;
+  outline-offset: 3px;
+}
+.application-actions {
+  padding: 18px 32px;
+  border-top: 1px solid #e5e0d8;
+  flex-shrink: 0;
+  background: #faf9f6;
+}
+.application-actions button {
+  min-height: 54px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: #071a2d;
+}
+.application-actions button:hover {
+  background: #17364e;
+  border-color: #c99a3d;
+}
+.application-actions button > span {
+  color: #e0bb68;
+  transition: transform 0.2s;
+}
+.application-actions button:hover > span {
+  transform: translateX(3px);
+}
+@media (max-width: 600px) {
+  .application-shell {
+    padding: 12px;
+  }
+  .application-panel {
+    max-height: calc(100svh - 24px);
+    margin: 0;
+    width: 100%;
+    border-radius: 16px;
+  }
+  .application-panel :is(#app-modal-title, .application-title) {
+    font-size: 25px;
+  }
+  .application-actions {
+    padding: 14px 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .application-panel * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

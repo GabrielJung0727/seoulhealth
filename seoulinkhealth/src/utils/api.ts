@@ -215,7 +215,7 @@ export function exportToCSV(items: SubmissionItem[], type: 'application' | 'inqu
   const a = document.createElement('a')
   a.href = url
   const dateStr = new Date().toISOString().slice(0, 10)
-  a.download = type === 'application' ? `지원서_${dateStr}.csv` : `문의_${dateStr}.csv`
+  a.download = type === 'application' ? `experts_${dateStr}.csv` : `business_inquiries_${dateStr}.csv`
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -484,6 +484,10 @@ export async function adminDownloadFile(token: string, fileId: string): Promise<
   a.download = filename
   a.click()
   URL.revokeObjectURL(blobUrl)
+}
+
+export async function adminDeleteFile(token: string, fileId: string): Promise<void> {
+  await api.delete(`/admin/files/${fileId}`, token)
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

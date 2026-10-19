@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -7,6 +7,7 @@ import EmailInput from '@/components/ui/EmailInput'
 import PhoneInput from '@/components/ui/PhoneInput'
 import { submitInquiry, ApiError } from '@/utils/api'
 import { useCompanyAuthStore } from '@/store/companyAuthStore'
+import './ApplicationFormModal.css'
 
 /* ─── Zod Schema ─────────────────────────────────────────────────────────── */
 const inquirySchema = z.object({
@@ -62,6 +63,60 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
   const [errorMessage, setErrorMessage] = useState('')
   const companyAuth = useCompanyAuthStore()
+  const panelRef = useRef<HTMLDivElement>(null)
+  const reduceMotion = useReducedMotion()
+
+  // Scroll lock, initial focus, focus trap and focus return
+  useEffect(() => {
+    if (!isOpen) return
+    const opener = document.activeElement as HTMLElement | null
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const focusTimer = window.setTimeout(
+      () => panelRef.current?.querySelector<HTMLInputElement>('input[name="fullName"]')?.focus(),
+      50
+    )
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab' || !panelRef.current) return
+      const elements = Array.from(
+        panelRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]),a[href],input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex="0"]'
+        )
+      ).filter(
+        (element) =>
+          element.tabIndex >= 0 &&
+          element.getClientRects().length > 0 &&
+          !element.closest('[aria-hidden="true"]')
+      )
+      const first = elements[0]
+      const last = elements[elements.length - 1]
+      if (!first) {
+        event.preventDefault()
+        panelRef.current.focus()
+        return
+      }
+      if (
+        event.shiftKey &&
+        (document.activeElement === first || !panelRef.current.contains(document.activeElement))
+      ) {
+        event.preventDefault()
+        last.focus()
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === last || !panelRef.current.contains(document.activeElement))
+      ) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', trapFocus)
+    return () => {
+      window.clearTimeout(focusTimer)
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', trapFocus)
+      opener?.focus()
+    }
+  }, [isOpen])
 
   const {
     register,
@@ -74,6 +129,8 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
     resolver: zodResolver(inquirySchema),
     defaultValues: { dialCode: '+82' },
   })
+
+  const descriptionLength = watch('inquiryDescription')?.length ?? 0
 
   // Auto-fill from company profile when modal opens
   useEffect(() => {
@@ -93,6 +150,8 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose() }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
+  // handleClose intentionally uses the latest reset/onClose values only when the key event fires.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   const handleClose = () => {
@@ -143,38 +202,41 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
           {/* ── Overlay ── */}
           <motion.div
             key="inq-overlay"
-            className="fixed inset-0 z-50 bg-brand-navy/60 backdrop-blur-sm"
+            className="application-overlay fixed inset-0 z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: reduceMotion ? 0 : 0.25 }}
             onClick={handleClose}
             aria-hidden="true"
           />
 
           {/* ── Panel ── */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+          <div className="application-shell fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               key="inq-panel"
               role="dialog"
+              ref={panelRef}
+              tabIndex={-1}
               aria-modal="true"
               aria-labelledby="inq-modal-title"
-              className="pointer-events-auto bg-white rounded-2xl shadow-premium-lg
+              className="application-panel pointer-events-auto bg-white rounded-2xl shadow-premium-lg
                          w-full max-w-2xl mx-2 sm:mx-4 max-h-[92vh] flex flex-col overflow-hidden"
-              initial={{ opacity: 0, scale: 0.94, y: 16 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 8 }}
-              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
+              transition={{ duration: reduceMotion ? 0 : 0.25 }}
             >
               {/* ── Modal Header ── */}
               <div className="flex items-start justify-between px-5 sm:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5 border-b border-brand-border shrink-0">
                 <div>
-                  <span className="section-label mb-1 block">Request Now</span>
-                  <h2 id="inq-modal-title" className="text-xl font-bold text-brand-navy">
-                    INQUIRY FORM
+                  <span className="section-label mb-1 block">Advisory Services</span>
+                  <h2 id="inq-modal-title" className="application-title text-brand-navy">
+                    Inquiry Form
                   </h2>
                 </div>
                 <button
+                  type="button"
                   onClick={handleClose}
                   className="ml-4 mt-0.5 p-1.5 rounded-lg text-brand-muted hover:text-brand-navy
                              hover:bg-brand-cream transition-colors duration-200 shrink-0"
@@ -192,7 +254,7 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
                 {submitState === 'success' ? (
                   <SuccessMessage onClose={handleClose} />
                 ) : (
-                  <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+                  <form id="inquiry-form" onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
 
                     {/* Honeypot — visually hidden */}
                     <div className="absolute opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
@@ -277,11 +339,30 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
                     </div>
 
                     {/* Description */}
-                    <FormField label="Description" required error={errors.inquiryDescription?.message}>
+                    <FormField
+                      label="Description (minimum 20 characters)"
+                      required
+                      error={errors.inquiryDescription?.message}
+                      hint={
+                        <div id="inquiry-description-length" className="application-length-hint">
+                          <span className={descriptionLength > 0 && descriptionLength < 20 ? 'application-length-hint__invalid' : ''}>
+                            <strong>Min 20</strong> · <strong>Max 3000</strong> characters
+                          </span>
+                          <span className={descriptionLength > 0 && descriptionLength < 20 ? 'application-length-hint__invalid' : ''}>
+                            {descriptionLength} / 3000
+                          </span>
+                        </div>
+                      }
+                    >
                       <textarea
                         {...register('inquiryDescription')}
+                        aria-describedby="inquiry-description-length"
+                        aria-invalid={!!errors.inquiryDescription}
+                        aria-required="true"
                         className="form-input resize-y min-h-[120px]"
                         rows={5}
+                        minLength={20}
+                        maxLength={3000}
                         placeholder="Please provide a detailed description of your inquiry, including any specific objectives, challenges, or questions you have..."
                       />
                     </FormField>
@@ -298,31 +379,34 @@ export default function InquiryFormModal({ isOpen, onClose }: InquiryFormModalPr
 
                     {/* Error banner */}
                     {submitState === 'error' && (
-                      <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                      <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700" role="alert">
                         {errorMessage || 'Submission failed. Please try again.'}
                       </div>
                     )}
-
-                    {/* Submit */}
-                    <div className="pt-2 pb-1">
-                      <button
-                        type="submit"
-                        disabled={submitState === 'loading'}
-                        className="btn-primary w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed"
-                      >
-                        {submitState === 'loading' ? (
-                          <>
-                            <Spinner />
-                            Submitting...
-                          </>
-                        ) : (
-                          'Submit Inquiry'
-                        )}
-                      </button>
-                    </div>
                   </form>
                 )}
               </div>
+              {submitState !== 'success' && (
+                <div className="application-actions">
+                  <button
+                    type="submit"
+                    form="inquiry-form"
+                    disabled={submitState === 'loading'}
+                    className="btn-primary w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {submitState === 'loading' ? (
+                      <>
+                        <Spinner />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        Submit Inquiry <span aria-hidden="true">→</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </motion.div>
           </div>
         </>
@@ -338,19 +422,24 @@ function FormField({
   required,
   error,
   children,
+  hint,
 }: {
   label: string
   required?: boolean
   error?: string
   children: React.ReactNode
+  hint?: React.ReactNode
 }) {
   return (
     <div>
-      <label className="form-label">
-        {label}
-        {required && <span className="text-red-500 ml-0.5" aria-hidden="true">*</span>}
+      <label>
+        <span className="form-label">
+          {label}
+          {required && <span className="text-red-500 ml-0.5" aria-hidden="true">*</span>}
+        </span>
+        {children}
       </label>
-      {children}
+      {hint}
       {error && (
         <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1" role="alert">
           <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
@@ -378,8 +467,8 @@ function SuccessMessage({ onClose }: { onClose: () => void }) {
       </div>
       <h3 className="text-xl font-bold text-brand-navy mb-3">Inquiry Submitted</h3>
       <p className="text-brand-muted text-sm leading-relaxed max-w-sm mx-auto mb-8">
-        Your inquiry has been submitted successfully. Our Director will review your request
-        and contact you within two business days.
+        Your inquiry has been submitted successfully. Our team will review your request and
+        contact you as soon as possible.
       </p>
       <button onClick={onClose} className="btn-primary">
         Close

@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SITE_CONFIG } from '@/config/site'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import AboutCoreSectorsSection from '@/components/about/AboutCoreSectorsSection'
 
 /* ─── Tab Definition ─────────────────────────────────────────────────────── */
-type TabId = 'greetings' | 'founder' | 'endorsement'
+type TabId = 'greetings' | 'founder' | 'coo' | 'cso'
 
 interface Tab {
   id: TabId
@@ -14,7 +15,8 @@ interface Tab {
 const TABS: Tab[] = [
   { id: 'greetings',   label: 'GREETINGS' },
   { id: 'founder',     label: 'OUR FOUNDER' },
-  { id: 'endorsement', label: 'ENDORSEMENT' },
+  { id: 'coo',         label: 'COO MESSAGE' },
+  { id: 'cso',         label: 'CSO MESSAGE' },
 ]
 
 /* ─── Page Component ─────────────────────────────────────────────────────── */
@@ -24,10 +26,11 @@ export default function AboutPage() {
 
   return (
     <div className="overflow-x-hidden">
+      <AboutCoreSectorsSection />
       {/* ═══════════════════════════════════════════════════════
-          PAGE BANNER
+          LEGACY BANNER — retained temporarily for content migration, not rendered
       ═══════════════════════════════════════════════════════ */}
-      <section className="bg-brand-navy relative overflow-hidden py-16 sm:py-20 lg:py-24">
+      <section className="hidden" aria-hidden="true">
         {/* Background grid */}
         <div
           className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -48,7 +51,7 @@ export default function AboutPage() {
           >
             <span className="section-label text-brand-gold/80 mb-4 block">About Us</span>
 
-            {/* Big K + 4 domain lines — animated connection */}
+            {/* Big K + industry domain lines — animated connection */}
             <motion.div
               initial="hidden"
               animate="visible"
@@ -151,7 +154,7 @@ export default function AboutPage() {
                              leading-tight tracking-wide
                              text-lg sm:text-2xl lg:text-3xl"
                 >
-                  {['HEALTH CARE', 'HEALTH INDUSTRY', 'BIO', 'HEALTH FOOD'].map((label) => (
+                  {['HEALTH CARE', 'HEALTH INDUSTRY', 'BIO', 'HEALTH FOOD', 'BEAUTY'].map((label) => (
                     <motion.li
                       key={label}
                       variants={{
@@ -175,7 +178,7 @@ export default function AboutPage() {
             </motion.div>
 
             <div className="w-14 h-px bg-brand-gold mb-6" />
-            <p className="text-white/60 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl">
+            <p className="text-white/85 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl">
               {SITE_CONFIG.description}
             </p>
           </motion.div>
@@ -192,7 +195,7 @@ export default function AboutPage() {
       {/* ═══════════════════════════════════════════════════════
           SIDEBAR + CONTENT LAYOUT
       ═══════════════════════════════════════════════════════ */}
-      <section className="section-outer bg-white">
+      <section id="about-details" className="section-outer bg-white scroll-mt-24">
         <div className="container-site">
           <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
 
@@ -207,7 +210,7 @@ export default function AboutPage() {
                         onClick={() => setActiveTab(tab.id)}
                         className={[
                           'relative w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-250',
-                          'text-[0.6rem] sm:text-[0.7rem] font-bold tracking-[0.12em] sm:tracking-[0.15em] uppercase',
+                          'text-[0.72rem] sm:text-[0.78rem] font-bold tracking-[0.1em] sm:tracking-[0.12em] uppercase',
                           'group focus-visible:outline-2 focus-visible:outline-brand-teal',
                           activeTab === tab.id
                             ? 'bg-brand-navy text-white shadow-card'
@@ -244,7 +247,8 @@ export default function AboutPage() {
                 >
                   {activeTab === 'greetings'   && <GreetingsContent />}
                   {activeTab === 'founder'     && <FounderContent />}
-                  {activeTab === 'endorsement' && <EndorsementContent />}
+                  {activeTab === 'coo'         && <COOMessage />}
+                  {activeTab === 'cso'         && <CSOMessage />}
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -262,7 +266,7 @@ export default function AboutPage() {
 function GreetingsContent() {
   return (
     <article>
-      <span className="section-label mb-3 block">Greetings</span>
+      <span className="section-label mb-3 block !text-[#8A6428]">Greetings</span>
       <h2 className="text-3xl lg:text-4xl font-bold text-brand-navy mb-2 leading-tight">
         Welcome to SEOULINKHEALTH
       </h2>
@@ -273,9 +277,8 @@ function GreetingsContent() {
 
         <p>
           As global interest in Korea's advanced healthcare ecosystem continues to grow, an
-          increasing number of organizations and professionals are seeking reliable and strategic
-          pathways to engage with Korea's healthcare services, medical industry, biopharmaceutical
-          sector, and health food innovations.
+          increasing number of organizations and professionals are seeking a reliable and strategic
+          pathway to engage with Korea's medical sector, health food innovations, and beauty market.
         </p>
 
         <p>
@@ -308,54 +311,54 @@ function GreetingsContent() {
         <p className="text-brand-navy font-bold text-lg tracking-wide">
           {SITE_CONFIG.founder.signature}
         </p>
-        <p className="text-brand-gold text-[0.7rem] font-bold tracking-[0.18em] uppercase mt-1">
+        <p className="text-brand-gold text-[0.78rem] font-bold tracking-[0.14em] uppercase mt-1">
           {SITE_CONFIG.founder.title}
         </p>
       </div>
 
-      {/* ── COO Message ──────────────────────────────────────────────────── */}
-      <div className="mt-16 pt-12 border-t-2 border-brand-gold/20">
-        <p className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-brand-gold mb-4">
-          Message from the Chief Operating Officer
-        </p>
-
-        <div className="text-brand-muted text-sm sm:text-base leading-relaxed space-y-5">
-          <p>Hello,</p>
-
-          <p>
-            The global health industry market is evolving at an unprecedented pace, and the
-            Republic of Korea stands at the forefront of this transformation.
-          </p>
-
-          <p>
-            During my tenure as Head of Future Policy Headquarters at the Korea Health
-            Industry Development Institute and as Executive Director of the Health Policy
-            Research Institute at the Health Insurance Review and Assessment Service, I had
-            the privilege of contributing to the advancement and global competitiveness of
-            Korea's healthcare sector.
-          </p>
-
-          <p>
-            As a COO, I am truly delighted to have the opportunity to share my experience
-            and insights with a global audience those who have a keen interest in Korea's
-            health industry.
-          </p>
-
-          <p>Thank you.</p>
-        </div>
-
-        {/* COO Signature */}
-        <div className="mt-8 pt-6 border-t border-brand-border">
-          <p className="text-brand-muted text-sm mb-2">Sincerely,</p>
-          <p className="text-brand-navy font-bold text-lg tracking-wide">
-            Youn-Tae Lee, Ph.D.
-          </p>
-          <p className="text-brand-gold text-[0.7rem] font-bold tracking-[0.18em] uppercase mt-1">
-            Chief Operating Officer
-          </p>
-        </div>
-      </div>
     </article>
+  )
+}
+
+function MessageLayout({ label, title, children, signature }: { label: string; title: string; children: React.ReactNode; signature?: React.ReactNode }) {
+  return (
+    <article>
+      <span className="section-label mb-3 block">{label}</span>
+      <h2 className="text-3xl lg:text-4xl font-extrabold text-[#071A2D] mb-2 leading-tight">{title}</h2>
+      <div className="accent-line" />
+      <div className="mt-8 text-brand-muted text-sm sm:text-base leading-relaxed space-y-5">{children}</div>
+      {signature && <div className="mt-10 pt-8 border-t border-brand-border">{signature}</div>}
+    </article>
+  )
+}
+
+function COOMessage() {
+  return (
+    <MessageLayout label="COO Message" title="Message from the Chief Operating Officer" signature={<><p className="text-brand-navy font-bold text-lg">Youn-Tae Lee, Ph.D.</p><p className="text-brand-gold text-[0.78rem] font-bold tracking-[0.14em] uppercase mt-1">Chief Operating Officer</p></>}>
+      <p>Hello,</p>
+      <p>The global health industry is evolving at an unprecedented pace, and the Republic of Korea stands at the forefront of this transformation.</p>
+      <p>During my tenure at the Korea Health Industry Development Institute and the Health Insurance Review and Assessment Service, I had the privilege of contributing to the advancement and global competitiveness of Korea's healthcare sector.</p>
+      <p>As COO, I am delighted to share this experience and insight with organizations seeking trusted access to Korea's health industry.</p>
+      <p>Thank you.</p>
+    </MessageLayout>
+  )
+}
+
+function CSOMessage() {
+  return (
+    <MessageLayout
+      label="CSO Message"
+      title="Message from the Chief Strategy Officer"
+      signature={<><p className="text-brand-navy font-bold text-lg">Seungjae Huh</p><p className="text-brand-gold text-[0.78rem] font-bold tracking-[0.14em] uppercase mt-1">Chief Strategy Officer</p></>}
+    >
+      <p>Hello,</p>
+      <p>As global health industries reshape themselves at an extraordinary pace, the Republic of Korea is emerging as a pivotal partner for the world, and Seoul Link Health is proud to serve as the bridge.</p>
+      <p>I spent more than three decades in Korea's diplomatic service, working across Asia, Latin America, and Europe. My postings included Beijing, Shenyang, Fukuoka, and Montevideo. I also served at the Presidential Office as a protocol secretary, as Director for China and Northeast Asia affairs at the Ministry of Foreign Affairs, and most recently as Consul General at the Korean Embassy's Bonn Office in Germany. These roles taught me how to build trust across borders and turn complex relationships into practical cooperation.</p>
+      <p>As Chief Strategy Officer, I am delighted to bring that experience to Seoul Link Health. My focus is to help international partners, especially in China, Japan, and Europe, connect with Korea's health industry and find lasting opportunities for collaboration.</p>
+      <p>I look forward to working with you.</p>
+      <p>Thank you.</p>
+      <p>Sincerely,</p>
+    </MessageLayout>
   )
 }
 
@@ -414,7 +417,7 @@ function FounderContent() {
             <h3 className="text-lg font-bold text-brand-navy">
               {SITE_CONFIG.founder.name}
             </h3>
-            <p className="text-[0.65rem] font-bold tracking-[0.15em] uppercase text-brand-gold mt-1">
+            <p className="text-[0.75rem] font-bold tracking-[0.12em] uppercase text-brand-gold mt-1">
               {SITE_CONFIG.founder.title}
             </p>
             <div className="w-10 h-px bg-brand-border mx-auto my-4" />
@@ -429,7 +432,7 @@ function FounderContent() {
 
           {/* Professional Experience */}
           <div>
-            <h3 className="text-[0.65rem] font-bold tracking-[0.18em] uppercase text-brand-gold mb-5">
+            <h3 className="text-[0.75rem] font-bold tracking-[0.14em] uppercase text-brand-gold mb-5">
               Professional Experience
             </h3>
             <ul className="space-y-4">
@@ -447,7 +450,7 @@ function FounderContent() {
 
           {/* Education */}
           <div>
-            <h3 className="text-[0.65rem] font-bold tracking-[0.18em] uppercase text-brand-gold mb-5">
+            <h3 className="text-[0.75rem] font-bold tracking-[0.14em] uppercase text-brand-gold mb-5">
               Education
             </h3>
             <ul className="space-y-4">
@@ -571,7 +574,8 @@ const ENDORSEMENT_CATEGORIES: EndorsementCategory[] = [
   },
 ]
 
-function EndorsementContent() {
+// Retained as a non-rendered legacy content export for source-history migration only.
+export function EndorsementContent() {
   return (
     <article>
       <span className="section-label mb-3 block">Endorsement</span>

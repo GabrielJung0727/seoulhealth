@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import type { SubmissionItem, AdminNoteItem } from '@/utils/api'
-import { adminGetNotes, adminAddNote } from '@/utils/api'
+import { adminGetNotes, adminAddNote, type SubmissionItem, type AdminNoteItem } from '@/utils/api'
 import { SITE_CONFIG } from '@/config/site'
 import { useAuthStore } from '@/store/authStore'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
@@ -67,7 +66,7 @@ export default function DetailModal({ isOpen, onClose, item, type, onStatusChang
     } finally {
       setNoteLoading(false)
     }
-  }, [token, targetType, item?.id])
+  }, [token, targetType, item])
 
   useEffect(() => {
     if (isOpen && item) {

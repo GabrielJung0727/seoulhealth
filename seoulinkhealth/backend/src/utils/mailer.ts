@@ -15,7 +15,6 @@ function createTransport() {
 }
 
 const COMPANY_EMAIL = process.env.COMPANY_EMAIL!
-const DIRECTOR_NAME = process.env.DIRECTOR_NAME ?? 'Byung-Joo Kim'
 const SITE_URL = process.env.SITE_URL ?? 'https://doublej.app'
 
 /* ─── Shared HTML wrapper (SAS-style premium design) ─────────────────────── */
@@ -173,7 +172,7 @@ export async function sendInquiryNotification(data: InquiryData): Promise<void> 
     ${data.additionalComments ? `<div class="field"><label>Additional Comments</label><p>${esc(data.additionalComments)}</p></div>` : ''}
 
     <hr class="divider" />
-    <p>Please log in to the admin dashboard to review this inquiry. Response is expected within two business days.</p>
+    <p>Please log in to the admin dashboard to review this inquiry and respond as soon as possible.</p>
   `
 
   try {
@@ -241,7 +240,7 @@ export async function sendWelcomeEmail(to: string, companyName: string): Promise
     <div style="padding:32px 28px;">
       <h2 style="color:#0D1B2A;margin:0 0 16px;">Welcome, ${esc(companyName)}!</h2>
       <p style="color:#555;line-height:1.6;">Thank you for registering with SEOULINKHEALTH. Your account has been created successfully.</p>
-      <p style="color:#555;line-height:1.6;">You can now log in to access your company dashboard, submit inquiries, and communicate with our team.</p>
+      <p style="color:#555;line-height:1.6;">You can track your submission and communicate with our team by logging into our company dashboard.</p>
       <div style="text-align:center;margin:24px 0;">
         <a href="${SITE_URL}/company/login" style="display:inline-block;background:#0D1B2A;color:#fff;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;">Go to Dashboard</a>
       </div>
@@ -287,10 +286,7 @@ export async function sendSubmissionConfirmation(to: string, name: string, type:
     <div style="padding:32px 28px;">
       <h2 style="color:#0D1B2A;margin:0 0 16px;">Thank You, ${esc(name)}!</h2>
       <p style="color:#555;line-height:1.6;">We have received your ${typeLabel.toLowerCase()}. Our team will review it and respond as soon as possible.</p>
-      <p style="color:#555;line-height:1.6;">You can track the status of your submission by logging into your company dashboard.</p>
-      <div style="text-align:center;margin:24px 0;">
-        <a href="${SITE_URL}/company/dashboard" style="display:inline-block;background:#B8965A;color:#0D1B2A;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;">View Dashboard</a>
-      </div>
+      <p style="color:#555;line-height:1.6;">We will contact you as soon as possible with the next steps.</p>
     </div>
   `)
   try {

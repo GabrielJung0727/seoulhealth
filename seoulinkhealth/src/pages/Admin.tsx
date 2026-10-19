@@ -6,6 +6,7 @@ import { useToastStore } from '@/store/toastStore'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { SITE_CONFIG } from '@/config/site'
 import DetailModal from '@/components/admin/DetailModal'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import {
   getApplications,
   getInquiries,
@@ -17,6 +18,7 @@ import {
   adminTranslateText,
   adminGetAllFiles,
   adminDownloadFile,
+  adminDeleteFile,
   adminGetEmailLogs,
   adminGetProjects,
   adminGetExperts,
@@ -167,6 +169,7 @@ export default function AdminPage() {
   const [fileGroups, setFileGroups] = useState<Record<string, FileGrouped>>({})
   const [filesLoading, setFilesLoading] = useState(false)
   const [expandedCompanies, setExpandedCompanies] = useState<Set<string>>(new Set())
+  const [fileToDelete, setFileToDelete] = useState<{ id: string; name: string; companyId: string } | null>(null)
 
   /* Q&A state */
   const [qaThreads, setQaThreads] = useState<AdminQAThread[]>([])
@@ -273,7 +276,7 @@ export default function AdminPage() {
     } finally {
       setEmailLogsLoading(false)
     }
-  }, [token, emailPage, emailDebouncedSearch])
+  }, [token])
 
   /* Fetch projects */
   const fetchProjects = useCallback(async () => {
@@ -390,8 +393,8 @@ export default function AdminPage() {
     notificationsShownRef.current = true
 
     const items: {type: string; count: number; label: string; tab: Tab}[] = []
-    if (stats.applications.new > 0) items.push({ type: 'app', count: stats.applications.new, label: `새 지원서 ${stats.applications.new}건`, tab: 'applications' })
-    if (stats.inquiries.new > 0) items.push({ type: 'inq', count: stats.inquiries.new, label: `새 문의 ${stats.inquiries.new}건`, tab: 'inquiries' })
+    if (stats.applications.new > 0) items.push({ type: 'app', count: stats.applications.new, label: `새 전문가 등록 ${stats.applications.new}건`, tab: 'applications' })
+    if (stats.inquiries.new > 0) items.push({ type: 'inq', count: stats.inquiries.new, label: `새 사업문의 ${stats.inquiries.new}건`, tab: 'inquiries' })
 
     // Check Q&A threads with Open status
     adminGetQAThreads(token).then(threads => {
@@ -406,7 +409,9 @@ export default function AdminPage() {
           const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbsGczGiF+t97LdkQaEFGd0eeXUiQLQ4zK56NiLAwtiMPkqnQ8Cj2Bv+KzijIJL3/C3rl4OQAAA')
           audio.volume = 0.3
           audio.play().catch(() => {})
-        } catch {}
+        } catch {
+          // Browsers may block notification audio until the user interacts with the page.
+        }
       }
     }).catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -498,6 +503,28 @@ export default function AdminPage() {
     }
   }
 
+  const handleFileDelete = async () => {
+    if (!fileToDelete) return
+    try {
+      await adminDeleteFile(token, fileToDelete.id)
+      setFileGroups((prev) => {
+        const next = { ...prev }
+        const group = next[fileToDelete.companyId]
+        if (!group) return prev
+        const removed = group.files.find((file) => file.id === fileToDelete.id)
+        const files = group.files.filter((file) => file.id !== fileToDelete.id)
+        if (files.length === 0) delete next[fileToDelete.companyId]
+        else next[fileToDelete.companyId] = { ...group, files, totalSize: Math.max(0, group.totalSize - (removed?.size ?? 0)) }
+        return next
+      })
+      addToast({ type: 'success', message: '파일을 삭제했습니다.' })
+    } catch {
+      addToast({ type: 'error', message: '파일 삭제에 실패했습니다.' })
+    } finally {
+      setFileToDelete(null)
+    }
+  }
+
   /* Toggle company folder expand */
   const toggleCompanyExpand = (companyId: string) => {
     setExpandedCompanies((prev) => {
@@ -541,6 +568,13 @@ export default function AdminPage() {
 
   const items = data?.data ?? []
   const totalPages = data?.pagination?.totalPages ?? 1
+  const emailPageSize = 10
+  const filteredEmailLogs = (emailLogs?.data ?? []).filter((log) => {
+    const query = emailDebouncedSearch.trim().toLowerCase()
+    return !query || log.to.toLowerCase().includes(query) || log.subject.toLowerCase().includes(query)
+  })
+  const emailTotalPages = Math.max(1, Math.ceil(filteredEmailLogs.length / emailPageSize))
+  const visibleEmailLogs = filteredEmailLogs.slice((emailPage - 1) * emailPageSize, emailPage * emailPageSize)
 
   return (
     <div className={`admin-layout min-h-screen bg-gray-50 dark:bg-gray-900 no-print ${darkMode ? 'dark' : ''}`}>
@@ -861,6 +895,13 @@ export default function AdminPage() {
                                   </svg>
                                   {L.documentsDownload}
                                 </button>
+                                <button
+                                  onClick={() => setFileToDelete({ id: file.id, name: file.originalName, companyId: group.companyId })}
+                                  className="admin-btn bg-white border-2 border-red-200 text-red-600 hover:bg-red-50 text-sm"
+                                  aria-label={`${file.originalName} 삭제`}
+                                >
+                                  삭제
+                                </button>
                               </li>
                             ))}
                           </ul>
@@ -1107,7 +1148,7 @@ export default function AdminPage() {
             {/* Email log list */}
             {emailLogsLoading && !emailLogs ? (
               Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={`el-sk-${i}`} />)
-            ) : !emailLogs?.data?.length ? (
+            ) : !filteredEmailLogs.length ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -1118,7 +1159,7 @@ export default function AdminPage() {
             ) : (
               <div className="space-y-3">
                 <AnimatePresence mode="popLayout">
-                  {emailLogs.data.map((log, i) => (
+                  {visibleEmailLogs.map((log, i) => (
                     <motion.div
                       key={log.id}
                       layout
@@ -1163,7 +1204,7 @@ export default function AdminPage() {
             )}
 
             {/* Email log pagination */}
-            {emailLogs && emailLogs.pagination.totalPages > 1 && (
+            {emailLogs && emailTotalPages > 1 && (
               <div className="flex items-center justify-center gap-4 pt-4">
                 <button
                   disabled={emailPage <= 1}
@@ -1173,11 +1214,11 @@ export default function AdminPage() {
                   {L.prevPage}
                 </button>
                 <span className="text-sm sm:text-lg font-bold text-gray-600 dark:text-gray-300">
-                  {emailPage} / {emailLogs.pagination.totalPages} {L.pageOf}
+                  {emailPage} / {emailTotalPages} {L.pageOf}
                 </span>
                 <button
-                  disabled={emailPage >= emailLogs.pagination.totalPages}
-                  onClick={() => setEmailPage((p) => Math.min(emailLogs!.pagination.totalPages, p + 1))}
+                  disabled={emailPage >= emailTotalPages}
+                  onClick={() => setEmailPage((p) => Math.min(emailTotalPages, p + 1))}
                   className="admin-btn bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40"
                 >
                   {L.nextPage}
@@ -1197,7 +1238,7 @@ export default function AdminPage() {
                 onClick={() => {
                   const title = prompt('프로젝트 제목:')
                   if (!title) return
-                  const domain = prompt('도메인 (K-HEALTH CARE / K-HEALTH INDUSTRY / K-BIO / K-HEALTH FOOD):') || 'K-HEALTH CARE'
+                  const domain = prompt('도메인 (K-HEALTH CARE / K-HEALTH INDUSTRY / K-BIO / K-HEALTH FOOD / K-BEAUTY):') || 'K-HEALTH CARE'
                   const description = prompt('프로젝트 설명:') || ''
                   import('@/utils/api').then(({ adminCreateProject }) => {
                     adminCreateProject(token, { title, domain, description, status: 'Planning', progress: 0 } as never)
@@ -1289,7 +1330,7 @@ export default function AdminPage() {
                   if (!name) return
                   const email = prompt('이메일:')
                   const specialty = prompt('전공분야:')
-                  const domain = prompt('도메인 (K-HEALTH CARE / K-HEALTH INDUSTRY / K-BIO / K-HEALTH FOOD):') || 'K-HEALTH CARE'
+                  const domain = prompt('도메인 (K-HEALTH CARE / K-HEALTH INDUSTRY / K-BIO / K-HEALTH FOOD / K-BEAUTY):') || 'K-HEALTH CARE'
                   const country = prompt('국가:') || ''
                   if (name && specialty) {
                     import('@/utils/api').then(({ adminCreateExpert }) => {
@@ -1319,7 +1360,7 @@ export default function AdminPage() {
                 />
               </div>
               <div className="flex gap-2 flex-wrap">
-                {['전체', 'K-HEALTH CARE', 'K-HEALTH INDUSTRY', 'K-BIO', 'K-HEALTH FOOD'].map((d) => (
+                {['전체', 'K-HEALTH CARE', 'K-HEALTH INDUSTRY', 'K-BIO', 'K-HEALTH FOOD', 'K-BEAUTY'].map((d) => (
                   <button
                     key={d}
                     onClick={() => setExpertDomainFilter(d)}
@@ -1359,6 +1400,7 @@ export default function AdminPage() {
                 'K-HEALTH INDUSTRY': 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
                 'K-BIO': 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
                 'K-HEALTH FOOD': 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+                'K-BEAUTY': 'bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300',
               }
               return (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -1412,7 +1454,7 @@ export default function AdminPage() {
                 {/* Metric cards */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {[
-                    { label: '이번 달 문의', value: analyticsData.totalInquiriesThisMonth, color: 'text-blue-600' },
+                    { label: '이번 달 사업문의', value: analyticsData.totalInquiriesThisMonth, color: 'text-blue-600' },
                     { label: '전환율', value: `${analyticsData.conversionRate}%`, color: 'text-green-600' },
                     { label: '전체 프로젝트', value: analyticsData.totalProjects, color: 'text-purple-600' },
                     { label: '전체 전문가', value: analyticsData.totalExperts, color: 'text-amber-600' },
@@ -1427,7 +1469,7 @@ export default function AdminPage() {
                 {/* Monthly bar chart */}
                 {analyticsData.monthlyInquiries?.length > 0 && (
                   <div className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 p-5">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">월별 문의 현황</h3>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">월별 사업문의 현황</h3>
                     <div className="flex items-end gap-2 h-48">
                       {(() => {
                         const maxCount = Math.max(...analyticsData.monthlyInquiries.map((m: {month: string; count: number}) => m.count), 1)
@@ -1612,16 +1654,16 @@ export default function AdminPage() {
                 <div>
                   <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">🏠 기본 사용법</h3>
                   <ul className="space-y-2 ml-1">
-                    <li>• 상단의 <strong>숫자 카드 4개</strong>는 전체 지원서/문의 건수를 보여줍니다</li>
+                    <li>• 상단의 <strong>숫자 카드 4개</strong>는 전체 전문가 등록/사업문의 건수를 보여줍니다</li>
                     <li>• 숫자가 <strong className="text-blue-600">파란색</strong>이면 새로 들어온 건이 있다는 뜻입니다</li>
                     <li>• 화면은 <strong>30초마다 자동으로 새로고침</strong>됩니다</li>
                     <li>• 즉시 업데이트하려면 <strong>"새로고침"</strong> 버튼을 누르세요</li>
                   </ul>
                 </div>
 
-                {/* 지원서/문의 탭 */}
+                {/* 전문가 등록/사업문의 탭 */}
                 <div>
-                  <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">📋 지원서 / 문의 탭</h3>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">📋 전문가 등록 / 사업문의 탭</h3>
                   <ul className="space-y-2 ml-1">
                     <li>• <strong>카드를 클릭</strong>하면 상세 정보를 볼 수 있습니다</li>
                     <li>• 상세 화면 아래에 <strong>큰 버튼 3개</strong>로 상태를 변경합니다:
@@ -1653,6 +1695,7 @@ export default function AdminPage() {
                     <li>• 회사별로 <strong>업로드된 파일</strong>을 확인할 수 있습니다</li>
                     <li>• <strong>회사 이름을 클릭</strong>하면 해당 회사의 파일 목록이 펼쳐집니다</li>
                     <li>• <strong>"다운로드"</strong> 버튼으로 파일을 받을 수 있습니다</li>
+                    <li>• <strong>"삭제"</strong> 버튼을 누르고 확인하면 저장소와 데이터베이스에서 파일이 함께 삭제됩니다</li>
                   </ul>
                 </div>
 
@@ -1682,7 +1725,7 @@ export default function AdminPage() {
                   <ul className="space-y-2 ml-1">
                     <li>• 등록된 <strong>전문가 프로필</strong>을 검색하고 관리합니다</li>
                     <li>• 상단 <strong>도메인 버튼</strong>으로 분야별 필터링이 가능합니다</li>
-                    <li>• 지원서가 승인되면 전문가로 등록할 수 있습니다</li>
+                    <li>• 전문가 등록 신청이 승인되면 전문가로 등록할 수 있습니다</li>
                   </ul>
                 </div>
 
@@ -1690,7 +1733,7 @@ export default function AdminPage() {
                 <div>
                   <h3 className="text-lg font-bold text-brand-navy dark:text-white mb-3">📈 통계 탭</h3>
                   <ul className="space-y-2 ml-1">
-                    <li>• <strong>월별 문의 건수 차트</strong>를 확인할 수 있습니다</li>
+                    <li>• <strong>월별 사업문의 건수 차트</strong>를 확인할 수 있습니다</li>
                     <li>• <strong>분야별 비율</strong>과 <strong>국가별 순위</strong>를 봅니다</li>
                     <li>• 전환율은 "연락완료 건수 / 전체 건수"를 의미합니다</li>
                   </ul>
@@ -1728,6 +1771,14 @@ export default function AdminPage() {
         item={selectedItem}
         type={tab as 'applications' | 'inquiries'}
         onStatusChange={handleStatusChange}
+      />
+      <ConfirmDialog
+        isOpen={!!fileToDelete}
+        onConfirm={handleFileDelete}
+        onCancel={() => setFileToDelete(null)}
+        title="첨부파일 삭제"
+        message={`“${fileToDelete?.name ?? ''}” 파일을 삭제하시겠습니까? 저장소와 데이터베이스에서 함께 삭제됩니다.`}
+        confirmLabel="삭제"
       />
     </div>
   )

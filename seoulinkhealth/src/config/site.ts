@@ -39,6 +39,14 @@ export const SITE_CONFIG = {
    */
   loginEnabled: import.meta.env.VITE_LOGIN_ENABLED === 'true',
 
+  /** Optional campaign banner. Hidden unless explicitly enabled. */
+  adBanner: {
+    enabled: import.meta.env.VITE_AD_BANNER_ENABLED === 'true',
+    label: import.meta.env.VITE_AD_BANNER_LABEL || 'SEOULINKHEALTH UPDATE',
+    message: import.meta.env.VITE_AD_BANNER_MESSAGE || 'Explore new partnership opportunities across Korea\'s health ecosystem.',
+    href: import.meta.env.VITE_AD_BANNER_HREF || '/request',
+  },
+
   // ─── Founder ──────────────────────────────────────────────────────────────
   founder: {
     name: 'Jinsoo Kim',
@@ -53,6 +61,7 @@ export const SITE_CONFIG = {
     'K-HEALTH INDUSTRY',
     'K-BIO',
     'K-HEALTH FOOD',
+    'K-BEAUTY',
   ] as const,
 
   // ─── Navigation ───────────────────────────────────────────────────────────
@@ -80,13 +89,13 @@ export const SITE_CONFIG = {
   admin: {
     labels: {
       // Tabs
-      applications: '지원서',
-      inquiries: '문의',
+      applications: '전문가 등록',
+      inquiries: '사업문의',
       // Stats
-      totalApplications: '전체 지원서',
-      totalInquiries: '전체 문의',
-      newApplications: '새 지원서',
-      newInquiries: '새 문의',
+      totalApplications: '전체 전문가 등록',
+      totalInquiries: '전체 사업문의',
+      newApplications: '새 전문가 등록',
+      newInquiries: '새 사업문의',
       unread: '건 미확인',
       // Statuses
       statusAll: '전체',

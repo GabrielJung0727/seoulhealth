@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, useId } from 'react'
 import type { UseFormRegister, UseFormSetValue, UseFormWatch, FieldValues, Path } from 'react-hook-form'
 import { EMAIL_DOMAINS } from '@/data/countries'
 
@@ -37,6 +37,7 @@ export default function EmailInput<T extends FieldValues>({
   className = '',
 }: EmailInputProps<T>) {
   const [open, setOpen] = useState(false)
+  const inputId = useId()
   const [activeIndex, setActiveIndex] = useState(-1)
   const listRef = useRef<HTMLUListElement>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -116,7 +117,7 @@ export default function EmailInput<T extends FieldValues>({
   return (
     <div className={className}>
       {/* Label */}
-      <label className="form-label">
+      <label htmlFor={inputId} className="form-label">
         {label}
         {required && <span className="text-red-500 ml-0.5" aria-hidden="true">*</span>}
       </label>
@@ -125,6 +126,9 @@ export default function EmailInput<T extends FieldValues>({
       <div className="relative">
         <input
           {...restRegister}
+          id={inputId}
+          aria-invalid={!!error}
+          aria-required={required}
           ref={(el) => {
             rhfRef(el)
             inputRef.current = el

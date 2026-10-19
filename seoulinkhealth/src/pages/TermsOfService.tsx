@@ -43,19 +43,6 @@ export default function TermsOfServicePage() {
       {/* Content */}
       <section className="bg-white py-16 lg:py-24">
         <div className="container-site max-w-3xl">
-          {/* Draft Disclaimer */}
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            custom={0.2}
-            variants={fadeUp}
-            className="mb-10 p-4 bg-amber-50 border border-amber-300 rounded-lg text-center"
-          >
-            <p className="text-amber-800 font-bold text-sm tracking-wide uppercase">
-              DRAFT — This document is a preliminary draft and is subject to revision.
-            </p>
-          </motion.div>
-
           <motion.div
             initial="hidden"
             animate="visible"
@@ -73,7 +60,7 @@ export default function TermsOfServicePage() {
             <div>
               <h2 className="text-xl font-bold text-brand-navy mb-3">2. Description of Services</h2>
               <p className="text-brand-muted text-sm leading-relaxed">
-                SEOULINKHEALTH provides a K-Health business platform connecting global partners with Korea's healthcare ecosystem. Our services include expert consultation, inquiry management, and professional networking across the domains of K-Health Care, K-Health Industry, K-Bio, and K-Health Food.
+                SEOULINKHEALTH provides a K-Health business platform connecting global partners with Korea's healthcare ecosystem. Our services include expert consultation, inquiry management, and professional networking across K-Health Care, K-Health Industry, K-Bio, K-Health Food, and K-Beauty.
               </p>
             </div>
 
@@ -115,11 +102,6 @@ export default function TermsOfServicePage() {
               </p>
             </div>
 
-            <div className="pt-4 border-t border-brand-border">
-              <p className="text-brand-muted text-xs">
-                Last updated: April 2026
-              </p>
-            </div>
           </motion.div>
         </div>
       </section>
