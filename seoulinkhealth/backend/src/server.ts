@@ -27,6 +27,11 @@ for (const key of REQUIRED_ENV) {
 /* ─── App ────────────────────────────────────────────────────────────────── */
 const app = express()
 
+/* ─── Trust proxy (Cloud Run / Cloudflare 뒤에 있을 때 필수) ──────────────── */
+// 1 = trust first proxy (X-Forwarded-For 헤더에서 실제 클라이언트 IP 추출)
+// 없으면 express-rate-limit가 ERR_ERL_UNEXPECTED_X_FORWARDED_FOR 던짐
+app.set('trust proxy', 1)
+
 /* ─── Security headers ───────────────────────────────────────────────────── */
 app.use(helmet({
   contentSecurityPolicy: false,
