@@ -3,4 +3,4 @@ Disallow: /admin
 Disallow: /login
 Disallow: /company/
 
-Sitemap: https://www.seoulinkhealth.com/sitemap.xml
+Sitemap: https://seoulinkhealth-demo-697835618104.asia-northeast3.run.app/sitemap.xml
