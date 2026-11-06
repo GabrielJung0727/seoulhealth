@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin
+Disallow: /login
+Disallow: /company/
+
+Sitemap: https://www.seoulinkhealth.com/sitemap.xml

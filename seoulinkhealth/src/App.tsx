@@ -1,25 +1,26 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { SITE_CONFIG } from '@/config/site'
 
 // ─── Pages ────────────────────────────────────────────────────────────────────
+// Home ships in the main bundle; every other route loads on demand
 import HomePage    from '@/pages/Home'
-import AboutPage   from '@/pages/About'
-import NetworkPage from '@/pages/Network'
-import ProcessPage from '@/pages/Process'
-import RequestPage from '@/pages/Request'
-import LoginPage   from '@/pages/Login'
-import AdminPage   from '@/pages/Admin'
-import NotFoundPage from '@/pages/NotFound'
-import PrivacyPolicyPage from '@/pages/PrivacyPolicy'
-import TermsOfServicePage from '@/pages/TermsOfService'
-import FAQPage from '@/pages/FAQ'
-import CompanyLoginPage from '@/pages/CompanyLogin'
-import CompanyRegisterPage from '@/pages/CompanyRegister'
-import CompanyResetPasswordPage from '@/pages/CompanyResetPassword'
-import CompanyDashboardPage from '@/pages/CompanyDashboard'
-import CompanyQAPage from '@/pages/CompanyQA'
+const AboutPage   = lazy(() => import('@/pages/About'))
+const NetworkPage = lazy(() => import('@/pages/Network'))
+const ProcessPage = lazy(() => import('@/pages/Process'))
+const RequestPage = lazy(() => import('@/pages/Request'))
+const LoginPage   = lazy(() => import('@/pages/Login'))
+const AdminPage   = lazy(() => import('@/pages/Admin'))
+const NotFoundPage = lazy(() => import('@/pages/NotFound'))
+const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicy'))
+const TermsOfServicePage = lazy(() => import('@/pages/TermsOfService'))
+const FAQPage = lazy(() => import('@/pages/FAQ'))
+const CompanyLoginPage = lazy(() => import('@/pages/CompanyLogin'))
+const CompanyRegisterPage = lazy(() => import('@/pages/CompanyRegister'))
+const CompanyResetPasswordPage = lazy(() => import('@/pages/CompanyResetPassword'))
+const CompanyDashboardPage = lazy(() => import('@/pages/CompanyDashboard'))
+const CompanyQAPage = lazy(() => import('@/pages/CompanyQA'))
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 import Layout from '@/components/layout/Layout'
@@ -46,6 +47,7 @@ function App() {
       </AnimatePresence>
 
       <BrowserRouter>
+        <Suspense fallback={null}>
         <Routes>
           {/* ── Public pages — shared Layout (Header + Footer) ── */}
           <Route element={<Layout />}>
@@ -104,6 +106,7 @@ function App() {
           {/* ── 404 ── */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </>
   )

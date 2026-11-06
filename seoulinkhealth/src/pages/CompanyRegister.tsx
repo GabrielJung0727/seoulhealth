@@ -100,7 +100,7 @@ export default function CompanyRegisterPage() {
         <div className="auth-brand">
           <Link to="/" aria-label="SEOULINKHEALTH Home">
             <img
-              src="/seoulinkhealth-logo-transparent.png"
+              src="/seoulinkhealth-logo-transparent.webp"
               alt="SEOULINKHEALTH — K-Health Business Platform"
               className="auth-brand-logo"
             />

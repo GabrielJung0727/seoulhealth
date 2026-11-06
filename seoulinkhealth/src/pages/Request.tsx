@@ -42,7 +42,7 @@ function RequestHero() {
       {/* Seoul skyline with N Seoul Tower at dusk — decorative background */}
       <img
         className="request-hero__image"
-        src="/images/seoulinkhealth-hero.png"
+        src="/images/seoulinkhealth-hero.webp"
         alt=""
         aria-hidden="true"
       />

@@ -2,6 +2,7 @@ import 'dotenv/config'
 import path from 'path'
 import express from 'express'
 import helmet from 'helmet'
+import compression from 'compression'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 
@@ -37,6 +38,9 @@ app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
 }))
+
+/* ─── Response compression ───────────────────────────────────────────────── */
+app.use(compression())
 
 /* ─── CORS ───────────────────────────────────────────────────────────────── */
 const allowedOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5173')
@@ -124,8 +128,21 @@ app.get('/api/health', (_req, res) => {
 /* ─── Serve frontend (production) ────────────────────────────────────────── */
 if (process.env.NODE_ENV === 'production') {
   const publicPath = path.join(__dirname, '..', 'public')
-  app.use(express.static(publicPath))
+  app.use(express.static(publicPath, {
+    setHeaders: (res, filePath) => {
+      // Vite hashes /assets filenames, so they can be cached forever.
+      // index.html must revalidate so a deploy reaches visitors immediately.
+      if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+      } else if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache')
+      } else {
+        res.setHeader('Cache-Control', 'public, max-age=86400')
+      }
+    },
+  }))
   app.get('*', (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache')
     res.sendFile(path.join(publicPath, 'index.html'))
   })
 } else {

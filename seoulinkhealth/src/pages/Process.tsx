@@ -62,7 +62,7 @@ const STEPS = COPY.map(([title, description, detail], index) => ({
   title,
   description,
   detail,
-  image: `/images/process/step-0${index + 1}.png`,
+  image: `/images/process/step-0${index + 1}.webp`,
   imageAlt: IMAGE_DESCRIPTIONS[index],
 }))
 const initialStep = () => Number(location.hash.match(/^#step-([1-7])$/)?.[1] || 1)
@@ -122,7 +122,7 @@ export default function ProcessPage() {
 function ProcessHeroVisual() {
   return (
     <div className="process-hero-visual" aria-hidden="true">
-      <img src="/images/seoulinkhealth-hero.png" alt="" />
+      <img src="/images/seoulinkhealth-hero.webp" alt="" />
       <svg viewBox="0 0 500 400" preserveAspectRatio="none">
         <path d="M170 420 Q230 5 500 5" />
       </svg>
