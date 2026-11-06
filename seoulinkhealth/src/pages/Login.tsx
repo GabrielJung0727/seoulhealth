@@ -65,7 +65,7 @@ export default function LoginPage() {
       {/* ── Background: Seoul skyline, dark institutional overlay, grid ── */}
       <img
         className="auth-bg-image"
-        src="/images/seoulinkhealth-hero.png"
+        src="/images/seoulinkhealth-hero.webp"
         alt=""
         aria-hidden="true"
       />
@@ -122,7 +122,7 @@ export default function LoginPage() {
         <div className="auth-brand">
           <Link to="/" aria-label="SEOULINKHEALTH Home">
             <img
-              src="/seoulinkhealth-logo-transparent.png"
+              src="/seoulinkhealth-logo-transparent.webp"
               alt="SEOULINKHEALTH — K-Health Business Platform"
               className="auth-brand-logo"
             />

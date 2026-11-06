@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import Header from './Header'
 import Footer from './Footer'
 import ScrollToTop from '@/components/ui/ScrollToTop'
@@ -20,17 +20,26 @@ export default function Layout() {
   const { pathname, hash } = useLocation()
 
   // On route change: scroll to the #hash target if present (e.g. /network#join),
-  // otherwise scroll to top. The target renders with the page, so wait a frame.
+  // otherwise scroll to top. Pages load on demand, so keep checking for the
+  // target for up to ~3s (180 frames) while the route chunk arrives.
   useEffect(() => {
     if (!hash) {
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
-    const frame = requestAnimationFrame(() => {
-      const target = document.getElementById(decodeURIComponent(hash.slice(1)))
-      if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' })
-      else window.scrollTo({ top: 0, behavior: 'instant' })
-    })
+    const id = decodeURIComponent(hash.slice(1))
+    let frame = 0
+    let attempts = 0
+    const findTarget = () => {
+      const target = document.getElementById(id)
+      if (target) {
+        target.scrollIntoView({ behavior: 'instant', block: 'start' })
+        return
+      }
+      if (attempts === 0) window.scrollTo({ top: 0, behavior: 'instant' })
+      if (++attempts < 180) frame = requestAnimationFrame(findTarget)
+    }
+    frame = requestAnimationFrame(findTarget)
     return () => cancelAnimationFrame(frame)
   }, [pathname, hash])
 
@@ -45,7 +54,10 @@ export default function Layout() {
         - Desktop: h-24 = 6rem
       */}
       <main id="main-content" className="flex-1 pt-16 lg:pt-24">
-        <Outlet />
+        {/* Keeps Header/Footer mounted while a route chunk loads */}
+        <Suspense fallback={<div className="min-h-screen" />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       <Footer />

@@ -71,7 +71,7 @@ export default function Header() {
             onClick={closeMobile}
           >
             <motion.img
-              src="/seoulinkhealth-logo-transparent.png"
+              src="/seoulinkhealth-logo-transparent.webp"
               alt="SeoulLinkHealth"
               className="h-[52px] lg:h-[78px] w-auto"
               whileHover={{ scale: 1.01 }}

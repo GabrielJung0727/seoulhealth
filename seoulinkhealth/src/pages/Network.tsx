@@ -23,7 +23,7 @@ export default function NetworkPage() {
 function NetworkHero() {
   return (
     <section className="network-hero">
-      <img className="network-hero__image" src="/images/seoulinkhealth-hero.png" alt="" />
+      <img className="network-hero__image" src="/images/seoulinkhealth-hero.webp" alt="" />
       <div className="container-site network-hero__inner">
         <div className="network-hero__copy">
           <span className="network-eyebrow">OUR EXPERT NETWORK</span>

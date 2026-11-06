@@ -9,7 +9,7 @@ export default function AuthBackground() {
       {/* ── Background: Seoul skyline, gradient overlay, architectural grid ── */}
       <img
         className="auth-bg-image"
-        src="/images/seoulinkhealth-hero.png"
+        src="/images/seoulinkhealth-hero.webp"
         alt=""
         aria-hidden="true"
       />
