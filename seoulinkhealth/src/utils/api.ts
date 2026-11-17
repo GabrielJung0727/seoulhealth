@@ -268,6 +268,22 @@ export async function updateInquiryStatus(
   return res.data as SubmissionItem
 }
 
+export async function deleteSubmission(
+  token: string,
+  kind: 'applications' | 'inquiries',
+  id: string
+): Promise<void> {
+  await api.delete(`/admin/${kind}/${id}`, token)
+}
+
+export async function changeAdminPassword(
+  token: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<void> {
+  await api.post('/admin/password', { currentPassword, newPassword }, token)
+}
+
 /* ─── Company Auth helpers ─────────────────────────────────────────────── */
 export interface CompanyRegisterData {
   companyName: string

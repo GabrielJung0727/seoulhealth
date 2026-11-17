@@ -22,7 +22,7 @@ export const SITE_CONFIG = {
   directorName: import.meta.env.VITE_DIRECTOR_NAME || 'Byung-Joo Kim',
 
   /** Company website URL */
-  website: import.meta.env.VITE_WEBSITE || 'https://www.seoulinkhealth.com',
+  website: import.meta.env.VITE_WEBSITE || 'https://seoulinkhealth.com',
 
   // ─── Address ──────────────────────────────────────────────────────────────
   address: {

@@ -154,6 +154,17 @@ model AdminNote {
   @@map("admin_notes")
 }
 
+// ─── Admin Credential ────────────────────────────────────────────────────────
+// Single row (id = 'admin') holding the dashboard-set admin password hash.
+// Created at runtime by src/lib/adminPassword.ts; falls back to ADMIN_PASSWORD when absent.
+model AdminCredential {
+  id           String   @id
+  passwordHash String   @map("password_hash")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("admin_credentials")
+}
+
 // ─── Projects ────────────────────────────────────────────────────────────────
 model Project {
   id             String    @id @default(cuid())

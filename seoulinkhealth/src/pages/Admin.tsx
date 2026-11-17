@@ -6,12 +6,14 @@ import { useToastStore } from '@/store/toastStore'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { SITE_CONFIG } from '@/config/site'
 import DetailModal from '@/components/admin/DetailModal'
+import ChangePasswordModal from '@/components/admin/ChangePasswordModal'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import {
   getApplications,
   getInquiries,
   updateApplicationStatus,
   updateInquiryStatus,
+  deleteSubmission,
   exportToCSV,
   adminGetQAThreads,
   adminReplyQA,
@@ -163,6 +165,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<{ applications: { total: number; new: number }; inquiries: { total: number; new: number } } | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedItem, setSelectedItem] = useState<SubmissionItem | null>(null)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
   const refreshRef = useRef<ReturnType<typeof setInterval>>()
 
   /* Documents state */
@@ -456,6 +459,18 @@ export default function AdminPage() {
     }
   }
 
+  /* Permanent delete handler (applications / inquiries) */
+  const handleSubmissionDelete = async (id: string) => {
+    try {
+      await deleteSubmission(token, tab as 'applications' | 'inquiries', id)
+      addToast({ type: 'success', message: '삭제되었습니다.' })
+      setSelectedItem(null)
+      fetchData()
+    } catch {
+      addToast({ type: 'error', message: '삭제에 실패했습니다.' })
+    }
+  }
+
   /* Q&A reply handler */
   const handleQAReply = async () => {
     if (!selectedThread || !replyText.trim()) return
@@ -595,7 +610,7 @@ export default function AdminPage() {
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
               </svg>
-              <span className="hidden sm:inline">도움말</span>
+              <span className="hidden xl:inline">도움말</span>
             </button>
             {/* FEATURE 4: Dark mode toggle */}
             <button
@@ -612,16 +627,27 @@ export default function AdminPage() {
                   <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                 </svg>
               )}
-              <span className="hidden sm:inline">{L.darkMode}</span>
+              <span className="hidden xl:inline">{L.darkMode}</span>
             </button>
             <button
               onClick={fetchData}
+              title={L.refresh}
               className="admin-btn border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                 <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
               </svg>
-              <span className="hidden sm:inline">{L.refresh}</span>
+              <span className="hidden xl:inline">{L.refresh}</span>
+            </button>
+            <button
+              onClick={() => setShowPasswordModal(true)}
+              className="admin-btn border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              title="비밀번호 변경"
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5" aria-hidden="true">
+                <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
+              </svg>
+              <span className="hidden xl:inline">비밀번호 변경</span>
             </button>
             <button
               onClick={handleSignOut}
@@ -1771,6 +1797,12 @@ export default function AdminPage() {
         item={selectedItem}
         type={tab as 'applications' | 'inquiries'}
         onStatusChange={handleStatusChange}
+        onDelete={handleSubmissionDelete}
+      />
+      <ChangePasswordModal
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        onChanged={() => addToast({ type: 'success', message: '비밀번호가 변경되었습니다. 다음 로그인부터 새 비밀번호를 사용하세요.' })}
       />
       <ConfirmDialog
         isOpen={!!fileToDelete}

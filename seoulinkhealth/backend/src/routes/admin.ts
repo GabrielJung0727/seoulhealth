@@ -1,10 +1,10 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body, param, query, validationResult } from 'express-validator'
-import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import prisma from '../lib/prisma'
 import { requireAuth, AuthRequest } from '../middleware/auth'
 import { createError } from '../middleware/errorHandler'
+import { verifyAdminPassword, setAdminPassword } from '../lib/adminPassword'
 
 const router = Router()
 
@@ -15,26 +15,91 @@ type Status = typeof VALID_STATUSES[number]
 router.post(
   '/login',
   [body('password').notEmpty().withMessage('Password is required.')],
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      return next(createError('Validation failed.', 400, errors.array()))
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const errors = validationResult(req)
+      if (!errors.isEmpty()) {
+        return next(createError('Validation failed.', 400, errors.array()))
+      }
+
+      if (!(await verifyAdminPassword(req.body.password))) {
+        return next(createError('Invalid credentials.', 401))
+      }
+
+      const token = jwt.sign({ sub: 'admin' }, process.env.JWT_SECRET!, {
+        expiresIn: '8h',
+      })
+
+      res.json({ success: true, token })
+    } catch (err) {
+      next(err)
     }
-
-    const { password } = req.body
-    const isValid = password.length === process.env.ADMIN_PASSWORD!.length &&
-      crypto.timingSafeEqual(Buffer.from(password), Buffer.from(process.env.ADMIN_PASSWORD!))
-    if (!isValid) {
-      return next(createError('Invalid credentials.', 401))
-    }
-
-    const token = jwt.sign({ sub: 'admin' }, process.env.JWT_SECRET!, {
-      expiresIn: '8h',
-    })
-
-    res.json({ success: true, token })
   }
 )
+
+/* ─── POST /api/admin/password ───────────────────────────────────────────── */
+router.post(
+  '/password',
+  requireAuth,
+  [
+    body('currentPassword').notEmpty().withMessage('Current password is required.'),
+    body('newPassword')
+      .isLength({ min: 10, max: 128 })
+      .withMessage('New password must be 10–128 characters.'),
+  ],
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const errors = validationResult(req)
+      if (!errors.isEmpty()) return next(createError('Validation failed.', 400, errors.array()))
+
+      const { currentPassword, newPassword } = req.body
+      if (!(await verifyAdminPassword(currentPassword))) {
+        return next(createError('Current password is incorrect.', 400))
+      }
+      if (currentPassword === newPassword) {
+        return next(createError('New password must differ from the current one.', 400))
+      }
+
+      await setAdminPassword(newPassword)
+      res.json({ success: true })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/* ─── DELETE /api/admin/:kind/:id (applications | inquiries) ─────────────── */
+// Permanently removes a submission together with its admin notes.
+const SUBMISSION_KINDS = {
+  applications: { noteType: 'application' },
+  inquiries: { noteType: 'inquiry' },
+} as const
+
+for (const [kind, { noteType }] of Object.entries(SUBMISSION_KINDS)) {
+  router.delete(
+    `/${kind}/:id`,
+    requireAuth,
+    [param('id').notEmpty()],
+    async (req: AuthRequest, res: Response, next: NextFunction) => {
+      try {
+        const id = req.params.id
+        const removeSubmission = kind === 'applications'
+          ? prisma.applicationSubmission.deleteMany({ where: { id } })
+          : prisma.inquirySubmission.deleteMany({ where: { id } })
+
+        const [, removed] = await prisma.$transaction([
+          prisma.adminNote.deleteMany({ where: { targetType: noteType, targetId: id } }),
+          removeSubmission,
+        ])
+        if (removed.count === 0) return next(createError('Submission not found.', 404))
+
+        res.json({ success: true })
+      } catch (err) {
+        next(err)
+      }
+    }
+  )
+}
 
 /* ─── GET /api/admin/applications ───────────────────────────────────────── */
 router.get(

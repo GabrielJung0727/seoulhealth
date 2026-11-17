@@ -99,6 +99,8 @@ const adminLimiter = rateLimit({
 })
 
 /* ─── Routes ─────────────────────────────────────────────────────────────── */
+// Admin credential endpoints get the strict brute-force limit
+app.use(['/api/auth/login', '/api/admin/login', '/api/admin/password'], authLimiter)
 app.use('/api/auth',    adminLimiter,      authRouter)    // POST /api/auth/login
 app.use('/api/apply',   submissionLimiter, applyRouter)
 app.use('/api/inquiry', submissionLimiter, inquiryRouter)

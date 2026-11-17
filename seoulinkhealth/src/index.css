@@ -485,7 +485,7 @@
   }
 
   .admin-btn {
-    @apply min-h-[48px] px-6 text-base font-bold rounded-xl
+    @apply min-h-[48px] px-6 text-base font-bold rounded-xl whitespace-nowrap
            transition-colors inline-flex items-center justify-center gap-2;
   }
 }
