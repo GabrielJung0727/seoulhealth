@@ -1,6 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body, param, query, validationResult } from 'express-validator'
 import jwt from 'jsonwebtoken'
+import fs from 'fs'
+import path from 'path'
 import prisma from '../lib/prisma'
 import { requireAuth, AuthRequest } from '../middleware/auth'
 import { createError } from '../middleware/errorHandler'
@@ -100,6 +102,105 @@ for (const [kind, { noteType }] of Object.entries(SUBMISSION_KINDS)) {
     }
   )
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPANY ACCOUNTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+// Same location the company file router writes uploads to.
+const FILES_BASE_DIR = process.env.FILES_DIR ?? '/app/data/files'
+
+/* ─── GET /api/admin/companies ──────────────────────────────────────────── */
+router.get(
+  '/companies',
+  requireAuth,
+  async (_req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const companies = await prisma.company.findMany({
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          companyName: true,
+          contactPerson: true,
+          email: true,
+          country: true,
+          industry: true,
+          createdAt: true,
+          _count: { select: { files: true, threads: true } },
+        },
+      })
+      const projectCounts = await prisma.project.groupBy({
+        by: ['companyId'],
+        _count: { _all: true },
+      })
+      const projectMap = Object.fromEntries(projectCounts.map((p) => [p.companyId, p._count._all]))
+
+      const data = companies.map(({ _count, ...c }) => ({
+        ...c,
+        fileCount: _count.files,
+        threadCount: _count.threads,
+        projectCount: projectMap[c.id] ?? 0,
+      }))
+
+      res.json({ success: true, data })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/* ─── DELETE /api/admin/companies/:id ───────────────────────────────────── */
+// Permanently removes a company account with its uploaded files (DB rows and
+// stored files), Q&A threads/messages and projects. The schema has no
+// onDelete cascade, so children are removed explicitly in one transaction.
+// Invoices are kept: they only store a free-text companyName (no companyId),
+// so they cannot be matched to an account safely and are financial records.
+router.delete(
+  '/companies/:id',
+  requireAuth,
+  [param('id').notEmpty()],
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const id = req.params.id
+      const company = await prisma.company.findUnique({
+        where: { id },
+        select: { id: true },
+      })
+      if (!company) return next(createError('Company not found.', 404))
+
+      const [messages, threads, files, projects] = await prisma.$transaction([
+        prisma.qAMessage.deleteMany({ where: { thread: { companyId: id } } }),
+        prisma.qAThread.deleteMany({ where: { companyId: id } }),
+        prisma.fileUpload.deleteMany({ where: { companyId: id } }),
+        prisma.project.deleteMany({ where: { companyId: id } }),
+        prisma.company.delete({ where: { id } }),
+      ])
+
+      // Remove stored files only after the DB commit succeeded.
+      const companyDir = path.resolve(FILES_BASE_DIR, id)
+      if (path.dirname(companyDir) === path.resolve(FILES_BASE_DIR)) {
+        try {
+          fs.rmSync(companyDir, { recursive: true, force: true })
+        } catch (err) {
+          console.error('[admin] failed to remove company files dir:', companyDir, err)
+        }
+      }
+
+      res.json({
+        success: true,
+        data: {
+          deleted: {
+            files: files.count,
+            threads: threads.count,
+            messages: messages.count,
+            projects: projects.count,
+          },
+        },
+      })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
 
 /* ─── GET /api/admin/applications ───────────────────────────────────────── */
 router.get(

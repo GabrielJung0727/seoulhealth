@@ -14,6 +14,8 @@ import {
   updateApplicationStatus,
   updateInquiryStatus,
   deleteSubmission,
+  adminGetCompanies,
+  adminDeleteCompany,
   exportToCSV,
   adminGetQAThreads,
   adminReplyQA,
@@ -33,10 +35,11 @@ import {
   type EmailLogItem,
   type AdminProject,
   type AdminExpert,
+  type AdminCompany,
 } from '@/utils/api'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
-type Tab = 'applications' | 'inquiries' | 'qa' | 'documents' | 'emailLogs' | 'projects' | 'experts' | 'analytics'
+type Tab = 'applications' | 'inquiries' | 'qa' | 'documents' | 'emailLogs' | 'projects' | 'experts' | 'companies' | 'analytics'
 type Status = 'New' | 'Reviewed' | 'Contacted'
 
 const L = SITE_CONFIG.admin.labels
@@ -202,6 +205,11 @@ export default function AdminPage() {
   const [expertSearch, setExpertSearch] = useState('')
   const [expertDomainFilter, setExpertDomainFilter] = useState('전체')
 
+  /* Company accounts state */
+  const [companies, setCompanies] = useState<AdminCompany[]>([])
+  const [companiesLoading, setCompaniesLoading] = useState(false)
+  const [companyToDelete, setCompanyToDelete] = useState<AdminCompany | null>(null)
+
   /* Analytics state */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [analyticsData, setAnalyticsData] = useState<any>(null)
@@ -309,6 +317,20 @@ export default function AdminPage() {
     }
   }, [token])
 
+  /* Fetch company accounts */
+  const fetchCompanies = useCallback(async () => {
+    try {
+      setCompaniesLoading(true)
+      const items = await adminGetCompanies(token)
+      setCompanies(Array.isArray(items) ? items : [])
+    } catch (err) {
+      console.error('[Admin] fetchCompanies error:', err)
+      setCompanies([])
+    } finally {
+      setCompaniesLoading(false)
+    }
+  }, [token])
+
   /* Fetch analytics */
   const fetchAnalytics = useCallback(async () => {
     try {
@@ -366,10 +388,11 @@ export default function AdminPage() {
       if (tab === 'emailLogs') fetchEmailLogs()
       if (tab === 'projects') fetchProjects()
       if (tab === 'experts') fetchExperts()
+      if (tab === 'companies') fetchCompanies()
       if (tab === 'analytics') fetchAnalytics()
     }, 30_000)
     return () => clearInterval(refreshRef.current)
-  }, [fetchData, fetchQAThreads, fetchFiles, fetchEmailLogs, fetchProjects, fetchExperts, fetchAnalytics, tab])
+  }, [fetchData, fetchQAThreads, fetchFiles, fetchEmailLogs, fetchProjects, fetchExperts, fetchCompanies, fetchAnalytics, tab])
 
   /* Fetch Q&A threads when Q&A tab is selected */
   useEffect(() => {
@@ -378,8 +401,9 @@ export default function AdminPage() {
     if (tab === 'emailLogs') fetchEmailLogs()
     if (tab === 'projects') fetchProjects()
     if (tab === 'experts') fetchExperts()
+    if (tab === 'companies') fetchCompanies()
     if (tab === 'analytics') fetchAnalytics()
-  }, [tab, fetchQAThreads, fetchFiles, fetchEmailLogs, fetchProjects, fetchExperts, fetchAnalytics])
+  }, [tab, fetchQAThreads, fetchFiles, fetchEmailLogs, fetchProjects, fetchExperts, fetchCompanies, fetchAnalytics])
 
   /* FEATURE 3: Alert badge — update browser tab title with new item count */
   useEffect(() => {
@@ -540,6 +564,27 @@ export default function AdminPage() {
     }
   }
 
+  /* Permanent company account delete */
+  const handleCompanyDelete = async () => {
+    if (!companyToDelete) return
+    const target = companyToDelete
+    try {
+      await adminDeleteCompany(token, target.id)
+      setCompanies((prev) => prev.filter((c) => c.id !== target.id))
+      setFileGroups((prev) => {
+        if (!prev[target.id]) return prev
+        const next = { ...prev }
+        delete next[target.id]
+        return next
+      })
+      addToast({ type: 'success', message: `“${target.companyName}” 계정을 삭제했습니다.` })
+    } catch {
+      addToast({ type: 'error', message: '기업 계정 삭제에 실패했습니다.' })
+    } finally {
+      setCompanyToDelete(null)
+    }
+  }
+
   /* Toggle company folder expand */
   const toggleCompanyExpand = (companyId: string) => {
     setExpandedCompanies((prev) => {
@@ -684,7 +729,7 @@ export default function AdminPage() {
 
         {/* ── Tabs ───────────────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center gap-3">
-          {(['applications', 'inquiries', 'qa', 'documents', 'emailLogs', 'projects', 'experts', 'analytics'] as Tab[]).map((t) => {
+          {(['applications', 'inquiries', 'qa', 'documents', 'emailLogs', 'projects', 'experts', 'companies', 'analytics'] as Tab[]).map((t) => {
             const label = t === 'applications' ? L.applications
               : t === 'inquiries' ? L.inquiries
               : t === 'qa' ? L.qa
@@ -692,6 +737,7 @@ export default function AdminPage() {
               : t === 'emailLogs' ? L.emailLogs
               : t === 'projects' ? L.projects
               : t === 'experts' ? L.experts
+              : t === 'companies' ? L.companies
               : L.analytics
 
             /* FEATURE 3: red badge for new items */
@@ -1467,6 +1513,46 @@ export default function AdminPage() {
         )}
 
         {/* ── Analytics Tab ────────────────────────────────────────────── */}
+        {/* ── Company Accounts Tab Content ───────────────────────────────── */}
+        {tab === 'companies' && (
+          <div className="space-y-4">
+            {companiesLoading && companies.length === 0 ? (
+              Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={`companies-sk-${i}`} />)
+            ) : companies.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-xl text-gray-400">등록된 기업 회원이 없습니다.</p>
+              </div>
+            ) : (
+              <ul className="space-y-3">
+                {companies.map((company) => (
+                  <li
+                    key={company.id}
+                    className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white truncate">{company.companyName}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                        {company.contactPerson} &middot; {company.email}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {company.country} &middot; {company.industry} &middot; 가입 {toKoreanDate(company.createdAt)}
+                        {' '}&middot; 파일 {company.fileCount} &middot; Q&amp;A {company.threadCount} &middot; 프로젝트 {company.projectCount}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setCompanyToDelete(company)}
+                      className="admin-btn bg-white dark:bg-gray-800 border-2 border-red-200 text-red-600 hover:bg-red-50 text-sm self-start sm:self-center"
+                      aria-label={`${company.companyName} 계정 삭제`}
+                    >
+                      계정 삭제
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
         {tab === 'analytics' && (
           <div className="space-y-6">
             {analyticsLoading && !analyticsData ? (
@@ -1811,6 +1897,16 @@ export default function AdminPage() {
         title="첨부파일 삭제"
         message={`“${fileToDelete?.name ?? ''}” 파일을 삭제하시겠습니까? 저장소와 데이터베이스에서 함께 삭제됩니다.`}
         confirmLabel="삭제"
+      />
+      <ConfirmDialog
+        isOpen={!!companyToDelete}
+        onConfirm={handleCompanyDelete}
+        onCancel={() => setCompanyToDelete(null)}
+        title="기업 계정 삭제"
+        message={companyToDelete
+          ? `“${companyToDelete.companyName}” 계정을 영구 삭제하시겠습니까? 업로드 파일 ${companyToDelete.fileCount}개, Q&A ${companyToDelete.threadCount}건, 프로젝트 ${companyToDelete.projectCount}건이 함께 삭제되며 되돌릴 수 없습니다.`
+          : ''}
+        confirmLabel="영구 삭제"
       />
     </div>
   )

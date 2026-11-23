@@ -276,6 +276,28 @@ export async function deleteSubmission(
   await api.delete(`/admin/${kind}/${id}`, token)
 }
 
+export interface AdminCompany {
+  id: string
+  companyName: string
+  contactPerson: string
+  email: string
+  country: string
+  industry: string
+  createdAt: string
+  fileCount: number
+  threadCount: number
+  projectCount: number
+}
+
+export async function adminGetCompanies(token: string): Promise<AdminCompany[]> {
+  const res = await api.get<AdminCompany[]>('/admin/companies', token)
+  return (res.data ?? []) as AdminCompany[]
+}
+
+export async function adminDeleteCompany(token: string, id: string): Promise<void> {
+  await api.delete(`/admin/companies/${id}`, token)
+}
+
 export async function changeAdminPassword(
   token: string,
   currentPassword: string,
@@ -711,11 +733,6 @@ export async function companyGetProjects(token: string): Promise<ProjectItem[]> 
   } catch {
     return []
   }
-}
-
-export async function adminGetCompanies(token: string): Promise<CompanyBasic[]> {
-  const res = await api.get<CompanyBasic[]>('/admin/companies', token)
-  return (res.data ?? []) as CompanyBasic[]
 }
 
 export interface EmailLogItem {
