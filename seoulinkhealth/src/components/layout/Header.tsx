@@ -8,7 +8,7 @@ import { useCompanyAuthStore } from '@/store/companyAuthStore'
  * SEOULINKHEALTH — Main Header / Navigation Bar
  *
  * Features:
- * - Scroll detection: transparent → white + shadow
+ * - White bar with navy text
  * - Framer Motion hover underline animation (desktop)
  * - Framer Motion AnimatePresence slide-down mobile drawer
  * - Active link highlight via useLocation()
@@ -52,7 +52,7 @@ export default function Header() {
 
       <header
         role="banner"
-        className="fixed top-0 left-0 right-0 z-50 bg-[#061829]/95 backdrop-blur-md border-b border-white/15"
+        className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-brand-border shadow-sm"
       >
         {/* Skip-to-content for keyboard accessibility */}
         <a
@@ -66,7 +66,7 @@ export default function Header() {
           {/* ── Logo ─────────────────────────────────────────────────────────── */}
           <Link
             to="/"
-            className="block shrink-0 mr-6 rounded-lg bg-white px-2 py-1 lg:px-3 lg:py-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.25)] ring-1 ring-white/60"
+            className="block shrink-0 mr-6"
             aria-label="SEOULINKHEALTH — Home"
             onClick={closeMobile}
           >
@@ -115,7 +115,7 @@ export default function Header() {
                         'px-5 py-2 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-300 rounded-sm',
                         a
                           ? 'bg-brand-gold text-brand-navy border-brand-gold'
-                          : 'border-white/60 text-white hover:bg-brand-gold hover:text-brand-navy hover:border-brand-gold',
+                          : 'border-brand-navy/60 text-brand-navy hover:bg-brand-navy hover:text-white hover:border-brand-navy',
                       ].join(' ')
                     }
                   >
@@ -134,17 +134,17 @@ export default function Header() {
             aria-controls="mobile-menu"
           >
             <motion.span
-              className="block w-6 h-0.5 bg-white origin-center rounded-full"
+              className="block w-6 h-0.5 bg-brand-navy origin-center rounded-full"
               animate={mobileOpen ? { rotate: 45, y: 5.5 } : { rotate: 0, y: 0 }}
               transition={{ duration: 0.25, ease: 'easeInOut' }}
             />
             <motion.span
-              className="block w-6 h-0.5 bg-white rounded-full"
+              className="block w-6 h-0.5 bg-brand-navy rounded-full"
               animate={mobileOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
               transition={{ duration: 0.2 }}
             />
             <motion.span
-              className="block w-6 h-0.5 bg-white origin-center rounded-full"
+              className="block w-6 h-0.5 bg-brand-navy origin-center rounded-full"
               animate={mobileOpen ? { rotate: -45, y: -5.5 } : { rotate: 0, y: 0 }}
               transition={{ duration: 0.25, ease: 'easeInOut' }}
             />
@@ -251,7 +251,7 @@ function DesktopNavLink({ to, label, active }: DesktopNavLinkProps) {
       <span
         className={[
           'text-[0.78rem] font-bold tracking-[0.12em] uppercase transition-colors duration-200',
-          active ? 'text-brand-gold' : 'text-white group-hover:text-brand-gold',
+          active ? 'text-brand-gold' : 'text-brand-navy group-hover:text-brand-gold',
         ].join(' ')}
       >
         {label}

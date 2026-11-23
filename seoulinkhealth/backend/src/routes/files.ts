@@ -1,15 +1,14 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import multer, { FileFilterCallback } from 'multer'
 import path from 'path'
-import fs from 'fs'
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import prisma from '../lib/prisma'
 import { requireAuth, AuthRequest } from '../middleware/auth'
 import { createError } from '../middleware/errorHandler'
+import { fileStorage } from '../lib/fileStorage'
 
 /* ─── Constants ─────────────────────────────────────────────────────────── */
-const FILES_BASE_DIR = process.env.FILES_DIR ?? '/app/data/files'
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
 const MAX_FILES_PER_UPLOAD = 5
 
@@ -74,18 +73,32 @@ function requireCompanyAuth(
 }
 
 /* ─── Multer Configuration ──────────────────────────────────────────────── */
-const storage = multer.diskStorage({
-  destination: (req: CompanyAuthRequest, _file, cb) => {
-    const companyDir = path.join(FILES_BASE_DIR, req.companyId ?? 'unknown')
-    fs.mkdirSync(companyDir, { recursive: true })
-    cb(null, companyDir)
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase()
-    const uuid = crypto.randomUUID()
-    cb(null, `${uuid}${ext}`)
-  },
-})
+// Files are held in memory (max 5 × 10 MB) and then written to fileStorage
+const storage = multer.memoryStorage()
+
+const STORED_NAME_RE = /^[\w-]+\.\w+$/
+
+/** Streams a stored file to the client as an attachment download. */
+async function sendStoredFile(
+  file: { companyId: string; storedName: string; originalName: string; mimeType: string },
+  res: Response,
+  next: NextFunction
+) {
+  // Validate stored filename format to prevent path traversal
+  if (!STORED_NAME_RE.test(file.storedName)) {
+    return next(createError('Invalid file.', 400))
+  }
+  const stream = await fileStorage.open(file.companyId, file.storedName)
+  if (!stream) return next(createError('File not found in storage.', 404))
+
+  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.originalName)}"`)
+  res.setHeader('Content-Type', file.mimeType)
+  stream.on('error', (err) => {
+    if (res.headersSent) res.destroy(err)
+    else next(err)
+  })
+  stream.pipe(res)
+}
 
 const fileFilter = (
   _req: Request,
@@ -148,13 +161,31 @@ fileCompanyRouter.post(
         return next(createError('No files uploaded.', 400))
       }
 
-      const records = await Promise.all(
-        files.map((file) =>
+      const companyId = req.companyId!
+      const named = files.map((file) => ({
+        file,
+        storedName: `${crypto.randomUUID()}${path.extname(file.originalname).toLowerCase()}`,
+      }))
+
+      try {
+        await Promise.all(
+          named.map(({ file, storedName }) =>
+            fileStorage.save(companyId, storedName, file.buffer, file.mimetype)
+          )
+        )
+      } catch (err) {
+        // Don't leave half an upload behind
+        await Promise.allSettled(named.map(({ storedName }) => fileStorage.remove(companyId, storedName)))
+        throw err
+      }
+
+      const records = await prisma.$transaction(
+        named.map(({ file, storedName }) =>
           prisma.fileUpload.create({
             data: {
-              companyId: req.companyId!,
+              companyId,
               originalName: file.originalname,
-              storedName: file.filename,
+              storedName,
               mimeType: file.mimetype,
               size: file.size,
             },
@@ -202,19 +233,7 @@ fileCompanyRouter.get(
         return next(createError('Access denied.', 403))
       }
 
-      // Validate stored filename format to prevent path traversal
-      if (!/^[\w-]+\.\w+$/.test(file.storedName)) {
-        return next(createError('Invalid file.', 400))
-      }
-
-      const filePath = path.join(FILES_BASE_DIR, file.companyId, file.storedName)
-      if (!fs.existsSync(filePath)) {
-        return next(createError('File not found on disk.', 404))
-      }
-
-      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.originalName)}"`)
-      res.setHeader('Content-Type', file.mimeType)
-      res.sendFile(path.resolve(filePath))
+      await sendStoredFile(file, res, next)
     } catch (err) {
       next(err)
     }
@@ -236,10 +255,9 @@ fileCompanyRouter.delete(
         return next(createError('Access denied.', 403))
       }
 
-      // Delete from disk
-      const filePath = path.join(FILES_BASE_DIR, file.companyId, file.storedName)
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath)
+      // Delete from storage
+      if (STORED_NAME_RE.test(file.storedName)) {
+        await fileStorage.remove(file.companyId, file.storedName)
       }
 
       // Delete from DB
@@ -335,19 +353,7 @@ fileAdminRouter.get(
 
       if (!file) return next(createError('File not found.', 404))
 
-      // Validate stored filename format to prevent path traversal
-      if (!/^[\w-]+\.\w+$/.test(file.storedName)) {
-        return next(createError('Invalid file.', 400))
-      }
-
-      const filePath = path.join(FILES_BASE_DIR, file.companyId, file.storedName)
-      if (!fs.existsSync(filePath)) {
-        return next(createError('File not found on disk.', 404))
-      }
-
-      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.originalName)}"`)
-      res.setHeader('Content-Type', file.mimeType)
-      res.sendFile(path.resolve(filePath))
+      await sendStoredFile(file, res, next)
     } catch (err) {
       next(err)
     }
@@ -365,10 +371,9 @@ fileAdminRouter.delete(
 
       if (!file) return next(createError('File not found.', 404))
 
-      // Delete from disk
-      const filePath = path.join(FILES_BASE_DIR, file.companyId, file.storedName)
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath)
+      // Delete from storage
+      if (STORED_NAME_RE.test(file.storedName)) {
+        await fileStorage.remove(file.companyId, file.storedName)
       }
 
       // Delete from DB
