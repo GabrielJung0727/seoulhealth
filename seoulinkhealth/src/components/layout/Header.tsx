@@ -66,21 +66,21 @@ export default function Header() {
           {/* ── Logo ─────────────────────────────────────────────────────────── */}
           <Link
             to="/"
-            className="block shrink-0 mr-6"
+            className="block shrink-0 mr-4 xl:mr-6"
             aria-label="SEOULINKHEALTH — Home"
             onClick={closeMobile}
           >
             <motion.img
               src="/seoulinkhealth-logo-transparent.webp"
               alt="SeoulLinkHealth"
-              className="h-[46px] lg:h-[70px] w-auto"
+              className="h-[46px] lg:h-[58px] xl:h-[70px] w-auto"
               whileHover={{ scale: 1.01 }}
               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             />
           </Link>
 
           {/* ── Desktop Navigation ───────────────────────────────────────────── */}
-          <ul className="hidden lg:flex items-center gap-8" role="navigation">
+          <ul className="hidden lg:flex items-center gap-5 xl:gap-8" role="navigation">
             {SITE_CONFIG.navLinks.map((link) => (
               <li key={link.href}>
                 <DesktopNavLink
@@ -97,7 +97,7 @@ export default function Header() {
                     to="/company/dashboard"
                     className={({ isActive: a }) =>
                       [
-                        'flex items-center gap-2 px-4 py-2 text-xs font-bold tracking-[0.08em] border transition-all duration-300 rounded-sm',
+                        'flex items-center gap-2 px-4 py-2 text-xs font-bold tracking-[0.08em] whitespace-nowrap border transition-all duration-300 rounded-sm',
                         a
                           ? 'bg-brand-gold text-brand-navy border-brand-gold'
                           : 'border-brand-gold/50 text-brand-gold hover:bg-brand-gold hover:text-brand-navy',
@@ -112,7 +112,7 @@ export default function Header() {
                     to="/company/login"
                     className={({ isActive: a }) =>
                       [
-                        'px-5 py-2 text-xs font-bold tracking-[0.15em] uppercase border transition-all duration-300 rounded-sm',
+                        'px-4 xl:px-5 py-2 text-xs font-bold tracking-[0.12em] xl:tracking-[0.15em] whitespace-nowrap uppercase border transition-all duration-300 rounded-sm',
                         a
                           ? 'bg-brand-gold text-brand-navy border-brand-gold'
                           : 'border-brand-navy/60 text-brand-navy hover:bg-brand-navy hover:text-white hover:border-brand-navy',
@@ -250,7 +250,7 @@ function DesktopNavLink({ to, label, active }: DesktopNavLinkProps) {
     >
       <span
         className={[
-          'text-[0.78rem] font-bold tracking-[0.12em] uppercase transition-colors duration-200',
+          'text-[0.72rem] xl:text-[0.78rem] font-bold tracking-[0.1em] xl:tracking-[0.12em] whitespace-nowrap uppercase transition-colors duration-200',
           active ? 'text-brand-gold' : 'text-brand-navy group-hover:text-brand-gold',
         ].join(' ')}
       >
