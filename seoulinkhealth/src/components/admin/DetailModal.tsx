@@ -14,6 +14,8 @@ interface Props {
   item: SubmissionItem | null
   type: Tab
   onStatusChange: (id: string, status: Status) => Promise<void>
+  /** Permanently deletes the submission. The button is hidden when omitted. */
+  onDelete?: (id: string) => Promise<void>
 }
 
 const STATUS_MAP: Record<Status, { label: string; bg: string; ring: string; text: string }> = {
@@ -43,8 +45,10 @@ function Field({ label, value }: { label: string; value: string | null | undefin
   )
 }
 
-export default function DetailModal({ isOpen, onClose, item, type, onStatusChange }: Props) {
+export default function DetailModal({ isOpen, onClose, item, type, onStatusChange, onDelete }: Props) {
   const [confirmStatus, setConfirmStatus] = useState<Status | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [updating, setUpdating] = useState(false)
   const [notes, setNotes] = useState<AdminNoteItem[]>([])
   const [noteText, setNoteText] = useState('')
@@ -248,6 +252,15 @@ export default function DetailModal({ isOpen, onClose, item, type, onStatusChang
                 >
                   {L.print}
                 </button>
+                {onDelete && (
+                  <button
+                    onClick={() => setConfirmDelete(true)}
+                    disabled={deleting}
+                    className="min-h-[44px] sm:min-h-[48px] px-4 sm:px-6 text-sm sm:text-base font-bold rounded-xl border-2 border-red-300 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-40"
+                  >
+                    {deleting ? '삭제 중...' : '삭제'}
+                  </button>
+                )}
                 <div className="flex-1" />
                 <button
                   onClick={onClose}
@@ -267,6 +280,23 @@ export default function DetailModal({ isOpen, onClose, item, type, onStatusChang
         message={L.confirmStatusChange}
         onConfirm={handleConfirm}
         onCancel={() => setConfirmStatus(null)}
+      />
+      <ConfirmDialog
+        isOpen={confirmDelete}
+        title="데이터 삭제"
+        message={`“${item?.fullName ?? ''}” 님의 ${type === 'applications' ? '지원서' : '문의'}를 삭제하시겠습니까? 삭제하면 복구할 수 없습니다.`}
+        confirmLabel="삭제"
+        onConfirm={async () => {
+          if (!item || !onDelete) return
+          setConfirmDelete(false)
+          setDeleting(true)
+          try {
+            await onDelete(item.id)
+          } finally {
+            setDeleting(false)
+          }
+        }}
+        onCancel={() => setConfirmDelete(false)}
       />
     </>
   )

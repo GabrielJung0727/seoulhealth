@@ -254,6 +254,22 @@ export async function updateApplicationStatus(
   return res.data as SubmissionItem
 }
 
+export async function adminDeleteSubmission(
+  token: string,
+  type: 'applications' | 'inquiries',
+  id: string
+): Promise<void> {
+  await api.delete(`/admin/${type}/${id}`, token)
+}
+
+export async function adminChangePassword(
+  token: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<void> {
+  await api.post('/admin/password', { currentPassword, newPassword }, token)
+}
+
 export async function updateInquiryStatus(
   token: string,
   id: string,

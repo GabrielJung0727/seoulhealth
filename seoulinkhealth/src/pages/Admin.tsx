@@ -19,6 +19,8 @@ import {
   adminGetAllFiles,
   adminDownloadFile,
   adminDeleteFile,
+  adminDeleteSubmission,
+  adminChangePassword,
   adminGetEmailLogs,
   adminGetProjects,
   adminGetExperts,
@@ -456,6 +458,46 @@ export default function AdminPage() {
     }
   }
 
+  /* Delete submission handler */
+  const handleDeleteSubmission = async (id: string) => {
+    try {
+      await adminDeleteSubmission(token, tab as 'applications' | 'inquiries', id)
+      addToast({ type: 'success', message: '삭제되었습니다.' })
+      setSelectedItem(null)
+      fetchData()
+    } catch {
+      addToast({ type: 'error', message: '삭제에 실패했습니다.' })
+    }
+  }
+
+  /* Change admin password */
+  const [pwOpen, setPwOpen] = useState(false)
+  const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' })
+  const [pwError, setPwError] = useState('')
+  const [pwSaving, setPwSaving] = useState(false)
+  const closePwModal = () => {
+    setPwOpen(false)
+    setPwForm({ current: '', next: '', confirm: '' })
+    setPwError('')
+  }
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (pwForm.next.length < 8) return setPwError('새 비밀번호는 8자 이상이어야 합니다.')
+    if (pwForm.next !== pwForm.confirm) return setPwError('새 비밀번호가 서로 일치하지 않습니다.')
+    setPwSaving(true)
+    setPwError('')
+    try {
+      await adminChangePassword(token, pwForm.current, pwForm.next)
+      addToast({ type: 'success', message: '비밀번호가 변경되었습니다. 다음 로그인부터 새 비밀번호를 사용하세요.' })
+      closePwModal()
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      setPwError(/incorrect|401/i.test(msg) ? '현재 비밀번호가 올바르지 않습니다.' : '비밀번호 변경에 실패했습니다.')
+    } finally {
+      setPwSaving(false)
+    }
+  }
+
   /* Q&A reply handler */
   const handleQAReply = async () => {
     if (!selectedThread || !replyText.trim()) return
@@ -580,12 +622,12 @@ export default function AdminPage() {
     <div className={`admin-layout min-h-screen bg-gray-50 dark:bg-gray-900 no-print ${darkMode ? 'dark' : ''}`}>
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <header className="bg-white dark:bg-gray-800 border-b-2 border-gray-100 dark:border-gray-700 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-brand-navy dark:text-white">SEOULINKHEALTH</h1>
             <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">{L.loginSubtitle}</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {/* Help modal */}
             <button
               onClick={() => setShowHelp(true)}
@@ -622,6 +664,16 @@ export default function AdminPage() {
                 <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
               </svg>
               <span className="hidden sm:inline">{L.refresh}</span>
+            </button>
+            <button
+              onClick={() => setPwOpen(true)}
+              className="admin-btn border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              title="비밀번호 변경"
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              </svg>
+              <span className="hidden sm:inline">비밀번호 변경</span>
             </button>
             <button
               onClick={handleSignOut}
@@ -1771,7 +1823,57 @@ export default function AdminPage() {
         item={selectedItem}
         type={tab as 'applications' | 'inquiries'}
         onStatusChange={handleStatusChange}
+        onDelete={handleDeleteSubmission}
       />
+      <AnimatePresence>
+        {pwOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
+            onClick={closePwModal}
+          >
+            <motion.form
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              onSubmit={handleChangePassword}
+              className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 space-y-4"
+              aria-label="관리자 비밀번호 변경"
+            >
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">관리자 비밀번호 변경</h2>
+              {([
+                ['current', '현재 비밀번호', 'current-password'],
+                ['next', '새 비밀번호 (8자 이상)', 'new-password'],
+                ['confirm', '새 비밀번호 확인', 'new-password'],
+              ] as const).map(([key, label, ac]) => (
+                <label key={key} className="block">
+                  <span className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">{label}</span>
+                  <input
+                    type="password"
+                    autoComplete={ac}
+                    required
+                    value={pwForm[key]}
+                    onChange={(e) => setPwForm((f) => ({ ...f, [key]: e.target.value }))}
+                    className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-3 text-base focus:border-brand-teal outline-none"
+                  />
+                </label>
+              ))}
+              {pwError && <p role="alert" className="text-sm font-bold text-red-600">{pwError}</p>}
+              <div className="flex gap-3 justify-end pt-2">
+                <button type="button" onClick={closePwModal} className="admin-btn border-2 border-gray-200 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                  취소
+                </button>
+                <button type="submit" disabled={pwSaving} className="admin-btn bg-brand-navy text-white hover:bg-brand-teal disabled:opacity-40">
+                  {pwSaving ? '변경 중...' : '변경하기'}
+                </button>
+              </div>
+            </motion.form>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <ConfirmDialog
         isOpen={!!fileToDelete}
         onConfirm={handleFileDelete}

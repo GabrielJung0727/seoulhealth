@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { body, validationResult } from 'express-validator'
 import jwt, { type SignOptions } from 'jsonwebtoken'
 import { createError } from '../middleware/errorHandler'
+import { verifyAdminPassword } from '../lib/adminPassword'
 
 const router = Router()
 
@@ -16,7 +17,7 @@ const router = Router()
 router.post(
   '/login',
   [body('password').notEmpty().withMessage('Password is required.')],
-  (req: Request, res: Response, next: NextFunction): void => {
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
       return next(createError('Validation failed.', 400, errors.array()))
@@ -29,8 +30,12 @@ router.post(
       return next(createError('Server configuration error.', 500))
     }
 
-    if (password !== process.env.ADMIN_PASSWORD) {
-      return next(createError('Invalid credentials.', 401))
+    try {
+      if (!(await verifyAdminPassword(String(password)))) {
+        return next(createError('Invalid credentials.', 401))
+      }
+    } catch (err) {
+      return next(err)
     }
 
     const expiresIn = (process.env.JWT_EXPIRES as SignOptions['expiresIn'] | undefined) ?? '8h'
