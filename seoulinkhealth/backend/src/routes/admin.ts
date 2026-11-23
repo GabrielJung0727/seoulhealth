@@ -1,10 +1,10 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body, param, query, validationResult } from 'express-validator'
-import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import prisma from '../lib/prisma'
 import { requireAuth, AuthRequest } from '../middleware/auth'
 import { createError } from '../middleware/errorHandler'
+import { setAdminPassword, verifyAdminPassword } from '../lib/adminPassword'
 
 const router = Router()
 
@@ -15,25 +15,88 @@ type Status = typeof VALID_STATUSES[number]
 router.post(
   '/login',
   [body('password').notEmpty().withMessage('Password is required.')],
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      return next(createError('Validation failed.', 400, errors.array()))
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const errors = validationResult(req)
+      if (!errors.isEmpty()) {
+        return next(createError('Validation failed.', 400, errors.array()))
+      }
+
+      const { password } = req.body
+      if (!(await verifyAdminPassword(String(password)))) {
+        return next(createError('Invalid credentials.', 401))
+      }
+
+      const token = jwt.sign({ sub: 'admin' }, process.env.JWT_SECRET!, {
+        expiresIn: '8h',
+      })
+
+      res.json({ success: true, token })
+    } catch (err) {
+      next(err)
     }
-
-    const { password } = req.body
-    const isValid = password.length === process.env.ADMIN_PASSWORD!.length &&
-      crypto.timingSafeEqual(Buffer.from(password), Buffer.from(process.env.ADMIN_PASSWORD!))
-    if (!isValid) {
-      return next(createError('Invalid credentials.', 401))
-    }
-
-    const token = jwt.sign({ sub: 'admin' }, process.env.JWT_SECRET!, {
-      expiresIn: '8h',
-    })
-
-    res.json({ success: true, token })
   }
+)
+
+/* ─── POST /api/admin/password — change the admin password ───────────────── */
+router.post(
+  '/password',
+  requireAuth,
+  [
+    body('currentPassword').notEmpty().withMessage('Current password is required.'),
+    body('newPassword')
+      .isLength({ min: 8, max: 128 })
+      .withMessage('New password must be 8–128 characters.'),
+  ],
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const errors = validationResult(req)
+      if (!errors.isEmpty()) return next(createError('Validation failed.', 400, errors.array()))
+
+      const { currentPassword, newPassword } = req.body
+      if (!(await verifyAdminPassword(String(currentPassword)))) {
+        return next(createError('Current password is incorrect.', 401))
+      }
+      await setAdminPassword(String(newPassword))
+      res.json({ success: true })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/* ─── DELETE /api/admin/applications/:id and /inquiries/:id ───────────────── */
+async function deleteSubmission(
+  kind: 'application' | 'inquiry',
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const id = req.params.id
+    const existing =
+      kind === 'application'
+        ? await prisma.applicationSubmission.findUnique({ where: { id } })
+        : await prisma.inquirySubmission.findUnique({ where: { id } })
+    if (!existing) return next(createError('Not found.', 404))
+
+    await prisma.$transaction([
+      prisma.adminNote.deleteMany({ where: { targetType: kind, targetId: id } }),
+      kind === 'application'
+        ? prisma.applicationSubmission.delete({ where: { id } })
+        : prisma.inquirySubmission.delete({ where: { id } }),
+    ])
+    res.json({ success: true })
+  } catch (err) {
+    next(err)
+  }
+}
+
+router.delete('/applications/:id', requireAuth, (req: AuthRequest, res: Response, next: NextFunction) =>
+  deleteSubmission('application', req, res, next)
+)
+router.delete('/inquiries/:id', requireAuth, (req: AuthRequest, res: Response, next: NextFunction) =>
+  deleteSubmission('inquiry', req, res, next)
 )
 
 /* ─── GET /api/admin/applications ───────────────────────────────────────── */

@@ -66,14 +66,14 @@ export default function Header() {
           {/* ── Logo ─────────────────────────────────────────────────────────── */}
           <Link
             to="/"
-            className="block shrink-0"
+            className="block shrink-0 mr-6 rounded-lg bg-white px-2 py-1 lg:px-3 lg:py-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.25)] ring-1 ring-white/60"
             aria-label="SEOULINKHEALTH — Home"
             onClick={closeMobile}
           >
             <motion.img
               src="/seoulinkhealth-logo-transparent.webp"
               alt="SeoulLinkHealth"
-              className="h-[52px] lg:h-[78px] w-auto"
+              className="h-[46px] lg:h-[70px] w-auto"
               whileHover={{ scale: 1.01 }}
               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             />
