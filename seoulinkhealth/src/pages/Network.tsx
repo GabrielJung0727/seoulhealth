@@ -3,6 +3,7 @@ import { SITE_CONFIG } from '@/config/site'
 import { INDUSTRIES } from '@/data/industries'
 import ApplicationFormModal from '@/components/modals/ApplicationFormModal'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import DotGlobe from '@/components/ui/DotGlobe'
 import './Network.css'
 
 export default function NetworkPage() {
@@ -121,53 +122,12 @@ function JoinNetworkSection({ onApply }: { onApply: () => void }) {
 function GlobalNetworkGraphic() {
   return (
     <figure className="network-globe">
-      <svg
-        viewBox="0 0 560 520"
-        role="img"
-        aria-labelledby="network-globe-title network-globe-desc"
-      >
-        <title id="network-globe-title">Connecting expertise through Seoul</title>
-        <desc id="network-globe-desc">
-          A conceptual global network connecting Seoul with Asia, Europe, and North America. Not a
-          map of confirmed service locations.
-        </desc>
-        <g fill="none" stroke="#c5b68f" strokeWidth=".8">
-          <circle cx="280" cy="250" r="195" />
-          <ellipse cx="280" cy="250" rx="130" ry="195" />
-          <ellipse cx="280" cy="250" rx="58" ry="195" />
-          <ellipse cx="280" cy="250" rx="195" ry="65" />
-          <ellipse cx="280" cy="250" rx="195" ry="130" />
-          <path d="M85 250H475M280 55V445" />
-          <circle cx="280" cy="250" r="218" strokeDasharray="2 9" opacity=".5" />
-        </g>
-        <g fill="none" stroke="#af853d" strokeWidth="1.4">
-          <path d="M390 208Q248 41 150 205M390 208Q330 77 273 153M390 208Q461 275 335 330" />
-        </g>
-        <g fill="#0b2742">
-          <circle cx="150" cy="205" r="4" />
-          <circle cx="273" cy="153" r="4" />
-          <circle cx="335" cy="330" r="4" />
-        </g>
-        <circle cx="390" cy="208" r="17" fill="#c99a3d" opacity=".12" />
-        <circle cx="390" cy="208" r="6" fill="#a87927" />
-        <g fill="#526071" fontFamily="Inter, sans-serif" fontSize="13" letterSpacing="2">
-          <text x="58" y="186">
-            NORTH AMERICA
-          </text>
-          <text x="250" y="135">
-            EUROPE
-          </text>
-          <text x="350" y="352">
-            ASIA
-          </text>
-          <text x="412" y="208" fill="#875d20" fontWeight="700">
-            SEOUL
-          </text>
-          <text x="280" y="496" textAnchor="middle">
-            GLOBAL NETWORK · SHARED EXPERTISE
-          </text>
-        </g>
-      </svg>
+      <DotGlobe
+        direction="out"
+        className="network-globe__canvas"
+        ariaLabel="A rotating globe showing expertise spreading from Seoul to cities around the world. Conceptual illustration, not a map of service locations."
+      />
+      <p className="network-globe__tag">GLOBAL NETWORK · SHARED EXPERTISE</p>
       <figcaption>
         Expertise without borders.
         <br />

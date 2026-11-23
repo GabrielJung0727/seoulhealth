@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { SITE_CONFIG } from '@/config/site'
 import InquiryFormModal from '@/components/modals/InquiryFormModal'
+import DotGlobe from '@/components/ui/DotGlobe'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import './Request.css'
 
@@ -133,13 +134,6 @@ function RequestContent({ onInquire }: { onInquire: () => void }) {
 }
 
 /* ─── Seoul-centred global advisory visual ───────────────────────────────── */
-const REGIONS = [
-  { name: 'NORTH AMERICA', node: [165, 205], label: [70, 186], arc: 'M440 212Q300 40 165 205' },
-  { name: 'EUROPE', node: [298, 162], label: [256, 144], arc: 'M440 212Q372 104 298 162' },
-  { name: 'MIDDLE EAST', node: [338, 262], label: [252, 292], arc: 'M440 212Q404 276 338 262' },
-  { name: 'OCEANIA', node: [462, 370], label: [480, 375], arc: 'M440 212Q512 292 462 370' },
-] as const
-
 function AdvisoryGlobe() {
   return (
     <figure className="request-globe">
@@ -155,53 +149,11 @@ function AdvisoryGlobe() {
           IMPACT.
         </p>
       </div>
-      <svg viewBox="0 0 600 520" role="img" aria-labelledby="request-globe-title request-globe-desc">
-        <title id="request-globe-title">Global insights, local impact — advising from Seoul</title>
-        <desc id="request-globe-desc">
-          A conceptual advisory network with Seoul as the primary hub, connected to North America,
-          Europe, the Middle East and Oceania. Not a map of confirmed office locations.
-        </desc>
-        <g className="request-globe__grid">
-          <circle cx="320" cy="260" r="210" />
-          <ellipse cx="320" cy="260" rx="140" ry="210" />
-          <ellipse cx="320" cy="260" rx="62" ry="210" />
-          <ellipse cx="320" cy="260" rx="210" ry="70" />
-          <ellipse cx="320" cy="260" rx="210" ry="140" />
-          <path d="M110 260H530M320 50V470" />
-          <circle cx="320" cy="260" r="234" className="request-globe__orbit" />
-        </g>
-        <g className="request-globe__arcs">
-          {REGIONS.map((r) => (
-            <path key={r.name} d={r.arc} pathLength={1} />
-          ))}
-        </g>
-        <g className="request-globe__nodes">
-          {REGIONS.map((r) => (
-            <circle key={r.name} cx={r.node[0]} cy={r.node[1]} r="4" />
-          ))}
-        </g>
-        <g className="request-globe__hub">
-          <circle cx="440" cy="212" r="26" className="request-globe__halo" />
-          <circle cx="440" cy="212" r="14" className="request-globe__glow" />
-          <circle cx="440" cy="212" r="6.5" />
-        </g>
-        <g className="request-globe__labels">
-          {REGIONS.map((r) => (
-            <text key={r.name} x={r.label[0]} y={r.label[1]}>
-              {r.name}
-            </text>
-          ))}
-          <text x="466" y="206" className="request-globe__seoul">
-            SEOUL
-          </text>
-          <text x="466" y="224" className="request-globe__sub">
-            PRIMARY HUB
-          </text>
-          <text x="320" y="508" textAnchor="middle" className="request-globe__sub">
-            SEOUL-CENTERED ADVISORY NETWORK
-          </text>
-        </g>
-      </svg>
+      <DotGlobe
+        className="request-globe__canvas"
+        ariaLabel="A rotating globe showing advisory requests travelling from cities around the world to Seoul, the primary hub. Conceptual illustration, not a map of office locations."
+      />
+      <figcaption className="request-globe__caption">SEOUL-CENTERED ADVISORY NETWORK</figcaption>
     </figure>
   )
 }

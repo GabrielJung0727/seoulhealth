@@ -206,9 +206,20 @@
   min-width: 0;
   margin: 0;
 }
-.network-globe svg {
+.network-globe__canvas {
+  display: block;
   width: 100%;
-  height: auto;
+  aspect-ratio: 1 / 1;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.network-globe__tag {
+  margin-top: 4px;
+  text-align: center;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #526071;
 }
 .network-globe figcaption {
   text-align: center;
